@@ -1,57 +1,34 @@
-import React, {useCallback} from "react";
+import React, {useCallback, useMemo} from "react";
 import {render} from "react-dom";
-import {action, observable} from "mobx";
 import {observer} from "mobx-react";
 import useForm from "react-hook-form";
 
-class Hero {
-    id: number;
-    private static counter: number = 0;
-
-    constructor(public name: string) {
-        this.id = Hero.counter++;
-    }
-}
-
-class AppStore {
-    @observable heroes: Hero[] = [];
-    @observable name: string = "test";
-
-    @action
-    addHero(hero: Hero) {
-        this.heroes.push(hero);
-    }
-}
-
-const appStore = new AppStore();
-
-const storeContext = React.createContext<AppStore | null>(null);
-
-const useAppStore = () => {
-    const store = React.useContext(storeContext);
-    if (!store) {
-        throw new Error('useAppStore must be used within a StoreProvider');
-    }
-    return store;
-};
-
-const StateProvider: React.FC = ({children}) => {
-    return <storeContext.Provider value={appStore}>{children}</storeContext.Provider>
-};
+import "./app.scss";
+import {StateProvider, useAppStore} from "./state";
+import {CellModel, Hero} from "./model";
+import {useComputed} from "mobx-react-lite";
 
 
 const HeroList: React.FC = observer(() => {
     const appStore = useAppStore();
 
-    return  <div><ul>
-        {appStore.heroes.map( hero => <li key={hero.id}><span>{hero.id}: {hero.name}</span></li>)}
-    </ul></div>
+    let selectedHero = appStore.selected;
+
+    if (appStore.heroes.length === 0) {
+        return <div>Create heroes to get started</div>
+    }
+
+    return  <div>
+        <ul>
+            <li><span>Selection: {selectedHero !== null ? selectedHero.toString() : "Click on any hero to select him"}</span></li>
+            {appStore.heroes.map( hero => <li key={hero.id}><button onClick={() => appStore.selected = hero}>{hero.id}: {hero.name}</button></li>)}
+        </ul>
+    </div>
 });
 
-const AddHero: React.FC = () => {
+function AddHero() {
     const appStore = useAppStore();
     const form = useForm();
-    console.log(form);
     const onSubmit = useCallback(
         form.handleSubmit(({name}) => {
             appStore.addHero(new Hero(name));
@@ -70,15 +47,54 @@ const AddHero: React.FC = () => {
         })}/>
         {form.errors.name && form.errors.name.message}
     </form>
-};
+}
+
+const Board = observer(() => {
+    const appStore = useAppStore();
+
+    const onClick = useComputed(
+        () => {
+            let selected = appStore.selected;
+
+            return (cell: CellModel) => {
+                if (selected === null && cell.unit === null) return undefined;
+                if (cell.unit === null) return () => cell.unit = selected;
+                // if (cell.unit !== null)
+                return () => appStore.selected = cell.unit;
+            }
+        },
+        []
+    );
+
+    return <div>
+        {appStore.board.map( (row,y) => <div key={y} className="columns">
+            {row.map( cell => <div className="column" key={cell.x}><Cell cell={cell} getInteraction={onClick} /></div> )}
+        </div>)}
+    </div>
+});
+
+interface CellProp {
+    cell: CellModel,
+    getInteraction: (cell: CellModel) => ((() => any) | undefined),
+}
+
+const Cell = observer(({cell, getInteraction} : CellProp) => {
+    let unit = cell.unit;
+    const onClick = useMemo(() => getInteraction(cell), [getInteraction]);
+
+    return <button disabled={onClick === undefined} onClick={onClick}>{String(cell)}: {unit !== null ? unit.toString() : "empty"}</button>
+});
 
 render(
     <StateProvider>
-        <div>
-            <div>🌹</div>
-            <AddHero />
-            <HeroList />
-        </div>
+        <section className="section">
+            <div className="container">
+                <div>🌹</div>
+                <AddHero />
+                <HeroList />
+                <Board />
+            </div>
+        </section>
     </StateProvider>,
     document.getElementById("app")
 );
