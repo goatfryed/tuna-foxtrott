@@ -1,0 +1,1 @@
+Educational project about mobx, typiescript and sass
