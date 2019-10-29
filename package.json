@@ -2,12 +2,12 @@
   "name": "tuna",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "dist/app.js",
   "scripts": {
     "develop": "webpack-dev-server"
   },
   "keywords": [],
-  "author": "",
+  "author": "Omar <goatfryed> Sood",
   "license": "ISC",
   "devDependencies": {
     "@babel/core": "^7.6.4",
@@ -19,7 +19,6 @@
     "@types/react-dom": "^16.9.3",
     "babel-loader": "^8.0.6",
     "clean-webpack-plugin": "^3.0.0",
-    "copy-webpack-plugin": "^5.0.4",
     "html-webpack-plugin": "^3.2.0",
     "mobx": "^5.14.2",
     "mobx-react": "^6.1.4",
@@ -31,5 +30,13 @@
     "webpack": "^4.41.2",
     "webpack-cli": "^3.3.9",
     "webpack-dev-server": "^3.9.0"
+  },
+  "babel": {
+    "presets": [
+      "@babel/preset-env",
+      "@babel/preset-react",
+      "@babel/preset-typescript"
+    ],
+    "plugins": []
   }
 }
