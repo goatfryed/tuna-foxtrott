@@ -11,6 +11,8 @@
   "license": "ISC",
   "devDependencies": {
     "@babel/core": "^7.6.4",
+    "@babel/plugin-proposal-class-properties": "^7.5.5",
+    "@babel/plugin-proposal-decorators": "^7.6.0",
     "@babel/preset-env": "^7.6.3",
     "@babel/preset-react": "^7.6.3",
     "@babel/preset-typescript": "^7.6.0",
@@ -25,6 +27,7 @@
     "mobx-react-lite": "^1.5.0",
     "react": "^16.11.0",
     "react-dom": "^16.11.0",
+    "react-hook-form": "^3.26.2",
     "tslib": "^1.10.0",
     "typescript": "^3.6.4",
     "webpack": "^4.41.2",
@@ -37,6 +40,9 @@
       "@babel/preset-react",
       "@babel/preset-typescript"
     ],
-    "plugins": []
+    "plugins": [
+      ["@babel/plugin-proposal-decorators", { "legacy": true }],
+      ["@babel/plugin-proposal-class-properties", { "loose" : true }]
+    ]
   }
 }
