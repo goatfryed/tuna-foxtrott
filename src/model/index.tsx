@@ -1,18 +1,32 @@
 import {action, observable} from "mobx";
 
-export class Hero {
-    id: number;
+export interface UnitDefinition {
+    name: string;
+}
+
+export interface ActionOption {
+    name: string,
+    getActionForCell: (cell: Cell) => (() => any) | null,
+}
+
+export class PlayerUnit implements UnitDefinition {
     private static counter: number = 0;
 
-    constructor(public name: string) {
-        this.id = Hero.counter++;
+    @observable readonly actions: ActionOption[] = [];
+    id: number;
+    // @ts-ignore // Object.assign assigns this definitely
+    readonly name: string;
+
+    constructor(definition: UnitDefinition, readonly player: Player) {
+        Object.assign(this, definition);
+        this.id = PlayerUnit.counter++;
     }
-
-    @observable private _cell: CellModel | null = null;
+    @observable private _cell: Cell | null = null;
     get cell() {return this._cell;}
-    set cell(cell: CellModel | null) {this.setCell(cell);}
 
-    @action private setCell(cell: CellModel | null) {
+    set cell(cell: Cell | null) {this.setCell(cell);}
+
+    @action private setCell(cell: Cell | null) {
         if (cell == this._cell) return;
 
         let lastCell = this._cell;
@@ -26,17 +40,31 @@ export class Hero {
         }
     }
 
-    toString() { return this.name;}
+    toString() {
+        return this.name + "(" + this.player.name + ")";
+    }
 }
 
-export class CellModel {
+export class Player {
+    @observable readonly units: PlayerUnit[] = [];
+
+    constructor(public name: string) {}
+
+    @action addUnit(unit: UnitDefinition) {
+        let playerUnit = new PlayerUnit(unit, this);
+        this.units.push(playerUnit);
+        return playerUnit;
+    }
+}
+
+export class Cell {
 
     constructor(public x: number, public  y: number) {}
 
-    @observable private _unit: Hero | null = null;
+    @observable private _unit: PlayerUnit | null = null;
     get unit() {return this._unit;}
-    set unit(unit: Hero | null) {this.setUnit(unit);}
-    @action private setUnit(unit: Hero | null) {
+    set unit(unit: PlayerUnit | null) {this.setUnit(unit);}
+    @action private setUnit(unit: PlayerUnit | null) {
         if (unit == this._unit) return;
 
         let lastUnit = this._unit;
@@ -55,25 +83,22 @@ export class CellModel {
     }
 }
 
-export type Board = CellModel[][];
+export type Board = Cell[][];
 
 export class AppStore {
     @observable name: string = "test";
-    @observable heroes: Hero[] = [];
-    @observable selected: Hero | null = null;
+    @observable currentPlayer: Player | null = null;
+    @observable activeUnit: PlayerUnit | null = null;
     board: Board  = [];
+    readonly players: Player[] = [];
 
-    constructor(public sizeX: number, public sizeY: number) {
+    constructor(readonly sizeX: number, readonly sizeY: number, readonly user: Player) {
+        this.players.push(user);
         for (let y = 0; y < sizeY; y++) {
             this.board[y] = [];
             for (let x = 0; x < sizeX; x++) {
-                this.board[y][x] = new CellModel(x,y);
+                this.board[y][x] = new Cell(x,y);
             }
         }
-    }
-
-    @action
-    addHero(hero: Hero) {
-        this.heroes.push(hero);
     }
 }
