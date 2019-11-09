@@ -1,7 +1,11 @@
+
+const DefinePlugin = require('webpack').DefinePlugin;
 const path = require('path');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+
+const environment = process.env.NODE_ENV || 'development';
 
 module.exports = {
     output: {
@@ -13,10 +17,10 @@ module.exports = {
         extensions: ['.ts', '.tsx', '.js', '.jsx'],
     },
 
-    mode: process.env.NODE_ENV || 'development',
+    mode: environment,
 
     entry: {
-        app: './src/index.tsx',
+        app: './src/',
     },
 
     optimization: {
@@ -84,6 +88,9 @@ module.exports = {
         }),
         new MiniCssExtractPlugin({
             filename: "css/[name].css"
+        }),
+        new DefinePlugin({
+            __DEVELOPMENT__: Boolean(environment === "development")
         })
     ],
 
@@ -92,5 +99,5 @@ module.exports = {
         hot: true,
     },
 
-    devtool: 'cheap-module-source-map',
-}
+    devtool: 'source-map',
+};

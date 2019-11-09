@@ -4,12 +4,12 @@
   "description": "",
   "main": "dist/app.js",
   "scripts": {
-    "develop": "webpack-dev-server"
+    "develop": "webpack-dev-server --open"
   },
   "keywords": [],
   "author": "Omar <goatfryed> Sood",
   "license": "ISC",
-  "devDependencies": {
+  "dependencies": {
     "@babel/core": "^7.6.4",
     "@babel/plugin-proposal-class-properties": "^7.5.5",
     "@babel/plugin-proposal-decorators": "^7.6.0",
@@ -39,6 +39,10 @@
     "typescript": "^3.6.4",
     "webpack": "^4.41.2",
     "webpack-cli": "^3.3.9",
+    "classnames": "^2.2.6"
+  },
+  "devDependencies": {
+    "@types/classnames": "^2.2.9",
     "webpack-dev-server": "^3.9.0"
   },
   "babel": {
