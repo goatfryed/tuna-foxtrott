@@ -1,8 +1,13 @@
 import {DependencyList, useLayoutEffect} from "react";
+import * as React from "react";
 
 type KeyboardEventListener = (e: KeyboardEvent) => any;
 
-export function useKeyboardListener(listener: KeyboardEventListener | null, deps?: DependencyList) {
+export function useKeyPress<T extends GlobalEventHandlers>(
+    listener: KeyboardEventListener | null,
+    deps?: DependencyList,
+    ref?: React.RefObject<T | null>
+) {
     if (deps === undefined) {
         deps = [listener];
     }
@@ -10,7 +15,17 @@ export function useKeyboardListener(listener: KeyboardEventListener | null, deps
     useLayoutEffect(
         () => {
             if (listener) {
-                document.addEventListener("keypress", listener);
+                let source: GlobalEventHandlers;
+                if (ref) {
+                    if (ref.current) {
+                        source = ref.current;
+                    } else {
+                        return;
+                    }
+                } else {
+                    source = document;
+                }
+                source.addEventListener("keypress", listener);
                 return () => document.removeEventListener("keypress", listener);
             }
         },

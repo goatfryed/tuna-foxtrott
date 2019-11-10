@@ -1,2 +1,47 @@
 @charset "utf-8";
 @import "~bulma/bulma";
+
+.board-viewport {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.board {
+  display: flex;
+  width: min-content;
+  height: min-content;
+  flex-direction: column;
+  flex-wrap: nowrap;
+  justify-content: center;
+  // transform: rotateX(60deg) rotateY(0deg) rotateZ(30deg);
+
+  .row {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    justify-content: center;
+  }
+}
+
+.cell {
+  @extend .button;
+  height: 10rem;
+  width: 10rem;
+  white-space: normal;
+}
+
+.unit-list {
+  display: flex;
+  width: auto;
+  max-height: 4rem;
+  flex-direction: column;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  align-items: flex-start;
+  align-content: flex-start;
+
+  .unit-entry {
+
+  }
+}

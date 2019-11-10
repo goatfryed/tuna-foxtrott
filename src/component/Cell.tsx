@@ -123,14 +123,17 @@ const mapButtonInteractionToStyle = {
 function CellView({cell, onClick, type}: CellViewProps) {
 
     const cellLabel = useObserver(() => String(cell) + " " + (cell.unit !== null ? cell.unit.toString() : "empty"));
-    const className = classNames("button", (type !== undefined) && mapButtonInteractionToStyle[type]);
+    const className = classNames(
+        "cell",
+        (type !== undefined) && mapButtonInteractionToStyle[type],
+    );
 
     return <button
         className={className}
-        disabled={onClick === undefined}
         onClick={onClick}
+        disabled={onClick === undefined}
         onContextMenu={onClick}
     >
-        c1:{cellLabel}
+        <span>c1:{cellLabel}</span>
     </button>
 }
