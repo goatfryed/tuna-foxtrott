@@ -9,18 +9,32 @@ export interface ActionOption {
     getActionForCell: (cell: Cell) => (() => any) | null,
 }
 
-export class PlayerUnit implements UnitDefinition {
-    private static counter: number = 0;
+export class Unit implements UnitDefinition {
 
-    @observable readonly actions: ActionOption[] = [];
+    protected static counter: number = 0;
     id: number;
-    // @ts-ignore // Object.assign assigns this definitely
     readonly name: string;
 
-    constructor(definition: UnitDefinition, readonly player: Player) {
-        Object.assign(this, definition);
-        this.id = PlayerUnit.counter++;
+    constructor(definition: UnitDefinition | Unit) {
+        const {name, id} = definition as Unit;
+        this.name = name;
+        this.id = id !== undefined ? id : PlayerUnit.counter++;
     }
+
+    toString() {
+        return `${this.name}`;
+    }
+}
+
+export class PlayerUnit extends Unit {
+
+    @observable readonly actions: ActionOption[] = [];
+    // @ts-ignore // Object.assign assigns this definitely
+
+    constructor(definition: UnitDefinition, readonly player: Player) {
+        super(definition);
+    }
+
     @observable private _cell: Cell | null = null;
     get cell() {return this._cell;}
 
@@ -38,10 +52,6 @@ export class PlayerUnit implements UnitDefinition {
         if (cell !== null) {
             cell.unit = this;
         }
-    }
-
-    toString() {
-        return this.name + "(" + this.player.name + ")";
     }
 }
 

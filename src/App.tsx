@@ -1,56 +1,65 @@
-import {Player, PlayerUnit, UnitDefinition} from "./model";
+import {PlayerUnit, UnitDefinition} from "./model";
 import {useAppStore} from "./state";
 import useForm from "react-hook-form";
 import React, {useCallback, useState} from "react";
-import {useObserver} from "mobx-react-lite";
-import {observer} from "mobx-react";
+import {useLocalStore, useObserver} from "mobx-react-lite";
 import {Board} from "./component/Board";
+import {make} from "./helpers";
+import classNames from "classnames";
 
-function UnitEntry(props: { onClick: () => PlayerUnit, hero: PlayerUnit }) {
+function UnitEntry({hero, adventure}: {hero: PlayerUnit} & AdventureAware) {
+
+    const included = useObserver(() => adventure.heroes.includes(hero));
+
+    const onClick = useCallback(
+        () => {
+            if (!included) {
+                adventure.heroes.push(hero)
+            } else {
+                adventure.heroes = adventure.heroes.filter(h => h !== hero);
+            }
+        },
+        [hero, adventure, included]
+    );
+
+    const buttonClass = classNames(
+        "button is-small",
+        adventure.heroes.includes(hero) ? "is-success" : "is-primary"
+    );
+
     return <div className="unit-entry">
-        <button className="button is-small" onClick={props.onClick}>{props.hero.id}: {props.hero.name}</button>
+        <button className={buttonClass} onClick={onClick}>{hero.name}</button>
     </div>;
 }
 
-const HeroList: React.FC = observer(() => {
+function HeroList({adventure} : AdventureAware) {
+
     const appStore = useAppStore();
 
-    if (appStore.user.units.length === 0) {
-        return <div>Create heroes to get started</div>
-    }
-
-    return <div className="unit-list">
-        {appStore.user.units.map(hero => <UnitEntry
-            key={hero.id} onClick={() => appStore.activeUnit = hero}
-            hero={hero}
-        />)}
-    </div>
-});
-
-function createHero(user: Player, definition: UnitDefinition) {
-    const playerUnit = user.addUnit(definition);
-
-    playerUnit.actions.push({
-        name: "attack",
-        getActionForCell: cell => {
-            if (cell.unit === null || cell.unit.player === playerUnit.player) {
-                return null;
-            }
-
-            return () => alert("bäm");
+    return useObserver(() => {
+        if (appStore.user.units.length === 0) {
+            return <div>Create heroes to get started</div>
         }
+        return <div className="unit-list">
+            {appStore.user.units.map((hero,key) => <UnitEntry
+                key={key} adventure={adventure} hero={hero}
+            />)}
+        </div>
     });
 }
 
-function AddHero() {
-    const appStore = useAppStore();
+interface AdventureAware {
+    adventure: AdventureModel
+}
+
+function AddHero(props: {onHeroCreation: (unit: UnitDefinition) => any} & AdventureAware) {
     const form = useForm();
     const onSubmit = useCallback(
         form.handleSubmit(({name}) => {
-            createHero(appStore.user, {name});
+            props.onHeroCreation({name});
             form.reset();
         }),
-        []
+        [props.onHeroCreation]
     );
 
     return <form onSubmit={onSubmit}>
@@ -63,6 +72,33 @@ function AddHero() {
         })}/>
         {form.errors.name && form.errors.name.message}
     </form>
+}
+
+function AdventureSelection(props: { onAdventureSelected: (adventure: AdventureModel) => void }) {
+
+    const adventure = useLocalStore<AdventureModel>(make({
+        heroes: [],
+    }));
+
+    const appStore = useAppStore();
+
+    const createHero = useCallback(
+        (unit: UnitDefinition) => {
+            appStore.user.addUnit(unit);
+        },
+        []
+    );
+
+    const startHandler = useCallback(
+        () => props.onAdventureSelected(adventure),
+        [props.onAdventureSelected, adventure]
+    );
+
+    return <>
+        <AddHero onHeroCreation={createHero} adventure={adventure}/>
+        <div><HeroList adventure={adventure}/></div>
+        <div><button onClick={startHandler}>Start adventure</button></div>
+    </>;
 }
 
 export function App() {
@@ -79,18 +115,16 @@ export function App() {
             <div>🌹</div>
             <div><span>Selection: {selectionLabel}</span></div>
             {adventure === null ?
-                <>
-                    <div><AddHero/></div>
-                    <div><HeroList/></div>
-                    <div><button onClick={() => setAdventure(new AdventureModel())}>Select</button></div>
-                </>
+                <AdventureSelection onAdventureSelected={adventure => setAdventure(adventure)}/>
                 : <AdventureView adventure={adventure} />
             }
         </div>
     </section>
 }
 
-class AdventureModel {}
+interface AdventureModel {
+    heroes: PlayerUnit[],
+}
 
 interface AdventureProps {
     adventure: AdventureModel
