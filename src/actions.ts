@@ -1,8 +1,8 @@
 import {Cell, PlayerUnit} from "./model";
 import {Adventure} from "./model/Adventure";
 
-export function selectAction(appStore: Adventure, unit: PlayerUnit) {
-    return () => appStore.activeUnit = unit;
+export function selectAction(adventure: Adventure, unit: PlayerUnit) {
+    return () => adventure.activeUnit = unit;
 }
 
 export function moveAction(activeUnit: PlayerUnit, cell: Cell) {
@@ -14,6 +14,6 @@ export function attackAction(activeUnit: PlayerUnit, unit: PlayerUnit) {
     return () => alert("B#m")
 }
 
-export function unselectAction(appStore: Adventure) {
-    return () => appStore.activeUnit = null;
+export function unselectAction(adventure: Adventure) {
+    return () => adventure.activeUnit = null;
 }
