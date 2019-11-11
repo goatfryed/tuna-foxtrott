@@ -2,6 +2,7 @@ import {useObserver} from "mobx-react-lite";
 import {ControlledCell} from "./Cell";
 import React, {useLayoutEffect, useMemo, useRef} from "react";
 import {Adventure, AdventureAware} from "../model/Adventure";
+import {AnyKeyBoardEvent, useDocumentKeyPressHandler} from "./hooks";
 
 export function Board({adventure}: AdventureAware) {
 
@@ -19,7 +20,7 @@ export function Board({adventure}: AdventureAware) {
 
     return useObserver(
         () => <div ref={viewport} className="board-viewport"
-           onKeyPress={useDocumentWideAdventureKeyPressHandler(adventure)}
+           onKeyPress={useAdventureKeyPressHandler(adventure)}
         >
                 <div ref={board} className="board">
                 {adventure.board.map((row, y) => <div key={y} className="row">
@@ -29,8 +30,6 @@ export function Board({adventure}: AdventureAware) {
         </div>
     )
 }
-
-type AnyKeyBoardEvent = React.KeyboardEvent | KeyboardEvent;
 
 type StoreAwareKeyboardEventHandler = (adventure: Adventure, event: AnyKeyBoardEvent) => void;
 
@@ -68,30 +67,13 @@ function switchActiveUnit(adventure: Adventure, direction: number) {
     }
 }
 
-function useDocumentWideAdventureKeyPressHandler(adventure: Adventure) {
-    const handler = useAdventureKeyPressHandler(adventure);
-
-    useLayoutEffect(
-        () => {
-            const noTargetHandler = (event: AnyKeyBoardEvent) => {
-                if (event.target === document.body) {
-                    handler(event);
-                }
-            };
-            document.addEventListener("keypress", noTargetHandler);
-            return () => document.removeEventListener("keypress", noTargetHandler);
-        },
-        [handler]
-    );
-
-    return handler;
-}
-
 function useAdventureKeyPressHandler(adventure: Adventure) {
-    return useMemo(
+    const handler = useMemo(
         () => {
             const boundHandlers = keyPressHandlers.map(
-                f => ((event: AnyKeyBoardEvent) => {f.apply(null, [adventure, event])})
+                f => ((event: AnyKeyBoardEvent) => {
+                    f.apply(null, [adventure, event])
+                })
             );
             return (event: AnyKeyBoardEvent) => {
                 for (const handler of boundHandlers) {
@@ -100,6 +82,9 @@ function useAdventureKeyPressHandler(adventure: Adventure) {
                 }
             }
         }
-        ,[adventure, keyPressHandlers]
-    )
+        , [adventure, keyPressHandlers]
+    );
+    useDocumentKeyPressHandler(handler);
+    return handler;
 }
+
