@@ -4,6 +4,7 @@ import {AppContextProvider} from "../state";
 import {AppContext, Player} from "../model";
 import {createThugTown} from "../adventure/ThugTown";
 import {action} from "@storybook/addon-actions";
+import {boolean, withKnobs} from "@storybook/addon-knobs";
 
 const user = new Player("Karli");
 const appContext = new AppContext(user);
@@ -15,6 +16,7 @@ export default {
     title: "Adventuring",
     component: AdventureView,
     decorators: [
+        withKnobs,
         Story => <AppContextProvider context={appContext}><Story /></AppContextProvider>,
     ],
     parameters: {
@@ -30,5 +32,9 @@ export function thugTown() {
     bower.cell = thugTownAdventure.board[1][0];
     macel.cell = thugTownAdventure.board[2][0];
 
-    return <AdventureView adventure={thugTownAdventure} onSurrender={action("onSurrender")}/>
+    return <AdventureView
+        adventure={thugTownAdventure}
+        onSurrender={action("onSurrender")}
+        isIsometric={boolean("Isometric", false)}
+    />
 }

@@ -5,7 +5,7 @@ import {Adventure} from "../model/Adventure";
 import {AnyKeyBoardEvent, useDocumentKeyPressHandler} from "../hooks";
 import {useAdventure} from "../state";
 
-export function Board() {
+export function Board({isIsometric = true}: {isIsometric?: boolean}) {
 
     const adventure = useAdventure();
     const viewport = useRef<HTMLDivElement>(null);
@@ -20,11 +20,13 @@ export function Board() {
         }
     );
 
+    const boardClass = "board" + (isIsometric ? " isometric" : "");
+
     return useObserver(
         () => <div ref={viewport} className="board-viewport"
            onKeyPress={useAdventureKeyPressHandler(adventure)}
         >
-                <div ref={board} className="board">
+                <div ref={board} className={boardClass}>
                 {adventure.board.map((row, y) => <div key={y} className="row">
                     {row.map(cell => <CellPresenter key={cell.x} cell={cell}/>)}
                 </div>)}

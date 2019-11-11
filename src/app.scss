@@ -14,7 +14,10 @@
   flex-direction: column;
   flex-wrap: nowrap;
   justify-content: center;
-  transform: rotateX(60deg) rotateY(0deg) rotateZ(30deg);
+
+  &.isometric {
+    transform: rotateX(60deg) rotateY(0deg) rotateZ(30deg);
+  }
 
   .row {
     display: flex;

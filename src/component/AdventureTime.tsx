@@ -6,7 +6,7 @@ import React, {useMemo} from "react";
 import {HeroAware, HeroDetail} from "./Hero";
 import {selectAction, unselectAction} from "../actions";
 
-export function AdventureView({adventure, onSurrender}: AdventureAware & { onSurrender: () => any }) {
+export function AdventureView({adventure, isIsometric, onSurrender}: AdventureAware & { onSurrender: () => any, isIsometric?: boolean}) {
     return <AdventureProvider adventure={adventure}>
         <div className="container">
             <hr/>
@@ -18,7 +18,7 @@ export function AdventureView({adventure, onSurrender}: AdventureAware & { onSur
                 />)}
             </div>
             <hr/>
-            <Board/>
+            <Board isIsometric={isIsometric}/>
             <hr/>
             <button className="button is-danger" onClick={onSurrender}>Surrender</button>
         </div>
