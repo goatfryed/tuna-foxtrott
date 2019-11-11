@@ -59,19 +59,21 @@ export function CellPresenter({cell}: CellProp) {
                 };
             }
 
-            if (cell.unit.player === appContext.user) {
+            const isEnemy = activeUnit.player !== cell.unit.player;
+
+            if (isEnemy && activeUnit.canAttack(cell.unit)) {
                 return {
-                    primary: selectAction(adventure, cell.unit),
-                    type: Interaction.FRIENDLY,
+                    primary: attackAction(activeUnit, cell.unit),
+                    secondary: selectAction(adventure, cell.unit),
+                    type: Interaction.ENEMY
                 };
             }
 
-            // attack?
             return {
-                primary: attackAction(activeUnit, cell.unit),
-                secondary: selectAction(adventure, cell.unit),
-                type: Interaction.ENEMY
+                primary: selectAction(adventure, cell.unit),
+                type: isEnemy ? Interaction.NEUTRAL : Interaction.FRIENDLY,
             };
+
 
         }
     );

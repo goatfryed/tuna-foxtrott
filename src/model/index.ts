@@ -53,6 +53,11 @@ export class PlayerUnit extends Unit {
             cell.unit = this;
         }
     }
+
+    canAttack(unit: PlayerUnit) {
+        return this.cell !== null
+            && this.cell.isNeighbor(unit.cell);
+    }
 }
 
 export class Player {
@@ -90,6 +95,12 @@ export class Cell {
 
     toString() {
         return "(" + this.x + "-" + this.y + ")";
+    }
+
+    isNeighbor(cell: Cell|null) {
+        if (!cell) return false;
+
+        return 1 === Math.abs(this.x - cell.x) + Math.abs(this.y - cell.y);
     }
 }
 
