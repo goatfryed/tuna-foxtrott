@@ -19,8 +19,8 @@ export const useAppContext = () => {
     return store;
 };
 
-export const AppContextProvider: React.FC = ({children}) => {
-    return <storeContext.Provider value={appStore}>{children}</storeContext.Provider>
+export const AppContextProvider: React.FC<{context?: AppContext}> = ({children, context = appStore}) => {
+    return <storeContext.Provider value={context}>{children}</storeContext.Provider>
 };
 
 export const adventureContext = React.createContext<Adventure|null>(null);

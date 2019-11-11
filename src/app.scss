@@ -24,11 +24,14 @@
   }
 }
 
+$cell-size: 6rem;
+
 .cell {
   @extend .button;
-  height: 10rem;
-  width: 10rem;
+  height: $cell-size;
+  width: $cell-size;
   white-space: normal;
+  margin: 0.02 * $cell-size;
 }
 
 .unit-list {

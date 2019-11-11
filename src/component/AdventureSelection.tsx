@@ -3,12 +3,12 @@ import {useAppContext} from "../state";
 import {useObserver} from "mobx-react-lite";
 import React, {useCallback, useMemo} from "react";
 import {createBoard, Player, PlayerUnit, UnitDefinition} from "../model";
-import classNames from "classnames";
 import useForm from "react-hook-form";
+import {HeroDetail} from "./Hero";
 
-function HeroDetail({hero, adventure}: { hero: PlayerUnit } & AdventureAware) {
-
+function LocalHeroDetail({hero, adventure}: {hero: PlayerUnit} & AdventureAware) {
     const included = useObserver(() => adventure.heroes.includes(hero));
+    const style = included ? "is-success" : undefined;
 
     const onClick = useCallback(
         () => {
@@ -21,14 +21,7 @@ function HeroDetail({hero, adventure}: { hero: PlayerUnit } & AdventureAware) {
         [hero, adventure, included]
     );
 
-    const buttonClass = classNames(
-        "button is-small",
-        adventure.heroes.includes(hero) ? "is-success" : "is-primary"
-    );
-
-    return <div className="unit-entry">
-        <button className={buttonClass} onClick={onClick}>{hero.name}</button>
-    </div>;
+    return <HeroDetail hero={hero} onClick={onClick} style={style}/>
 }
 
 function HeroList({adventure}: AdventureAware) {
@@ -40,7 +33,7 @@ function HeroList({adventure}: AdventureAware) {
             return <div>Create heroes to get started</div>
         }
         return <div className="unit-list">
-            {appStore.user.units.map((hero, key) => <HeroDetail
+            {appStore.user.units.map((hero, key) => <LocalHeroDetail
                 key={key} adventure={adventure} hero={hero}
             />)}
         </div>

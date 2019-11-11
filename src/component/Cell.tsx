@@ -1,9 +1,9 @@
-import {Cell, PlayerUnit} from "../model";
+import {Cell} from "../model";
 import {useAdventure, useAppContext} from "../state";
 import {useObserver} from "mobx-react-lite";
 import React, {useMemo} from "react";
 import classNames from "classnames";
-import {Adventure} from "../model/Adventure";
+import {attackAction, unselectAction, moveAction, selectAction} from "../actions";
 
 interface CellProp {
     cell: Cell,
@@ -17,23 +17,9 @@ enum Interaction {
     INTERACTION,
 }
 
-function selectAction(appStore: Adventure, unit: PlayerUnit) {
-    return () => appStore.activeUnit = unit;
-}
-function moveAction(activeUnit: PlayerUnit, cell: Cell) {
-    return () => activeUnit.cell = cell
-}
-// noinspection JSUnusedLocalSymbols
-function attackAction(activeUnit: PlayerUnit, unit: PlayerUnit) {
-    return () => alert("B#m")
-}
-function clearSelection(appStore: Adventure) {
-    return () => appStore.activeUnit = null;
-}
-
 export function CellPresenter({cell}: CellProp) {
     const adventure = useAdventure();
-    const appStore = useAppContext();
+    const appContext = useAppContext();
 
     const interaction = useObserver(
         () => {
@@ -43,7 +29,7 @@ export function CellPresenter({cell}: CellProp) {
                 if (cell.unit !== null) {
                     return {
                         primary: selectAction(adventure, cell.unit),
-                        type: cell.unit.player === appStore.user ? Interaction.FRIENDLY : Interaction.NEUTRAL,
+                        type: cell.unit.player === appContext.user ? Interaction.FRIENDLY : Interaction.NEUTRAL,
                     };
                 }
                 return;
@@ -51,16 +37,16 @@ export function CellPresenter({cell}: CellProp) {
 
             if (activeUnit === cell.unit) {
                 return {
-                    primary: clearSelection(adventure),
+                    primary: unselectAction(adventure),
                     type: Interaction.ACTIVE,
                 };
             }
 
-            if (activeUnit.player !== appStore.user) {
+            if (activeUnit.player !== appContext.user) {
                 if (cell.unit !== null) {
                     return {
                         primary: selectAction(adventure, cell.unit),
-                        type: cell.unit.player === appStore.user ? Interaction.FRIENDLY : Interaction.NEUTRAL,
+                        type: cell.unit.player === appContext.user ? Interaction.FRIENDLY : Interaction.NEUTRAL,
                     };
                 }
                 return;
@@ -73,7 +59,7 @@ export function CellPresenter({cell}: CellProp) {
                 };
             }
 
-            if (cell.unit.player === appStore.user) {
+            if (cell.unit.player === appContext.user) {
                 return {
                     primary: selectAction(adventure, cell.unit),
                     type: Interaction.FRIENDLY,
