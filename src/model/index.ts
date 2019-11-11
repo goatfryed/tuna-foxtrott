@@ -95,20 +95,17 @@ export class Cell {
 
 export type Board = Cell[][];
 
-export class AppStore {
-    @observable name: string = "test";
-    @observable currentPlayer: Player | null = null;
-    @observable activeUnit: PlayerUnit | null = null;
-    board: Board  = [];
-    readonly players: Player[] = [];
-
-    constructor(readonly sizeX: number, readonly sizeY: number, readonly user: Player) {
-        this.players.push(user);
-        for (let y = 0; y < sizeY; y++) {
-            this.board[y] = [];
-            for (let x = 0; x < sizeX; x++) {
-                this.board[y][x] = new Cell(x,y);
-            }
+export function createBoard(sizeX: number, sizeY: number) {
+    const board: Board = [];
+    for (let y = 0; y < sizeY; y++) {
+        board[y] = [];
+        for (let x = 0; x < sizeX; x++) {
+            board[y][x] = new Cell(x, y);
         }
     }
+    return board;
+}
+
+export class AppStore {
+    constructor(readonly user: Player) {}
 }

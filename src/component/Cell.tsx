@@ -1,8 +1,9 @@
-import {AppStore, Cell, PlayerUnit} from "../model";
-import {useAppStore} from "../state";
+import {Cell, PlayerUnit} from "../model";
+import {useAdventure, useAppStore} from "../state";
 import {useObserver} from "mobx-react-lite";
 import React, {useMemo} from "react";
 import classNames from "classnames";
+import {Adventure} from "../model/Adventure";
 
 interface CellProp {
     cell: Cell,
@@ -16,7 +17,7 @@ enum Interaction {
     INTERACTION,
 }
 
-function selectAction(appStore: AppStore, unit: PlayerUnit) {
+function selectAction(appStore: Adventure, unit: PlayerUnit) {
     return () => appStore.activeUnit = unit;
 }
 function moveAction(activeUnit: PlayerUnit, cell: Cell) {
@@ -26,21 +27,22 @@ function moveAction(activeUnit: PlayerUnit, cell: Cell) {
 function attackAction(activeUnit: PlayerUnit, unit: PlayerUnit) {
     return () => alert("B#m")
 }
-function clearSelection(appStore: AppStore) {
+function clearSelection(appStore: Adventure) {
     return () => appStore.activeUnit = null;
 }
 
 export function ControlledCell({cell}: CellProp) {
+    const adventure = useAdventure();
     const appStore = useAppStore();
 
     const interaction = useObserver(
         () => {
-            const activeUnit = appStore.activeUnit;
+            const activeUnit = adventure.activeUnit;
 
             if (activeUnit === null) {
                 if (cell.unit !== null) {
                     return {
-                        primary: selectAction(appStore, cell.unit),
+                        primary: selectAction(adventure, cell.unit),
                         type: cell.unit.player === appStore.user ? Interaction.FRIENDLY : Interaction.NEUTRAL,
                     };
                 }
@@ -49,7 +51,7 @@ export function ControlledCell({cell}: CellProp) {
 
             if (activeUnit === cell.unit) {
                 return {
-                    primary: clearSelection(appStore),
+                    primary: clearSelection(adventure),
                     type: Interaction.ACTIVE,
                 };
             }
@@ -57,7 +59,7 @@ export function ControlledCell({cell}: CellProp) {
             if (activeUnit.player !== appStore.user) {
                 if (cell.unit !== null) {
                     return {
-                        primary: selectAction(appStore, cell.unit),
+                        primary: selectAction(adventure, cell.unit),
                         type: cell.unit.player === appStore.user ? Interaction.FRIENDLY : Interaction.NEUTRAL,
                     };
                 }
@@ -73,7 +75,7 @@ export function ControlledCell({cell}: CellProp) {
 
             if (cell.unit.player === appStore.user) {
                 return {
-                    primary: selectAction(appStore, cell.unit),
+                    primary: selectAction(adventure, cell.unit),
                     type: Interaction.FRIENDLY,
                 };
             }
@@ -81,7 +83,7 @@ export function ControlledCell({cell}: CellProp) {
             // attack?
             return {
                 primary: attackAction(activeUnit, cell.unit),
-                secondary: selectAction(appStore, cell.unit),
+                secondary: selectAction(adventure, cell.unit),
                 type: Interaction.ENEMY
             };
 

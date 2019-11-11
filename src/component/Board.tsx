@@ -1,12 +1,9 @@
-import {useAppStore} from "../state";
 import {useObserver} from "mobx-react-lite";
 import {ControlledCell} from "./Cell";
 import React, {useLayoutEffect, useMemo, useRef} from "react";
-import {AppStore} from "../model";
+import {Adventure, AdventureAware} from "../model/Adventure";
 
-export function Board() {
-
-    const appStore = useAppStore();
+export function Board({adventure}: AdventureAware) {
 
     const viewport = useRef<HTMLDivElement>(null);
     const board = useRef<HTMLDivElement>(null);
@@ -22,10 +19,10 @@ export function Board() {
 
     return useObserver(
         () => <div ref={viewport} className="board-viewport"
-           onKeyPress={useDocumentWideKeyPressHandler(appStore)}
+           onKeyPress={useDocumentWideAdventureKeyPressHandler(adventure)}
         >
                 <div ref={board} className="board">
-                {appStore.board.map((row, y) => <div key={y} className="row">
+                {adventure.board.map((row, y) => <div key={y} className="row">
                     {row.map(cell => <ControlledCell key={cell.x} cell={cell}/>)}
                 </div>)}
             </div>
@@ -35,24 +32,24 @@ export function Board() {
 
 type AnyKeyBoardEvent = React.KeyboardEvent | KeyboardEvent;
 
-type StoreAwareKeyboardEventHandler = (appStore: AppStore, event: AnyKeyBoardEvent) => void;
+type StoreAwareKeyboardEventHandler = (adventure: Adventure, event: AnyKeyBoardEvent) => void;
 
-function alertHandler(appStore: AppStore, event: AnyKeyBoardEvent) {
+function alertHandler(adventure: Adventure, event: AnyKeyBoardEvent) {
     if (event.key !== "s") {
         return;
     }
-    if (appStore.activeUnit === null || appStore.activeUnit.player !== appStore.currentPlayer) {
+    if (adventure.activeUnit === null || adventure.activeUnit.player !== adventure.currentPlayer) {
         return;
     }
-    alert("Hey, " + appStore.name);
+    alert("Hey, " + adventure.name);
 }
 
-const tapThroughSelectionHandler = (appStore: AppStore, event: AnyKeyBoardEvent) => {
+const tapThroughSelectionHandler = (adventure: Adventure, event: AnyKeyBoardEvent) => {
     if (event.key === "d") {
-        switchActiveUnit(appStore,+1);
+        switchActiveUnit(adventure,+1);
     }
     if (event.key === "a") {
-        switchActiveUnit(appStore,-1);
+        switchActiveUnit(adventure,-1);
     }
 };
 
@@ -61,18 +58,18 @@ const keyPressHandlers: StoreAwareKeyboardEventHandler[] = [
     tapThroughSelectionHandler
 ];
 
-function switchActiveUnit(appState: AppStore, direction: number) {
-    if (appState.currentPlayer !== null && appState.currentPlayer.units.length > 0) {
-        const nextIndex = appState.activeUnit !== null ?
+function switchActiveUnit(adventure: Adventure, direction: number) {
+    if (adventure.heroes.length > 0) {
+        const nextIndex = adventure.activeUnit !== null ?
             //ensure 0 to length -1
-            (appState.currentPlayer.units.indexOf(appState.activeUnit) + appState.currentPlayer.units.length + direction) % appState.currentPlayer.units.length
+            (adventure.heroes.indexOf(adventure.activeUnit) + adventure.heroes.length + direction) % adventure.heroes.length
             : 0;
-        appState.activeUnit = appState.currentPlayer.units[nextIndex];
+        adventure.activeUnit = adventure.heroes[nextIndex];
     }
 }
 
-export function useDocumentWideKeyPressHandler(appStore: AppStore) {
-    const handler = useKeyPressHandler(appStore);
+function useDocumentWideAdventureKeyPressHandler(adventure: Adventure) {
+    const handler = useAdventureKeyPressHandler(adventure);
 
     useLayoutEffect(
         () => {
@@ -90,11 +87,11 @@ export function useDocumentWideKeyPressHandler(appStore: AppStore) {
     return handler;
 }
 
-export function useKeyPressHandler(appStore: AppStore) {
+function useAdventureKeyPressHandler(adventure: Adventure) {
     return useMemo(
         () => {
             const boundHandlers = keyPressHandlers.map(
-                f => ((event: AnyKeyBoardEvent) => {f.apply(null, [appStore, event])})
+                f => ((event: AnyKeyBoardEvent) => {f.apply(null, [adventure, event])})
             );
             return (event: AnyKeyBoardEvent) => {
                 for (const handler of boundHandlers) {
@@ -103,6 +100,6 @@ export function useKeyPressHandler(appStore: AppStore) {
                 }
             }
         }
-        ,[appStore, keyPressHandlers]
+        ,[adventure, keyPressHandlers]
     )
 }

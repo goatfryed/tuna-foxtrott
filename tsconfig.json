@@ -19,7 +19,7 @@
     "experimentalDecorators": true,
 
     "noImplicitAny": true,
-    "noUnusedLocals": true,
+    "noUnusedLocals": false,
     "noUnusedParameters": false,
     "jsx": "preserve",
     "removeComments": true
