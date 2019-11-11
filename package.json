@@ -4,7 +4,9 @@
   "description": "",
   "main": "dist/app.js",
   "scripts": {
-    "develop": "webpack-dev-server --open"
+    "develop": "webpack-dev-server --open",
+    "storybook": "start-storybook -p 6006",
+    "build-storybook": "build-storybook"
   },
   "keywords": [],
   "author": "Omar <goatfryed> Sood",
@@ -42,6 +44,10 @@
     "classnames": "^2.2.6"
   },
   "devDependencies": {
+    "@storybook/addon-actions": "^5.2.6",
+    "@storybook/addon-links": "^5.2.6",
+    "@storybook/addons": "^5.2.6",
+    "@storybook/react": "^5.2.6",
     "@types/classnames": "^2.2.9",
     "webpack-dev-server": "^3.9.0"
   },
