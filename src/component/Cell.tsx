@@ -1,5 +1,5 @@
 import {Cell, PlayerUnit} from "../model";
-import {useAdventure, useAppStore} from "../state";
+import {useAdventure, useAppContext} from "../state";
 import {useObserver} from "mobx-react-lite";
 import React, {useMemo} from "react";
 import classNames from "classnames";
@@ -31,9 +31,9 @@ function clearSelection(appStore: Adventure) {
     return () => appStore.activeUnit = null;
 }
 
-export function ControlledCell({cell}: CellProp) {
+export function CellPresenter({cell}: CellProp) {
     const adventure = useAdventure();
-    const appStore = useAppStore();
+    const appStore = useAppContext();
 
     const interaction = useObserver(
         () => {
@@ -122,7 +122,7 @@ const mapButtonInteractionToStyle = {
     [Interaction.ENEMY]: "is-danger",
 };
 
-function CellView({cell, onClick, type}: CellViewProps) {
+export function CellView({cell, onClick, type}: CellViewProps) {
 
     const cellLabel = useObserver(() => String(cell) + " " + (cell.unit !== null ? cell.unit.toString() : "empty"));
     const className = classNames(

@@ -42,7 +42,7 @@ module.exports = {
                 test: /\.(sa|sc|c)ss$/,
                 use: [
                     {
-                        loader: MiniCssExtractPlugin.loader
+                        loader: "style-loader" // MiniCssExtractPlugin.loader @TODO better dev support, do webpack merge
                     },
                     {
                         loader: "css-loader",

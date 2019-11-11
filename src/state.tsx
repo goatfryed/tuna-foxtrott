@@ -1,17 +1,17 @@
 import React, {PropsWithChildren} from "react";
-import {AppStore, Player} from "./model";
+import {AppContext, Player} from "./model";
 import {runInAction} from "mobx";
 import {Adventure, AdventureAware} from "./model/Adventure";
 
-const storeContext = React.createContext<AppStore | null>(null);
+const storeContext = React.createContext<AppContext | null>(null);
 
 const appStore = runInAction(() => {
     const user = new Player("user");
 
-    return new AppStore(user);
+    return new AppContext(user);
 });
 
-export const useAppStore = () => {
+export const useAppContext = () => {
     const store = React.useContext(storeContext);
     if (!store) {
         throw new Error('useAppStore must be used within a StoreProvider');
@@ -19,7 +19,7 @@ export const useAppStore = () => {
     return store;
 };
 
-export const StateProvider: React.FC = ({children}) => {
+export const AppContextProvider: React.FC = ({children}) => {
     return <storeContext.Provider value={appStore}>{children}</storeContext.Provider>
 };
 

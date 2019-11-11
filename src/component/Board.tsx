@@ -1,11 +1,13 @@
 import {useObserver} from "mobx-react-lite";
-import {ControlledCell} from "./Cell";
+import {CellPresenter} from "./Cell";
 import React, {useLayoutEffect, useMemo, useRef} from "react";
-import {Adventure, AdventureAware} from "../model/Adventure";
-import {AnyKeyBoardEvent, useDocumentKeyPressHandler} from "./hooks";
+import {Adventure} from "../model/Adventure";
+import {AnyKeyBoardEvent, useDocumentKeyPressHandler} from "../hooks";
+import {useAdventure} from "../state";
 
-export function Board({adventure}: AdventureAware) {
+export function Board() {
 
+    const adventure = useAdventure();
     const viewport = useRef<HTMLDivElement>(null);
     const board = useRef<HTMLDivElement>(null);
 
@@ -24,7 +26,7 @@ export function Board({adventure}: AdventureAware) {
         >
                 <div ref={board} className="board">
                 {adventure.board.map((row, y) => <div key={y} className="row">
-                    {row.map(cell => <ControlledCell key={cell.x} cell={cell}/>)}
+                    {row.map(cell => <CellPresenter key={cell.x} cell={cell}/>)}
                 </div>)}
             </div>
         </div>

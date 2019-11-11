@@ -106,6 +106,6 @@ export function createBoard(sizeX: number, sizeY: number) {
     return board;
 }
 
-export class AppStore {
+export class AppContext {
     constructor(readonly user: Player) {}
 }

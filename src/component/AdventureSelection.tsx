@@ -1,5 +1,5 @@
 import {Adventure, AdventureAware} from "../model/Adventure";
-import {useAppStore} from "../state";
+import {useAppContext} from "../state";
 import {useObserver} from "mobx-react-lite";
 import React, {useCallback, useMemo} from "react";
 import {createBoard, Player, PlayerUnit, UnitDefinition} from "../model";
@@ -33,7 +33,7 @@ function HeroDetail({hero, adventure}: { hero: PlayerUnit } & AdventureAware) {
 
 function HeroList({adventure}: AdventureAware) {
 
-    const appStore = useAppStore();
+    const appStore = useAppContext();
 
     return useObserver(() => {
         if (appStore.user.units.length === 0) {
@@ -90,7 +90,7 @@ function createAdventure(user: Player) {
 
 export function AdventureSelection(props: { onAdventureSelected: (adventure: Adventure) => void }) {
 
-    const appStore = useAppStore();
+    const appStore = useAppContext();
     const adventure = useMemo(createAdventure(appStore.user), []);
 
     const createHero = useCallback(

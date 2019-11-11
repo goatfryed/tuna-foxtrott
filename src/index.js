@@ -2,14 +2,14 @@ import React from "react";
 import {render} from "react-dom";
 
 import "./app.scss";
-import {StateProvider} from "./state";
+import {AppContextProvider} from "./state";
 import {App} from "./App";
 
 function renderApp () {
     render(
-        <StateProvider>
+        <AppContextProvider>
             <App/>
-        </StateProvider>,
+        </AppContextProvider>,
         document.getElementById("app")
     );
 }
