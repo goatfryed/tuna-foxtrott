@@ -6,22 +6,35 @@ import {Adventure} from "./model/Adventure";
  * All actions here should just be callback creators
  * to delay execution of that business logic and bind arguments
  *
- * TODO: figure out, how to create Callables that could be checked with instanceof, or add type property, to identify a callback as an action
+ * Please be aware, that ActionCreator and Action type are inferred from all exports of this file.
+ * Therefore
  */
 
+export interface Action<R = any,T extends string = string> {
+    run(): R,
+    type: T;
+}
+
+function asAction<V,T extends string>(run: () => V, type:T): Action<V,T> {
+    return {
+        run,
+        type
+    }
+}
+
 export function selectAction(adventure: Adventure, unit: PlayerUnit) {
-    return () => adventure.activeUnit = unit;
+    return asAction(() => adventure.activeUnit = unit,"SELECT" as const);
 }
 
 export function moveAction(activeUnit: PlayerUnit, cell: Cell) {
-    return () => activeUnit.cell = cell
+    return asAction(() => activeUnit.cell = cell, "MOVE");
 }
 
 // noinspection JSUnusedLocalSymbols
 export function attackAction(activeUnit: PlayerUnit, unit: PlayerUnit) {
-    return () => alert("B#m")
+    return asAction(() => alert("B#m"), "ATTACK");
 }
 
 export function unselectAction(adventure: Adventure) {
-    return () => adventure.activeUnit = null;
+    return asAction(() => adventure.activeUnit = null, "UNSELECT");
 }
