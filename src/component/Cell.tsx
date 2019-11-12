@@ -1,108 +1,122 @@
-import {Cell} from "../model";
+import {AppContext, Cell} from "../model";
 import {useAdventure, useAppContext} from "../state";
 import {useObserver} from "mobx-react-lite";
-import React, {useCallback} from "react";
-import {attackAction, unselectAction, moveAction, selectAction, DomainAction} from "../actions";
+import React, {useMemo} from "react";
+import {Action, ActionType, attackAction, moveAction, selectAction, unselectAction} from "../actions";
+import {Adventure} from "../model/Adventure";
+import classNames from "classnames";
 
 interface CellProp {
     cell: Cell,
+}
+
+function deriveAction(cell: Cell, adventure: Adventure, appContext: AppContext) {
+    const activeUnit = adventure.activeUnit;
+
+    if (activeUnit === null) {
+        if (cell.unit !== null) {
+            return {
+                primary: selectAction(adventure, cell.unit),
+            };
+        }
+        return;
+    }
+
+    if (activeUnit === cell.unit) {
+        return {
+            primary: unselectAction(adventure),
+        };
+    }
+
+    if (activeUnit.player !== appContext.user) {
+        if (cell.unit !== null) {
+            return {
+                primary: selectAction(adventure, cell.unit),
+            };
+        }
+        return;
+    }
+
+    if (cell.unit === null) {
+        if (activeUnit.canReach(cell)) {
+            return {
+                primary: moveAction(activeUnit, cell),
+            };
+        }
+        return;
+    }
+
+    const isEnemy = activeUnit.player !== cell.unit.player;
+
+    if (isEnemy && activeUnit.canAttack(cell.unit)) {
+        return {
+            primary: attackAction(activeUnit, cell.unit),
+            secondary: selectAction(adventure, cell.unit),
+        };
+    }
+
+    return {
+        primary: selectAction(adventure, cell.unit),
+    };
+}
+
+function deriveStyle(cell: Cell, adventure: Adventure, appContext: AppContext, action?: Action) {
+
+    if (adventure.activeUnit && adventure.activeUnit === cell.unit) {
+        return "isSelected";
+    }
+
+    const styleClasses: any = {};
+    if (cell.unit) {
+        if (cell.unit.player === appContext.user) {
+            styleClasses.friendly = true;
+        } else {
+            styleClasses.enemy = true;
+        }
+    }
+    if (action && action.type === ActionType.MOVE) {
+        styleClasses.canMove = true;
+    }
+    if (action && action.type === ActionType.ATTACK) {
+        styleClasses.canAttack = true;
+    }
+
+    return classNames(styleClasses);
 }
 
 export function CellPresenter({cell}: CellProp) {
     const adventure = useAdventure();
     const appContext = useAppContext();
 
-    const interaction = useObserver(
-        () => {
-            const activeUnit = adventure.activeUnit;
+    const interaction = useObserver(() => deriveAction(cell, adventure, appContext));
+    const stlye = useObserver( () => deriveStyle(cell, adventure, appContext, interaction && interaction.primary));
 
-            if (activeUnit === null) {
-                if (cell.unit !== null) {
-                    return {
-                        primary: selectAction(adventure, cell.unit),
-                    };
-                }
-                return;
-            }
-
-            if (activeUnit === cell.unit) {
-                return {
-                    primary: unselectAction(adventure),
-                };
-            }
-
-            if (activeUnit.player !== appContext.user) {
-                if (cell.unit !== null) {
-                    return {
-                        primary: selectAction(adventure, cell.unit),
-                    };
-                }
-                return;
-            }
-
-            if (cell.unit === null) {
-                if (activeUnit.canReach(cell)) {
-                    return {
-                        primary: moveAction(activeUnit, cell),
-                    };
-                }
-                return;
-            }
-
-            const isEnemy = activeUnit.player !== cell.unit.player;
-
-            if (isEnemy && activeUnit.canAttack(cell.unit)) {
-                return {
-                    primary: attackAction(activeUnit, cell.unit),
-                    secondary: selectAction(adventure, cell.unit),
-                };
-            }
-
-            return {
-                primary: selectAction(adventure, cell.unit),
-            };
-
-
-        }
-    );
-
-    if (interaction) {
-        return <InteractiveCell
-            cell={cell}
-            {...interaction}
-        />
-    } else {
-        return <CellView cell={cell}/>
-    }
-}
-
-interface InteractiveCellProps extends CellProp{
-    primary: DomainAction,
-    secondary?: DomainAction,
-}
-
-export function InteractiveCell(props: InteractiveCellProps) {
-
-    const onClick = useCallback(
-        (event: React.MouseEvent) => {
+    const onClick = useMemo(
+        () => interaction && ((event: React.MouseEvent) => {
             event.preventDefault();
-            if (event.button == 2 && props.secondary) {
-                props.secondary.run();
+            if (event.button == 2 && interaction.secondary) {
+                interaction.secondary.run();
                 return;
             }
-            props.primary.run();
-        },
-        [props.primary, props.secondary]
+            interaction.primary.run();
+        }),
+        [interaction]
     );
-
-    const interactionStyle = props.primary && deriveInteractionStyle(props);
 
     return <CellView
-        cell={props.cell}
-        style={interactionStyle}
+        cell={cell}
         onClick={onClick}
+        style={stlye}
+        actionLabel={interaction && actionNameDict[interaction.primary.type]}
     />
 }
+
+const actionNameDict: Record<ActionType, string|undefined> = {
+    [ActionType.ATTACK]: "attack",
+    [ActionType.MOVE]: "move",
+    [ActionType.SELECT]: "select",
+    [ActionType.UNSELECT]: undefined,
+};
 
 interface CellViewProps extends CellProp {
     style?: string,
@@ -118,14 +132,10 @@ export function CellView({style, onClick, cell, actionLabel}: CellViewProps) {
             onContextMenu={onClick}
         >
             <div>
+                {cell.unit && <div>{String(cell.unit)}</div>}
                 <div>{String(cell)}</div>
-                <div>{cell.unit !== null ? String(cell.unit) : "empty"}</div>
                 {actionLabel && <div>{actionLabel}</div>}
             </div>
         </button>
     );
-}
-
-function deriveInteractionStyle(props: InteractiveCellProps) {
-    return '';
 }

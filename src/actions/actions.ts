@@ -10,12 +10,19 @@ import {Adventure} from "../model/Adventure";
  * Therefore
  */
 
-export interface Action<T extends string = string> {
-    run(): void,
-    type: T;
+export enum ActionType {
+    SELECT,
+    MOVE,
+    ATTACK,
+    UNSELECT,
 }
 
-function asAction<T extends string>(run: () => void, type:T): Action<T> {
+export interface Action {
+    run(): void,
+    type: ActionType;
+}
+
+function asAction(run: () => void, type: ActionType): Action {
     return {
         run,
         type
@@ -23,18 +30,18 @@ function asAction<T extends string>(run: () => void, type:T): Action<T> {
 }
 
 export function selectAction(adventure: Adventure, unit: PlayerUnit) {
-    return asAction(() => adventure.activeUnit = unit,"SELECT");
+    return asAction(() => adventure.activeUnit = unit,ActionType.SELECT);
 }
 
 export function moveAction(activeUnit: PlayerUnit, cell: Cell) {
-    return asAction(() => activeUnit.cell = cell, "MOVE");
+    return asAction(() => activeUnit.cell = cell, ActionType.MOVE);
 }
 
 // noinspection JSUnusedLocalSymbols
 export function attackAction(activeUnit: PlayerUnit, unit: PlayerUnit) {
-    return asAction(() => alert("B#m"), "ATTACK");
+    return asAction(() => alert("B#m"), ActionType.ATTACK);
 }
 
 export function unselectAction(adventure: Adventure) {
-    return asAction(() => adventure.activeUnit = null, "UNSELECT");
+    return asAction(() => adventure.activeUnit = null, ActionType.UNSELECT);
 }

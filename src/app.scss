@@ -35,6 +35,23 @@ $cell-size: 6rem;
   width: $cell-size;
   white-space: normal;
   margin: 0.02 * $cell-size;
+
+  &.friendly {
+    @extend .is-success;
+  }
+  &.enemy {
+    @extend .is-warning;
+
+    &.canAttack {
+        @extend .is-danger;
+    }
+  }
+  &.canMove {
+    @extend .is-info;
+  }
+  &.isSelected {
+    @extend .is-primary;
+  }
 }
 
 .unit-list {

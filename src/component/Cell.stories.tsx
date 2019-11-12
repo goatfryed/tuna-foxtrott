@@ -1,13 +1,14 @@
-import {CellView, InteractiveCell} from "./Cell";
+import {CellView} from "./Cell";
 import {Cell, Player} from "../model";
 import React from "react";
 import {storiesOf} from "@storybook/react";
 
 import "../app.scss";
+import {action} from "@storybook/addon-actions";
 
 
 
-export function empty() {
+export function disabled() {
     const cell = new Cell(6,9);
 
     return <CellView
@@ -15,14 +16,15 @@ export function empty() {
     />
 }
 
-export function enemy() {
+export function selected() {
     const cell = new Cell(6,9);
     const player = new Player("Karli");
     cell.unit = player.addUnit({name: "bower"});
 
-    return <InteractiveCell
+    return <CellView
         cell={cell}
-        primary={{run: () => {}, type: "SELECT"}}
+        onClick={action("onClick")}
+        style="isSelected"
     />
 }
 
@@ -37,6 +39,6 @@ function decorator(story: any) {
 
 storiesOf("CellView", module)
     .addDecorator( decorator)
-    .add("empty", empty)
-    .add("enemy", enemy)
+    .add("selected", selected)
+    .add("disabled", disabled)
 ;
