@@ -9,7 +9,7 @@ import {boolean, withKnobs} from "@storybook/addon-knobs";
 const user = new Player("Karli");
 const appContext = new AppContext(user);
 const axel = user.addUnit({name: "axel"});
-const bower = user.addUnit({name: "bower"});
+const bower = user.addUnit({name: "bower", speed: 2});
 const macel = user.addUnit({name: "macel"});
 
 export default {
@@ -29,8 +29,9 @@ export function thugTown() {
     user.units.forEach(u => thugTownAdventure.heroes.push(u));
 
     axel.cell = thugTownAdventure.board[0][0];
-    bower.cell = thugTownAdventure.board[1][0];
+    bower.cell = thugTownAdventure.board[3][3];
     macel.cell = thugTownAdventure.board[2][0];
+    thugTownAdventure.activeUnit = bower;
 
     return <AdventureView
         adventure={thugTownAdventure}

@@ -53,10 +53,13 @@ export function CellPresenter({cell}: CellProp) {
             }
 
             if (cell.unit === null) {
-                return {
-                    primary: moveAction(activeUnit, cell),
-                    type: Interaction.INTERACTION,
-                };
+                if (activeUnit.canReach(cell)) {
+                    return {
+                        primary: moveAction(activeUnit, cell),
+                        type: Interaction.INTERACTION,
+                    };
+                }
+                return;
             }
 
             const isEnemy = activeUnit.player !== cell.unit.player;

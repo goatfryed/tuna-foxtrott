@@ -2,6 +2,7 @@ import {action, observable} from "mobx";
 
 export interface UnitDefinition {
     name: string;
+    speed?: number,
 }
 
 export interface ActionOption {
@@ -28,11 +29,14 @@ export class Unit implements UnitDefinition {
 
 export class PlayerUnit extends Unit {
 
+    speed: number = 3;
+
     @observable readonly actions: ActionOption[] = [];
     // @ts-ignore // Object.assign assigns this definitely
 
     constructor(definition: UnitDefinition, readonly player: Player) {
         super(definition);
+        if (definition.speed) this.speed = definition.speed;
     }
 
     @observable private _cell: Cell | null = null;
@@ -56,7 +60,13 @@ export class PlayerUnit extends Unit {
 
     canAttack(unit: PlayerUnit) {
         return this.cell !== null
+            && unit.cell !== null
             && this.cell.isNeighbor(unit.cell);
+    }
+
+    canReach(cell: Cell) {
+        if (!this.cell) return false;
+        return this.cell.getManhattenDistance(cell) <= this.speed;
     }
 }
 
@@ -97,10 +107,12 @@ export class Cell {
         return "(" + this.x + "-" + this.y + ")";
     }
 
-    isNeighbor(cell: Cell|null) {
-        if (!cell) return false;
+    isNeighbor(cell: Cell) {
+        return 1 === this.getManhattenDistance(cell);
+    }
 
-        return 1 === Math.abs(this.x - cell.x) + Math.abs(this.y - cell.y);
+    getManhattenDistance(cell: Cell) {
+        return Math.abs(this.x - cell.x) + Math.abs(this.y - cell.y);
     }
 }
 
