@@ -1,28 +1,32 @@
-import {CellView} from "./Cell";
-import {Cell} from "../model";
+import {CellView, InteractiveCell} from "./Cell";
+import {Cell, Player} from "../model";
 import React from "react";
-import {action} from "@storybook/addon-actions";
 import {storiesOf} from "@storybook/react";
 
 import "../app.scss";
 
-const cell = new Cell(6,9);
+
 
 export function empty() {
+    const cell = new Cell(6,9);
+
     return <CellView
         cell={cell}
     />
 }
 
 export function enemy() {
-    return <CellView
+    const cell = new Cell(6,9);
+    const player = new Player("Karli");
+    cell.unit = player.addUnit({name: "bower"});
+
+    return <InteractiveCell
         cell={cell}
-        onClick={action("onClick")}
-        type={3}
+        primary={{run: () => {}, type: "SELECT"}}
     />
 }
 
-function decorator(story) {
+function decorator(story: any) {
     return <div
         style={{
             padding: "2rem"

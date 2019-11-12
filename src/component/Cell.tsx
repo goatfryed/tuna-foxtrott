@@ -1,20 +1,11 @@
 import {Cell} from "../model";
 import {useAdventure, useAppContext} from "../state";
 import {useObserver} from "mobx-react-lite";
-import React, {useMemo} from "react";
-import classNames from "classnames";
-import {attackAction, unselectAction, moveAction, selectAction} from "../actions";
+import React, {useCallback} from "react";
+import {attackAction, unselectAction, moveAction, selectAction, DomainAction} from "../actions";
 
 interface CellProp {
     cell: Cell,
-}
-
-enum Interaction {
-    ACTIVE,
-    FRIENDLY,
-    NEUTRAL,
-    ENEMY,
-    INTERACTION,
 }
 
 export function CellPresenter({cell}: CellProp) {
@@ -29,7 +20,6 @@ export function CellPresenter({cell}: CellProp) {
                 if (cell.unit !== null) {
                     return {
                         primary: selectAction(adventure, cell.unit),
-                        type: cell.unit.player === appContext.user ? Interaction.FRIENDLY : Interaction.NEUTRAL,
                     };
                 }
                 return;
@@ -38,7 +28,6 @@ export function CellPresenter({cell}: CellProp) {
             if (activeUnit === cell.unit) {
                 return {
                     primary: unselectAction(adventure),
-                    type: Interaction.ACTIVE,
                 };
             }
 
@@ -46,7 +35,6 @@ export function CellPresenter({cell}: CellProp) {
                 if (cell.unit !== null) {
                     return {
                         primary: selectAction(adventure, cell.unit),
-                        type: cell.unit.player === appContext.user ? Interaction.FRIENDLY : Interaction.NEUTRAL,
                     };
                 }
                 return;
@@ -56,7 +44,6 @@ export function CellPresenter({cell}: CellProp) {
                 if (activeUnit.canReach(cell)) {
                     return {
                         primary: moveAction(activeUnit, cell),
-                        type: Interaction.INTERACTION,
                     };
                 }
                 return;
@@ -68,65 +55,77 @@ export function CellPresenter({cell}: CellProp) {
                 return {
                     primary: attackAction(activeUnit, cell.unit),
                     secondary: selectAction(adventure, cell.unit),
-                    type: Interaction.ENEMY
                 };
             }
 
             return {
                 primary: selectAction(adventure, cell.unit),
-                type: isEnemy ? Interaction.NEUTRAL : Interaction.FRIENDLY,
             };
 
 
         }
     );
 
-    const onClick = useMemo(
-        () => interaction && ((event: React.MouseEvent) => {
+    if (interaction) {
+        return <InteractiveCell
+            cell={cell}
+            {...interaction}
+        />
+    } else {
+        return <CellView cell={cell}/>
+    }
+}
+
+interface InteractiveCellProps extends CellProp{
+    primary: DomainAction,
+    secondary?: DomainAction,
+}
+
+export function InteractiveCell(props: InteractiveCellProps) {
+
+    const onClick = useCallback(
+        (event: React.MouseEvent) => {
             event.preventDefault();
-            if (event.button == 2 && interaction.secondary) {
-                interaction.secondary();
+            if (event.button == 2 && props.secondary) {
+                props.secondary.run();
                 return;
             }
-            interaction.primary();
-        }),
-        [interaction]
+            props.primary.run();
+        },
+        [props.primary, props.secondary]
     );
 
+    const interactionStyle = props.primary && deriveInteractionStyle(props);
+
     return <CellView
-        cell={cell}
+        cell={props.cell}
+        style={interactionStyle}
         onClick={onClick}
-        type={interaction && interaction.type}
     />
 }
 
 interface CellViewProps extends CellProp {
-    onClick?: (event: React.MouseEvent) => void,
-    type?: Interaction,
+    style?: string,
+    onClick?: (event: React.MouseEvent) => any,
+    actionLabel?: string
 }
 
-const mapButtonInteractionToStyle = {
-    [Interaction.ACTIVE]: "is-primary",
-    [Interaction.INTERACTION]: "is-info",
-    [Interaction.FRIENDLY]: "is-success",
-    [Interaction.NEUTRAL]: "is-warning",
-    [Interaction.ENEMY]: "is-danger",
-};
-
-export function CellView({cell, onClick, type}: CellViewProps) {
-
-    const cellLabel = useObserver(() => String(cell) + " " + (cell.unit !== null ? cell.unit.toString() : "empty"));
-    const className = classNames(
-        "cell",
-        (type !== undefined) && mapButtonInteractionToStyle[type],
+export function CellView({style, onClick, cell, actionLabel}: CellViewProps) {
+    return useObserver(() => <button
+            className={"cell "+ style }
+            disabled={onClick === undefined}
+            onClick={onClick}
+            onContextMenu={onClick}
+        >
+            <div>
+                <div>{String(cell)}</div>
+                <div>{cell.unit !== null ? String(cell.unit) : "empty"}</div>
+                {actionLabel && <div>{actionLabel}</div>}
+            </div>
+        </button>
     );
+}
 
-    return <button
-        className={className}
-        onClick={onClick}
-        disabled={onClick === undefined}
-        onContextMenu={onClick}
-    >
-        <span>c1:{cellLabel}</span>
-    </button>
+function deriveInteractionStyle(props: InteractiveCellProps) {
+    return '';
 }

@@ -6,7 +6,8 @@
   "scripts": {
     "develop": "webpack-dev-server --open",
     "storybook": "start-storybook -p 6006",
-    "build-storybook": "build-storybook"
+    "build-storybook": "build-storybook",
+    "type-check": "tsc --noEmit"
   },
   "keywords": [],
   "author": "Omar <goatfryed> Sood",

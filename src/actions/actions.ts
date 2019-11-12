@@ -1,5 +1,5 @@
-import {Cell, PlayerUnit} from "./model";
-import {Adventure} from "./model/Adventure";
+import {Cell, PlayerUnit} from "../model";
+import {Adventure} from "../model/Adventure";
 
 /**
  * business logic should be tied to the model
@@ -10,12 +10,12 @@ import {Adventure} from "./model/Adventure";
  * Therefore
  */
 
-export interface Action<R = any,T extends string = string> {
-    run(): R,
+export interface Action<T extends string = string> {
+    run(): void,
     type: T;
 }
 
-function asAction<V,T extends string>(run: () => V, type:T): Action<V,T> {
+function asAction<T extends string>(run: () => void, type:T): Action<T> {
     return {
         run,
         type
@@ -23,7 +23,7 @@ function asAction<V,T extends string>(run: () => V, type:T): Action<V,T> {
 }
 
 export function selectAction(adventure: Adventure, unit: PlayerUnit) {
-    return asAction(() => adventure.activeUnit = unit,"SELECT" as const);
+    return asAction(() => adventure.activeUnit = unit,"SELECT");
 }
 
 export function moveAction(activeUnit: PlayerUnit, cell: Cell) {

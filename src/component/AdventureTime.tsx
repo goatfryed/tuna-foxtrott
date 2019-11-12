@@ -28,9 +28,10 @@ export function AdventureView({adventure, isIsometric, onSurrender}: AdventureAw
 function LocalHeroDetail({hero, adventure}: HeroAware & AdventureAware) {
     const heroIsActive = useObserver(() => adventure.activeUnit === hero);
     const handleClick = useMemo(
-        () => heroIsActive ? unselectAction(adventure) : selectAction(adventure, hero),
+        () => (heroIsActive ? unselectAction(adventure) : selectAction(adventure, hero)).run,
         [hero, adventure, heroIsActive]
     );
+
     const style = heroIsActive ? "is-primary" : "is-info";
 
     return <HeroDetail onClick={handleClick} hero={hero} style={style}/>
