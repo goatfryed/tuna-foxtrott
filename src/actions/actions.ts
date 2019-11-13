@@ -27,13 +27,6 @@ export function selectAction(adventure: Adventure, unit: PlayerUnit) {
     return ActionManager.asAction(ActionType.SELECT, () => adventure.activeUnit = unit);
 }
 
-// noinspection JSUnusedLocalSymbols
-export function attackAction(attacker: PlayerUnit, target: PlayerUnit) {
-    return ActionManager.asAction(ActionType.ATTACK, () => {
-        target.receiveAttack(attacker);
-    });
-}
-
 export function unselectAction(adventure: Adventure) {
     return ActionManager.asAction(ActionType.UNSELECT, () => adventure.activeUnit = null);
 }
@@ -42,8 +35,12 @@ export class ActionManager {
     constructor(private adventure: Adventure) {
     }
 
+    canAct(unit: PlayerUnit) {
+        return unit === this.adventure.activeUnit;
+    }
+
     move(unit: PlayerUnit, cell: Cell) {
-        if (cell.unit !== null || unit.cell === null || unit !== this.adventure.activeUnit) {
+        if (cell.unit !== null || unit.cell === null || !this.canAct(unit)) {
             return;
         }
         const path = cell.getManhattenDistance(unit.cell);
@@ -57,6 +54,18 @@ export class ActionManager {
                 unit.spentMovePoints(path);
             })
         );
+    }
+
+    attackAction(attacker: PlayerUnit, target: PlayerUnit) {
+        if (
+            this.canAct(attacker)
+            && attacker.player !== target.player
+            && attacker.canAttack(target)
+        ) {
+            return ActionManager.asAction(ActionType.ATTACK, () => {
+                target.receiveAttack(attacker);
+            });
+        }
     }
 
     static asAction(type: ActionType, run: () => void): Action {

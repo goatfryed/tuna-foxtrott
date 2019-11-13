@@ -2,7 +2,7 @@ import {AppContext, Cell, PlayerUnit} from "../model";
 import {useAdventure, useAppContext} from "../state";
 import {useObserver} from "mobx-react-lite";
 import React, {useMemo} from "react";
-import {Action, ActionType, attackAction, selectAction, unselectAction} from "../actions";
+import {Action, ActionType, selectAction, unselectAction} from "../actions";
 import {Adventure} from "../model/Adventure";
 import classNames from "classnames";
 
@@ -45,15 +45,13 @@ function deriveAction(cell: Cell, adventure: Adventure, appContext: AppContext) 
         return;
     }
 
-    const isEnemy = activeUnit.player !== cell.unit.player;
-
-    if (isEnemy && activeUnit.canAttack(cell.unit)) {
+    const attackAction = adventure.actions.attackAction(activeUnit, cell.unit);
+    if (attackAction) {
         return {
-            primary: attackAction(activeUnit, cell.unit),
+            primary: attackAction,
             secondary: selectAction(adventure, cell.unit),
-        };
+        }
     }
-
     return {
         primary: selectAction(adventure, cell.unit),
     };
