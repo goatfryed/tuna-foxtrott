@@ -1,5 +1,6 @@
 import {Board, Player, PlayerUnit} from "./index";
 import {observable} from "mobx";
+import {ActionManager} from "../actions";
 
 export interface AdventureAware {
     adventure: Adventure
@@ -18,4 +19,7 @@ export class Adventure {
     constructor(board: Board) {
         this.board = board;
     }
+
+    readonly actions = new ActionManager(this);
 }
+

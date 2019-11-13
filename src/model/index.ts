@@ -3,12 +3,7 @@ import {action, computed, observable} from "mobx";
 export interface UnitDefinition {
     name: string,
     readonly baseHealth: number,
-    speed?: number,
-}
-
-export interface ActionOption {
-    name: string,
-    getActionForCell: (cell: Cell) => (() => any) | null,
+    baseSpeed?: number,
 }
 
 export class Unit implements UnitDefinition {
@@ -17,7 +12,6 @@ export class Unit implements UnitDefinition {
     id: number;
     readonly baseHealth: number;
     readonly name: string;
-
     constructor(definition: UnitDefinition | Unit) {
         const {name, id, baseHealth} = definition as Unit;
         this.name = name;
@@ -32,29 +26,34 @@ export class Unit implements UnitDefinition {
 
 export class PlayerUnit extends Unit {
 
-    speed: number = 3;
-    @observable dmgTaken: number = 0;
-
-    @observable readonly actions: ActionOption[] = [];
-    // @ts-ignore // Object.assign assigns this definitely
+    baseSpeed: number = 3;
 
     constructor(definition: UnitDefinition, readonly player: Player) {
         super(definition);
-        if (definition.speed) this.speed = definition.speed;
+        if (definition.baseSpeed) this.baseSpeed = definition.baseSpeed;
     }
 
+    @observable private dmgTaken: number = 0;
     @computed get currentHealth() {
         return this.baseHealth - this.dmgTaken;
     }
-
     get maxHealth() {
         return this.baseHealth;
     }
 
+    @observable private _movePointsSpent: number = 0;
+    get remainingMovePoints() {
+        return this.baseSpeed - this._movePointsSpent;
+    }
+    spentMovePoints(delta: number) {
+        this._movePointsSpent += delta;
+    }
+
     @observable private _cell: Cell | null = null;
+
     get cell() {return this._cell;}
 
-    set cell(cell: Cell | null) {this.setCell(cell);}
+    set cell(cell: Cell|null) {this.setCell(cell);}
 
     @action private setCell(cell: Cell | null) {
         if (cell == this._cell) return;
@@ -76,9 +75,16 @@ export class PlayerUnit extends Unit {
             && this.cell.isNeighbor(unit.cell);
     }
 
-    canReach(cell: Cell) {
-        if (!this.cell) return false;
-        return this.cell.getManhattenDistance(cell) <= this.speed;
+    canReach(cell: Cell|number) {
+        if (typeof cell !== "number") {
+            cell = this.getPath(cell);
+        }
+        return cell <= this.baseSpeed;
+    }
+
+    getPath(cell: Cell) {
+        if (!this.cell) return Infinity;
+        return this.cell.getManhattenDistance(cell)
     }
 
     receiveAttack({}: PlayerUnit) {

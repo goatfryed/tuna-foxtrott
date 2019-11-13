@@ -2,7 +2,7 @@ import {AppContext, Cell, PlayerUnit} from "../model";
 import {useAdventure, useAppContext} from "../state";
 import {useObserver} from "mobx-react-lite";
 import React, {useMemo} from "react";
-import {Action, ActionType, attackAction, moveAction, selectAction, unselectAction} from "../actions";
+import {Action, ActionType, attackAction, selectAction, unselectAction} from "../actions";
 import {Adventure} from "../model/Adventure";
 import classNames from "classnames";
 
@@ -37,15 +37,11 @@ function deriveAction(cell: Cell, adventure: Adventure, appContext: AppContext) 
         return;
     }
 
-    if (cell.unit === null) {
-        if (activeUnit.canReach(cell)) {
-            return {
-                primary: moveAction(activeUnit, cell),
-            };
-        }
-        return;
-    }
-    if (!cell.unit.isAlive) {
+    const moveAction = adventure.actions.move(activeUnit, cell);
+    if (moveAction) return {
+        primary: moveAction,
+    };
+    if (cell.unit === null || !cell.unit.isAlive) {
         return;
     }
 

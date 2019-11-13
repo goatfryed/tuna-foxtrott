@@ -1,5 +1,6 @@
 import {Cell, PlayerUnit} from "../model";
 import {Adventure} from "../model/Adventure";
+import {action} from "mobx";
 
 /**
  * business logic should be tied to the model
@@ -11,10 +12,10 @@ import {Adventure} from "../model/Adventure";
  */
 
 export enum ActionType {
-    SELECT,
-    MOVE,
-    ATTACK,
-    UNSELECT,
+    SELECT = "SELECT",
+    MOVE = "MOVE",
+    ATTACK = "ATTACK",
+    UNSELECT = "UNSELECT",
 }
 
 export interface Action {
@@ -22,31 +23,46 @@ export interface Action {
     type: ActionType;
 }
 
-function asAction(run: () => void, type: ActionType): Action {
-    return {
-        run,
-        type
-    }
-}
-
 export function selectAction(adventure: Adventure, unit: PlayerUnit) {
-    return asAction(() => adventure.activeUnit = unit,ActionType.SELECT);
-}
-
-export function moveAction(activeUnit: PlayerUnit, cell: Cell) {
-    return asAction(() => activeUnit.cell = cell, ActionType.MOVE);
+    return ActionManager.asAction(ActionType.SELECT, () => adventure.activeUnit = unit);
 }
 
 // noinspection JSUnusedLocalSymbols
 export function attackAction(attacker: PlayerUnit, target: PlayerUnit) {
-    return asAction(
-        () => {
-            target.receiveAttack(attacker);
-        },
-        ActionType.ATTACK,
-    );
+    return ActionManager.asAction(ActionType.ATTACK, () => {
+        target.receiveAttack(attacker);
+    });
 }
 
 export function unselectAction(adventure: Adventure) {
-    return asAction(() => adventure.activeUnit = null, ActionType.UNSELECT);
+    return ActionManager.asAction(ActionType.UNSELECT, () => adventure.activeUnit = null);
+}
+
+export class ActionManager {
+    constructor(private adventure: Adventure) {
+    }
+
+    move(unit: PlayerUnit, cell: Cell) {
+        if (cell.unit !== null || unit.cell === null || cell.unit !== this.adventure.activeUnit) {
+            return;
+        }
+        const path = cell.getManhattenDistance(unit.cell);
+        if (path > unit.remainingMovePoints) {
+            return;
+        }
+        return ActionManager.asAction(
+            ActionType.MOVE,
+            action(() => {
+                unit.cell = cell;
+                unit.spentMovePoints(path);
+            })
+        );
+    }
+
+    static asAction(type: ActionType, run: () => void): Action {
+        return {
+            type,
+            run,
+        }
+    }
 }

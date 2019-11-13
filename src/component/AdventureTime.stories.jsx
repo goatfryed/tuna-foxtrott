@@ -4,38 +4,55 @@ import {AppContextProvider} from "../state";
 import {AppContext, Player} from "../model";
 import {createThugTown} from "../adventure/ThugTown";
 import {action} from "@storybook/addon-actions";
-import {boolean, withKnobs} from "@storybook/addon-knobs";
+import {boolean, button, withKnobs} from "@storybook/addon-knobs";
+import {useMemo} from "@storybook/addons";
 
-const user = new Player("Karli");
-const appContext = new AppContext(user);
-const axel = user.addUnit({name: "axel", baseHealth: 5});
-const bower = user.addUnit({name: "bower", speed: 2, baseHealth: 4});
-const macel = user.addUnit({name: "macel", baseHealth: 6});
+function createStoryContext() {
+    const user = new Player("Karli");
+    return {
+        user,
+        axel: user.addUnit({name: "axel", baseHealth: 5}),
+        bower: user.addUnit({name: "bower", baseSpeed: 2, baseHealth: 4}),
+        macel: user.addUnit({name: "macel", baseHealth: 6}),
+        appContext: new AppContext(user)
+    }
+}
 
 export default {
     title: "Adventuring",
     component: AdventureView,
     decorators: [
         withKnobs,
-        Story => <AppContextProvider context={appContext}><Story /></AppContextProvider>,
+        Story => {
+            button("Refresh", () => {});
+            return <Story />
+        },
     ],
     parameters: {
         enableShortcuts: false,
-    }
+    },
 }
 
 export function thugTown() {
-    const thugTownAdventure = createThugTown(user);
-    user.units.forEach(u => thugTownAdventure.heroes.push(u));
+    const context = createStoryContext();
 
-    axel.cell = thugTownAdventure.board[0][0];
-    bower.cell = thugTownAdventure.board[3][3];
-    macel.cell = thugTownAdventure.board[2][0];
-    thugTownAdventure.activeUnit = bower;
+    const thugTownAdventure = useMemo(
+        () => {
+            const adventure = createThugTown(context.user);
+            context.user.units.forEach(u => adventure.heroes.push(u));
+            context.axel.cell = adventure.board[0][0];
+            context.bower.cell = adventure.board[3][3];
+            context.macel.cell = adventure.board[2][0];
+            adventure.activeUnit = context.bower;
 
-    return <AdventureView
+            return adventure;
+        },
+        [context]
+    );
+
+    return <AppContextProvider context={context.appContext}><AdventureView
         adventure={thugTownAdventure}
         onSurrender={action("onSurrender")}
         isIsometric={boolean("Isometric", false)}
-    />
+    /></AppContextProvider>
 }
