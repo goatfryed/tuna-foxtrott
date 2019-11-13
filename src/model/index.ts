@@ -1,7 +1,8 @@
-import {action, observable} from "mobx";
+import {action, computed, observable} from "mobx";
 
 export interface UnitDefinition {
-    name: string;
+    name: string,
+    readonly baseHealth: number,
     speed?: number,
 }
 
@@ -14,11 +15,13 @@ export class Unit implements UnitDefinition {
 
     protected static counter: number = 0;
     id: number;
+    readonly baseHealth: number;
     readonly name: string;
 
     constructor(definition: UnitDefinition | Unit) {
-        const {name, id} = definition as Unit;
+        const {name, id, baseHealth} = definition as Unit;
         this.name = name;
+        this.baseHealth = baseHealth;
         this.id = id !== undefined ? id : PlayerUnit.counter++;
     }
 
@@ -30,6 +33,7 @@ export class Unit implements UnitDefinition {
 export class PlayerUnit extends Unit {
 
     speed: number = 3;
+    @observable dmgTaken: number = 0;
 
     @observable readonly actions: ActionOption[] = [];
     // @ts-ignore // Object.assign assigns this definitely
@@ -37,6 +41,14 @@ export class PlayerUnit extends Unit {
     constructor(definition: UnitDefinition, readonly player: Player) {
         super(definition);
         if (definition.speed) this.speed = definition.speed;
+    }
+
+    @computed get currentHealth() {
+        return this.baseHealth - this.dmgTaken;
+    }
+
+    get maxHealth() {
+        return this.baseHealth;
     }
 
     @observable private _cell: Cell | null = null;
@@ -67,6 +79,14 @@ export class PlayerUnit extends Unit {
     canReach(cell: Cell) {
         if (!this.cell) return false;
         return this.cell.getManhattenDistance(cell) <= this.speed;
+    }
+
+    receiveAttack({}: PlayerUnit) {
+        this.dmgTaken = this.dmgTaken + 1;
+    }
+
+    @computed get isAlive() {
+        return this.currentHealth > 0;
     }
 }
 

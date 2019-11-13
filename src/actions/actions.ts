@@ -38,8 +38,13 @@ export function moveAction(activeUnit: PlayerUnit, cell: Cell) {
 }
 
 // noinspection JSUnusedLocalSymbols
-export function attackAction(activeUnit: PlayerUnit, unit: PlayerUnit) {
-    return asAction(() => alert("B#m"), ActionType.ATTACK);
+export function attackAction(attacker: PlayerUnit, target: PlayerUnit) {
+    return asAction(
+        () => {
+            target.receiveAttack(attacker);
+        },
+        ActionType.ATTACK,
+    );
 }
 
 export function unselectAction(adventure: Adventure) {

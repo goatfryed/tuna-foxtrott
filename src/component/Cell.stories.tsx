@@ -19,7 +19,7 @@ export function disabled() {
 export function selected() {
     const cell = new Cell(6,9);
     const player = new Player("Karli");
-    cell.unit = player.addUnit({name: "bower"});
+    cell.unit = player.addUnit({name: "bower", baseHealth: 5});
 
     return <CellView
         cell={cell}

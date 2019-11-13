@@ -44,7 +44,7 @@ function AddHero(props: { onHeroCreation: (unit: UnitDefinition) => any } & Adve
     const form = useForm();
     const onSubmit = useCallback(
         form.handleSubmit(({name}) => {
-            props.onHeroCreation({name});
+            props.onHeroCreation({name, baseHealth: 5});
             form.reset();
         }),
         [props.onHeroCreation]
@@ -71,8 +71,8 @@ function createAdventure(user: Player) {
         adventure.players.push(user);
         adventure.players.push(enemy);
 
-        let soldier1 = enemy.addUnit({name:"soldier1"});
-        let soldier2 = enemy.addUnit({name:"soldier2"});
+        let soldier1 = enemy.addUnit({name:"soldier1", baseHealth: 5});
+        let soldier2 = enemy.addUnit({name:"soldier2", baseHealth: 5});
 
         adventure.board[0][3].unit = soldier1;
         adventure.board[1][3].unit = soldier2;

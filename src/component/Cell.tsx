@@ -1,4 +1,4 @@
-import {AppContext, Cell} from "../model";
+import {AppContext, Cell, PlayerUnit} from "../model";
 import {useAdventure, useAppContext} from "../state";
 import {useObserver} from "mobx-react-lite";
 import React, {useMemo} from "react";
@@ -43,6 +43,9 @@ function deriveAction(cell: Cell, adventure: Adventure, appContext: AppContext) 
                 primary: moveAction(activeUnit, cell),
             };
         }
+        return;
+    }
+    if (!cell.unit.isAlive) {
         return;
     }
 
@@ -124,6 +127,13 @@ interface CellViewProps extends CellProp {
     actionLabel?: string
 }
 
+type Wanted = 'currentHealth'|'maxHealth';
+function CellUnitDetail(props: Pick<PlayerUnit, Wanted> & {description: string} ) {
+    return <>
+        {props.description + ` (${props.currentHealth}/${props.maxHealth})`}
+    </>;
+}
+
 export function CellView({style, onClick, cell, actionLabel}: CellViewProps) {
     return useObserver(() => <button
             className={"cell "+ style }
@@ -132,7 +142,13 @@ export function CellView({style, onClick, cell, actionLabel}: CellViewProps) {
             onContextMenu={onClick}
         >
             <div>
-                {cell.unit && <div>{String(cell.unit)}</div>}
+                {cell.unit && <div>
+                    <CellUnitDetail
+                        currentHealth={cell.unit.currentHealth}
+                        maxHealth={cell.unit.maxHealth}
+                        description={String(cell.unit)}
+                    />
+                </div>}
                 <div>{String(cell)}</div>
                 {actionLabel && <div>{actionLabel}</div>}
             </div>

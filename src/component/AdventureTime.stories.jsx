@@ -8,9 +8,9 @@ import {boolean, withKnobs} from "@storybook/addon-knobs";
 
 const user = new Player("Karli");
 const appContext = new AppContext(user);
-const axel = user.addUnit({name: "axel"});
-const bower = user.addUnit({name: "bower", speed: 2});
-const macel = user.addUnit({name: "macel"});
+const axel = user.addUnit({name: "axel", baseHealth: 5});
+const bower = user.addUnit({name: "bower", speed: 2, baseHealth: 4});
+const macel = user.addUnit({name: "macel", baseHealth: 6});
 
 export default {
     title: "Adventuring",

@@ -18,5 +18,4 @@ export class Adventure {
     constructor(board: Board) {
         this.board = board;
     }
-
 }
