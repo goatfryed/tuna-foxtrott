@@ -35,20 +35,6 @@ $cell-size: 6rem;
   width: $cell-size;
   margin: 0.02 * $cell-size;
 
-  .info {
-    font-size: 0.8em;
-    position: absolute;
-    bottom: 0;
-    right: 0;
-    background: rgba(0,0,0,0.72);
-    line-height: 0.8;
-    margin: 0.1em;
-    pointer-events: none;
-    color: white;
-    border-radius: 0.8em;
-    padding: 0.2em;
-  }
-
   .content {
     @extend .button;
     height: 100%;

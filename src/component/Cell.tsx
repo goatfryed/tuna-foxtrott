@@ -131,7 +131,9 @@ function CellUnitDetail(props: Pick<PlayerUnit, Wanted> & {description: string} 
 }
 
 export function CellView({style, onClick, cell, actionLabel}: CellViewProps) {
-    return useObserver(() => <div className="cell">
+    return useObserver(() => <div
+        title={String(cell)}
+        className="cell">
             <button
                 className={"content "+ style }
                 disabled={onClick === undefined}
@@ -149,7 +151,6 @@ export function CellView({style, onClick, cell, actionLabel}: CellViewProps) {
                     {actionLabel && <div>{actionLabel}</div>}
                 </div>
             </button>
-            <div className="info">{String(cell)}</div>
         </div>
     );
 }
