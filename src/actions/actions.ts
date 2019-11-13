@@ -43,7 +43,7 @@ export class ActionManager {
     }
 
     move(unit: PlayerUnit, cell: Cell) {
-        if (cell.unit !== null || unit.cell === null || cell.unit !== this.adventure.activeUnit) {
+        if (cell.unit !== null || unit.cell === null || unit !== this.adventure.activeUnit) {
             return;
         }
         const path = cell.getManhattenDistance(unit.cell);
