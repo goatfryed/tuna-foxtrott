@@ -30,27 +30,49 @@
 $cell-size: 6rem;
 
 .cell {
-  @extend .button;
+  position: relative;
   height: $cell-size;
   width: $cell-size;
-  white-space: normal;
   margin: 0.02 * $cell-size;
 
-  &.friendly {
-    @extend .is-success;
+  .info {
+    font-size: 0.8em;
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    background: rgba(0,0,0,0.72);
+    line-height: 0.8;
+    margin: 0.1em;
+    pointer-events: none;
+    color: white;
+    border-radius: 0.8em;
+    padding: 0.2em;
   }
-  &.enemy {
-    @extend .is-warning;
 
-    &.canAttack {
-        @extend .is-danger;
+  .content {
+    @extend .button;
+    height: 100%;
+    width: 100%;
+    white-space: normal;
+
+
+    &.friendly {
+      @extend .is-success;
     }
-  }
-  &.canMove {
-    @extend .is-info;
-  }
-  &.isSelected {
-    @extend .is-primary;
+    &.enemy {
+      @extend .is-warning;
+
+      &.canAttack {
+        @extend .is-danger;
+      }
+    }
+    &.canMove {
+      @extend .is-info;
+    }
+    &.isSelected {
+      @extend .is-primary;
+    }
+
   }
 }
 

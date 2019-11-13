@@ -135,23 +135,25 @@ function CellUnitDetail(props: Pick<PlayerUnit, Wanted> & {description: string} 
 }
 
 export function CellView({style, onClick, cell, actionLabel}: CellViewProps) {
-    return useObserver(() => <button
-            className={"cell "+ style }
-            disabled={onClick === undefined}
-            onClick={onClick}
-            onContextMenu={onClick}
-        >
-            <div>
-                {cell.unit && <div>
-                    <CellUnitDetail
-                        currentHealth={cell.unit.currentHealth}
-                        maxHealth={cell.unit.maxHealth}
-                        description={String(cell.unit)}
-                    />
-                </div>}
-                <div>{String(cell)}</div>
-                {actionLabel && <div>{actionLabel}</div>}
-            </div>
-        </button>
+    return useObserver(() => <div className="cell">
+            <button
+                className={"content "+ style }
+                disabled={onClick === undefined}
+                onClick={onClick}
+                onContextMenu={onClick}
+            >
+                <div>
+                    {cell.unit && <div>
+                        <CellUnitDetail
+                            currentHealth={cell.unit.currentHealth}
+                            maxHealth={cell.unit.maxHealth}
+                            description={String(cell.unit)}
+                        />
+                    </div>}
+                    {actionLabel && <div>{actionLabel}</div>}
+                </div>
+            </button>
+            <div className="info">{String(cell)}</div>
+        </div>
     );
 }
