@@ -31,7 +31,7 @@ export function unselectAction(adventure: Adventure) {
     return ActionManager.asAction(ActionType.UNSELECT, () => adventure.activeUnit = null);
 }
 
-export class ActionManager {
+export abstract class ActionManager {
     constructor(private adventure: Adventure) {
     }
 
@@ -39,7 +39,21 @@ export class ActionManager {
         return unit === this.adventure.activeUnit;
     }
 
-    attackAction(attacker: PlayerUnit, target: PlayerUnit) {
+    attack(attacker: PlayerUnit, target: PlayerUnit) {}
+
+    move(unit: PlayerUnit, cell: Cell) {}
+
+
+    static asAction(type: ActionType, run: () => void): Action {
+        return {
+            type,
+            run,
+        }
+    }
+}
+
+export class AttackManager extends ActionManager {
+    attack(attacker: PlayerUnit, target: PlayerUnit) {
         if (
             this.canAct(attacker)
             && attacker.player !== target.player
@@ -49,9 +63,12 @@ export class ActionManager {
                 ActionType.ATTACK, () => {
                     target.dealDamage(1);
                     attacker.exhausted = true;
-            });
+                });
         }
     }
+}
+
+export class MovementManager extends ActionManager {
 
     move(unit: PlayerUnit, cell: Cell) {
         if (cell.unit !== null || unit.cell === null || !this.canAct(unit)) {
@@ -69,17 +86,6 @@ export class ActionManager {
             })
         );
     }
-
-
-    static asAction(type: ActionType, run: () => void): Action {
-        return {
-            type,
-            run,
-        }
-    }
-}
-
-export class MovementManager extends ActionManager {
 
 }
 

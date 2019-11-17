@@ -45,7 +45,7 @@ function deriveAction(cell: Cell, adventure: Adventure, appContext: AppContext) 
         return;
     }
 
-    const attackAction = adventure.actions.attackAction(activeUnit, cell.unit);
+    const attackAction = adventure.actions.attack(activeUnit, cell.unit);
     if (attackAction) {
         return {
             primary: attackAction,
