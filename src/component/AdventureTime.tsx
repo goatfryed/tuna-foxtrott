@@ -10,17 +10,24 @@ export function AdventureView({adventure, isIsometric, onSurrender}: AdventureAw
     return <AdventureProvider adventure={adventure}>
         <div className="container">
             <hr/>
-            <div className="buttons">
-                {adventure.heroes.map(hero => <LocalHeroDetail
-                    key={hero.id}
-                    adventure={adventure}
-                    hero={hero}
-                />)}
+            <div className="columns">
+                <div className="column">
+                    <div className="buttons">
+                        {adventure.heroes.map(hero => <LocalHeroDetail
+                            key={hero.id}
+                            adventure={adventure}
+                            hero={hero}
+                        />)}
+                    </div>
+                </div>
+                <div className="column has-text-right">
+                    <button className="button is-warning" onClick={() => adventure.endTurn()}>End turn</button>
+                    <button className="button is-danger" onClick={onSurrender}>Surrender</button>
+                </div>
             </div>
             <hr/>
             <Board isIsometric={isIsometric}/>
             <hr/>
-            <button className="button is-danger" onClick={onSurrender}>Surrender</button>
         </div>
     </AdventureProvider>
 }

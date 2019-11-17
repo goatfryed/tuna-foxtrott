@@ -39,6 +39,20 @@ export class ActionManager {
         return unit === this.adventure.activeUnit;
     }
 
+    attackAction(attacker: PlayerUnit, target: PlayerUnit) {
+        if (
+            this.canAct(attacker)
+            && attacker.player !== target.player
+            && attacker.canAttack(target)
+        ) {
+            return ActionManager.asAction(
+                ActionType.ATTACK, () => {
+                    target.dealDamage(1);
+                    attacker.exhausted = true;
+            });
+        }
+    }
+
     move(unit: PlayerUnit, cell: Cell) {
         if (cell.unit !== null || unit.cell === null || !this.canAct(unit)) {
             return;
@@ -56,17 +70,6 @@ export class ActionManager {
         );
     }
 
-    attackAction(attacker: PlayerUnit, target: PlayerUnit) {
-        if (
-            this.canAct(attacker)
-            && attacker.player !== target.player
-            && attacker.canAttack(target)
-        ) {
-            return ActionManager.asAction(ActionType.ATTACK, () => {
-                target.receiveAttack(attacker);
-            });
-        }
-    }
 
     static asAction(type: ActionType, run: () => void): Action {
         return {
@@ -75,3 +78,8 @@ export class ActionManager {
         }
     }
 }
+
+export class MovementManager extends ActionManager {
+
+}
+

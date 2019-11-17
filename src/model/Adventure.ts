@@ -1,5 +1,5 @@
 import {Board, Player, PlayerUnit} from "./index";
-import {observable} from "mobx";
+import {action, observable} from "mobx";
 import {ActionManager} from "../actions";
 
 export interface AdventureAware {
@@ -21,5 +21,19 @@ export class Adventure {
     }
 
     readonly actions = new ActionManager(this);
+
+    @action
+    refresh() {
+        this.heroes.forEach(
+            h => {
+                h.exhausted = false;
+                h.restoreMovePoints()
+            }
+        )
+    }
+
+    endTurn() {
+        this.refresh();
+    }
 }
 

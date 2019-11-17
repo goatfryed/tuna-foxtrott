@@ -27,6 +27,7 @@ export class Unit implements UnitDefinition {
 export class PlayerUnit extends Unit {
 
     baseSpeed: number = 3;
+    @observable exhausted: boolean = false;
 
     constructor(definition: UnitDefinition, readonly player: Player) {
         super(definition);
@@ -41,12 +42,16 @@ export class PlayerUnit extends Unit {
         return this.baseHealth;
     }
 
-    @observable private _movePointsSpent: number = 0;
+    @observable private movePointsSpent: number = 0;
     get remainingMovePoints() {
-        return this.baseSpeed - this._movePointsSpent;
+        return this.baseSpeed - this.movePointsSpent;
     }
     spentMovePoints(delta: number) {
-        this._movePointsSpent += delta;
+        this.movePointsSpent += delta;
+    }
+
+    restoreMovePoints() {
+        this.movePointsSpent = 0;
     }
 
     @observable private _cell: Cell | null = null;
@@ -70,7 +75,8 @@ export class PlayerUnit extends Unit {
     }
 
     canAttack(unit: PlayerUnit) {
-        return this.cell !== null
+        return !this.exhausted
+            && this.cell !== null
             && unit.cell !== null
             && this.cell.isNeighbor(unit.cell);
     }
@@ -87,8 +93,8 @@ export class PlayerUnit extends Unit {
         return this.cell.getManhattenDistance(cell)
     }
 
-    receiveAttack({}: PlayerUnit) {
-        this.dmgTaken = this.dmgTaken + 1;
+    dealDamage(delta: number) {
+        this.dmgTaken = this.dmgTaken + delta;
     }
 
     @computed get isAlive() {
