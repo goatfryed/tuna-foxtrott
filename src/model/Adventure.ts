@@ -1,4 +1,4 @@
-import {Board, Player, PlayerUnit} from "./index";
+import {Board, Bot, Player, PlayerUnit} from "./index";
 import {action, computed, observable} from "mobx";
 import {ActionManager} from "../actions";
 
@@ -9,7 +9,6 @@ export interface AdventureAware {
 export class Adventure {
 
     @observable name: string = "test";
-    @observable currentPlayer: Player | null = null;
     @observable heroes: PlayerUnit[] = [];
 
     readonly players: Player[] = [];
@@ -64,5 +63,19 @@ export class Adventure {
         const currentActive = this.activeUnit;
         this.refresh();
         currentActive.initiative += currentActive.initiativeDelay;
+    }
+
+    setup() {
+        this.players
+            .filter((p: Player): p is Bot => p instanceof Bot)
+            .forEach(bot => bot.boot(this))
+        ;
+    }
+
+    tearDown() {
+        this.players
+            .filter((p: Player): p is Bot => p instanceof Bot)
+            .forEach(bot => bot.shutdown())
+        ;
     }
 }

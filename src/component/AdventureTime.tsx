@@ -1,18 +1,16 @@
 import {AdventureAware} from "../model/Adventure";
 import {useObserver} from "mobx-react-lite";
-import {AdventureProvider, useAppContext} from "../state";
+import {AdventureProvider} from "../state";
 import {Board} from "./Board";
 import React, {useEffect} from "react";
 import {HeroAware, HeroDetail} from "./Hero";
 import {Observer} from "mobx-react";
 
 export function AdventureView({adventure, isIsometric, onSurrender}: AdventureAware & { onSurrender: () => any, isIsometric?: boolean}) {
-
-    const context = useAppContext();
-
     useEffect(
         () => {
-            adventure.currentPlayer = context.user;
+            adventure.setup();
+            return () => adventure.tearDown()
         },
         [adventure]
     );

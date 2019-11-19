@@ -41,10 +41,7 @@ function alertHandler(adventure: Adventure, event: AnyKeyBoardEvent) {
     if (event.key !== "s") {
         return;
     }
-    if (adventure.activeUnit === null || adventure.activeUnit.player !== adventure.currentPlayer) {
-        return;
-    }
-    alert("Hey, " + adventure.name);
+    alert("Hey, " + adventure.activeUnit.name);
 }
 
 function endTurnHandler(adventure: Adventure, event: AnyKeyBoardEvent) {

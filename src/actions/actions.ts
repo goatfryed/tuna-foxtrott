@@ -74,7 +74,6 @@ export class ActionManager {
 
     canAct(unit: PlayerUnit) {
         return unit === this.adventure.activeUnit
-            && unit.player === this.adventure.currentPlayer
             && unit.isAlive
         ;
     }

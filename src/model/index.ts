@@ -1,4 +1,5 @@
 import {action, computed, observable} from "mobx";
+import {Adventure} from "./Adventure";
 
 export interface UnitDefinition {
     name: string;
@@ -121,6 +122,17 @@ export class Player {
         let playerUnit = new PlayerUnit(unit, this);
         this.units.push(playerUnit);
         return playerUnit;
+    }
+}
+
+export abstract class Bot extends Player {
+
+    protected shutdownHandler: Array<() => void> = [];
+
+    abstract boot(adventure: Adventure): void;
+
+    shutdown() {
+        this.shutdownHandler.forEach(handler => handler());
     }
 }
 
