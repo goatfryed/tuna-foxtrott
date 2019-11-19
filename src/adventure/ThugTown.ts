@@ -22,7 +22,7 @@ class ThugTownBot extends Bot {
     boot(adventure: Adventure): void {
         this.shutdownHandler.push(autorun(() => {
             const activeUnit = adventure.activeUnit;
-            if (activeUnit.player !== this) {
+            if (activeUnit === null || activeUnit.player !== this) {
                 return;
             }
             alert(activeUnit.name + " passes");

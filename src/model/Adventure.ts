@@ -20,8 +20,8 @@ export class Adventure {
         return this._actionManager;
     }
 
-    get activeUnit() {
-        return this.turnOrder[0];
+    get activeUnit(): PlayerUnit|null {
+        return this.turnOrder[0] || null;
     }
 
     @computed
@@ -61,6 +61,9 @@ export class Adventure {
     @action
     endTurn() {
         const currentActive = this.activeUnit;
+        if (!currentActive) {
+            return;
+        }
         this.refresh();
         currentActive.initiative += currentActive.initiativeDelay;
     }

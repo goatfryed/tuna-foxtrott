@@ -30,6 +30,7 @@ export class ActionManager {
 
     getDefaultInteraction(cell: Cell): Action|null {
         const activeUnit = this.adventure.activeUnit;
+
         const target = cell.unit;
 
         if (
