@@ -11,9 +11,9 @@ function createStoryContext() {
     const user = new Player("Karli");
     return {
         user,
-        axel: user.addUnit({name: "axel", baseHealth: 5}),
+        axel: user.addUnit({name: "axel", baseHealth: 5, initiative: 80}),
         bower: user.addUnit({name: "bower", baseSpeed: 2, baseHealth: 4}),
-        macel: user.addUnit({name: "macel", baseHealth: 6}),
+        macel: user.addUnit({name: "macel", baseHealth: 6, initiative: 105}),
         appContext: new AppContext(user)
     }
 }
@@ -39,11 +39,13 @@ export function thugTown() {
     const thugTownAdventure = useMemo(
         () => {
             const adventure = createThugTown(context.user);
+            const clubber = context.user.addUnit( {name: "clubber", baseHealth: 5, initiative: 80});
             context.user.units.forEach(u => adventure.heroes.push(u));
             context.axel.cell = adventure.board[0][0];
             context.bower.cell = adventure.board[3][3];
             context.macel.cell = adventure.board[2][0];
-            adventure.activeUnit = context.bower;
+            clubber.cell = adventure.board[0][5];
+            adventure.activeUnit = context.axel;
 
             return adventure;
         },

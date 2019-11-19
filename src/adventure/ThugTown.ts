@@ -10,7 +10,7 @@ export function createThugTown(user: Player) {
     thugTown.players.push(user);
     thugTown.players.push(thugs);
 
-    board[1][4].unit  = thugs.addUnit({name: "bully", baseHealth: 5});
+    board[1][4].unit  = thugs.addUnit({name: "bully", baseHealth: 5, initiative: 90});
     board[2][3].unit = thugs.addUnit({name: "thug", baseHealth: 4});
 
     return thugTown;

@@ -31,7 +31,7 @@ export class Unit implements UnitDefinition {
 
 export class PlayerUnit extends Unit {
 
-    initiative: number = 10;
+    initiative: number = 100;
     baseSpeed: number = 3;
     @observable exhausted: boolean = false;
 
