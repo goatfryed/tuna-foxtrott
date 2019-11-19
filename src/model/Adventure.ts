@@ -11,7 +11,6 @@ export class Adventure {
 
     @observable name: string = "test";
     @observable currentPlayer: Player | null = null;
-    @observable activeUnit: PlayerUnit | null = null;
     @observable heroes: PlayerUnit[] = [];
 
     readonly players: Player[] = [];
@@ -24,6 +23,10 @@ export class Adventure {
 
     get actionManager() {
         return this._actionManager;
+    }
+
+    get activeUnit() {
+        return this.turnOrder[0];
     }
 
     @computed
@@ -57,7 +60,10 @@ export class Adventure {
         )
     }
 
+    @action
     endTurn() {
+        const currentActive = this.activeUnit;
         this.refresh();
+        currentActive.initiative += currentActive.initiativeDelay;
     }
 }

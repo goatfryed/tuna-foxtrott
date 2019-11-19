@@ -47,29 +47,17 @@ function alertHandler(adventure: Adventure, event: AnyKeyBoardEvent) {
     alert("Hey, " + adventure.name);
 }
 
-const tapThroughSelectionHandler = (adventure: Adventure, event: AnyKeyBoardEvent) => {
-    if (event.key === "d") {
-        switchActiveUnit(adventure,+1);
+function endTurnHandler(adventure: Adventure, event: AnyKeyBoardEvent) {
+    if (event.key !== " ") {
+        return;
     }
-    if (event.key === "a") {
-        switchActiveUnit(adventure,-1);
-    }
-};
+    adventure.endTurn();
+}
 
 const keyPressHandlers: StoreAwareKeyboardEventHandler[] = [
     alertHandler,
-    tapThroughSelectionHandler
+    endTurnHandler,
 ];
-
-function switchActiveUnit(adventure: Adventure, direction: number) {
-    if (adventure.heroes.length > 0) {
-        const nextIndex = adventure.activeUnit !== null ?
-            //ensure 0 to length -1
-            (adventure.heroes.indexOf(adventure.activeUnit) + adventure.heroes.length + direction) % adventure.heroes.length
-            : 0;
-        adventure.activeUnit = adventure.heroes[nextIndex];
-    }
-}
 
 function useAdventureKeyPressHandler(adventure: Adventure) {
     const handler = useMemo(

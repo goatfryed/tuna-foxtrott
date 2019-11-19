@@ -72,14 +72,6 @@ export class ActionManager {
         return null;
     }
 
-    select(unit: PlayerUnit) {
-        return ActionManager.asAction(ActionType.SELECT, () => this.adventure.activeUnit = unit);
-    }
-
-    unselect() {
-        return ActionManager.asAction(ActionType.UNSELECT, () => this.adventure.activeUnit = null);
-    }
-
     canAct(unit: PlayerUnit) {
         return unit === this.adventure.activeUnit
             && unit.player === this.adventure.currentPlayer

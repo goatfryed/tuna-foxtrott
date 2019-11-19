@@ -3,7 +3,7 @@ import {action, computed, observable} from "mobx";
 export interface UnitDefinition {
     name: string;
     readonly baseHealth: number;
-    initiative?: number;
+    initiativeDelay?: number;
     baseSpeed?: number;
 }
 
@@ -31,14 +31,15 @@ export class Unit implements UnitDefinition {
 
 export class PlayerUnit extends Unit {
 
-    initiative: number = 100;
+    initiativeDelay: number = 100;
     baseSpeed: number = 3;
+    @observable initiative: number = this.initiativeDelay;
     @observable exhausted: boolean = false;
 
     constructor(definition: UnitDefinition, readonly player: Player) {
         super(definition);
         if (definition.baseSpeed) this.baseSpeed = definition.baseSpeed;
-        if (definition.initiative) this.initiative = definition.initiative;
+        if (definition.initiativeDelay) this.initiativeDelay = definition.initiativeDelay;
     }
 
     @observable private dmgTaken: number = 0;

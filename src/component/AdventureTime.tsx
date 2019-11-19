@@ -2,8 +2,9 @@ import {AdventureAware} from "../model/Adventure";
 import {useObserver} from "mobx-react-lite";
 import {AdventureProvider, useAppContext} from "../state";
 import {Board} from "./Board";
-import React, {useEffect, useMemo} from "react";
+import React, {useEffect} from "react";
 import {HeroAware, HeroDetail} from "./Hero";
+import {Observer} from "mobx-react";
 
 export function AdventureView({adventure, isIsometric, onSurrender}: AdventureAware & { onSurrender: () => any, isIsometric?: boolean}) {
 
@@ -21,13 +22,14 @@ export function AdventureView({adventure, isIsometric, onSurrender}: AdventureAw
             <hr/>
             <div className="columns">
                 <div className="column">
-                    <div className="buttons">
-                        {adventure.turnOrder.map(hero => <LocalHeroDetail
-                            key={hero.id}
-                            adventure={adventure}
-                            hero={hero}
-                        />)}
-                    </div>
+                    <Observer>{() => (<div className="buttons">
+                            {adventure.turnOrder.map(hero => <LocalHeroDetail
+                                key={hero.id}
+                                adventure={adventure}
+                                hero={hero}
+                            />)}
+                        </div>)}
+                    </Observer>
                 </div>
                 <div className="column has-text-right">
                     <button className="button is-warning" onClick={() => adventure.endTurn()}>End turn</button>
@@ -51,14 +53,10 @@ function LocalHeroDetail({hero, adventure}: HeroAware & AdventureAware) {
         })
     );
 
-    const handleClick = useMemo(
-        () => heroIsUserControlled
-                && !heroIsActive
-                && (() => adventure.activeUnit = hero),
-        [hero, adventure, heroIsActive, heroIsUserControlled]
-    );
+    const handleClick = undefined;
 
-    const style = heroIsActive ? "is-primary" : "is-info";
+    const style = heroIsActive ? "is-primary"
+        : (heroIsUserControlled ? "is-success" : "is-danger");
 
-    return <HeroDetail onClick={handleClick||undefined} hero={hero} style={style}/>
+    return <HeroDetail onClick={handleClick} hero={hero} style={style}/>
 }

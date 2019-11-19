@@ -58,18 +58,10 @@ export function CellPresenter({cell}: CellProp) {
     const onClick = useMemo(
         () => {
             if (defaultAction) {
-                return action((event: React.MouseEvent) => {
-                    event.preventDefault();
-                    if (event.button == 2 && activeUnit !== cellUnit) {
-                        adventure.activeUnit = cellUnit;
-                        return;
-                    }
+                return action(({}: React.MouseEvent) => {
                     defaultAction.run();
                 })
             }
-            return action(() => {
-                adventure.activeUnit = cellUnit;
-            })
         },
         [adventure,defaultAction, activeUnit, cellUnit]
     );
