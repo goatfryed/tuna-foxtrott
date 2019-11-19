@@ -32,6 +32,7 @@ export class Adventure {
     @computed
     get turnOrder() {
         return this.players.flatMap(p => p.units)
+            .filter(u => u.isAlive)
             .sort( (a,b) => {
                 // lower initiative should come first
                 const iniOrder = a.initiative - b.initiative;
