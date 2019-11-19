@@ -6,7 +6,6 @@ export interface AdventureAware {
     adventure: Adventure
 }
 
-type PhaseNames = "movement" | "attack";
 export class Adventure {
 
     @observable name: string = "test";
@@ -17,9 +16,6 @@ export class Adventure {
     board: Board;
 
     private _actionManager: ActionManager = new ActionManager(this);
-
-    @observable
-    private _currentPhase: PhaseNames = "movement";
 
     get actionManager() {
         return this._actionManager;
@@ -33,18 +29,20 @@ export class Adventure {
     get turnOrder() {
         return this.players.flatMap(p => p.units)
             .filter(u => u.isAlive)
-            .sort( (a,b) => {
-                // lower initiative should come first
-                const iniOrder = a.initiative - b.initiative;
-                if (iniOrder !== 0) {
-                    return iniOrder;
-                }
-                // player should always come first
-                if (a.player.isUser !== b.player.isUser) {
-                    return a.player.isUser ? -1 : +1;
-                }
-                return a.id - b.id;
-            })
+            .sort( Adventure.sortForTurnOrder)
+    }
+
+    private static sortForTurnOrder(a: PlayerUnit, b: PlayerUnit) {
+        // lower initiative should come first
+        const iniOrder = a.initiative - b.initiative;
+        if (iniOrder !== 0) {
+            return iniOrder;
+        }
+        // player should always come first
+        if (a.player.isUser !== b.player.isUser) {
+            return a.player.isUser ? -1 : +1;
+        }
+        return a.id - b.id;
     }
 
     constructor(board: Board) {
