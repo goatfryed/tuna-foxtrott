@@ -112,6 +112,8 @@ export class PlayerUnit extends Unit {
 export class Player {
     @observable readonly units: PlayerUnit[] = [];
 
+    isUser: boolean = false;
+
     constructor(public name: string) {}
 
     @action addUnit(unit: UnitDefinition) {
@@ -169,5 +171,7 @@ export function createBoard(sizeX: number, sizeY: number) {
 }
 
 export class AppContext {
-    constructor(readonly user: Player) {}
+    constructor(readonly user: Player) {
+        user.isUser = true;
+    }
 }

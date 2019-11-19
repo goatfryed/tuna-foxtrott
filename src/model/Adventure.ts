@@ -1,5 +1,5 @@
 import {Board, Player, PlayerUnit} from "./index";
-import {action, observable} from "mobx";
+import {action, computed, observable} from "mobx";
 import {ActionManager} from "../actions";
 
 export interface AdventureAware {
@@ -24,6 +24,23 @@ export class Adventure {
 
     get actionManager() {
         return this._actionManager;
+    }
+
+    @computed
+    get turnOrder() {
+        return this.players.flatMap(p => p.units)
+            .sort( (a,b) => {
+                // lower initiative should come first
+                const iniOrder = a.initiative - b.initiative;
+                if (iniOrder !== 0) {
+                    return iniOrder;
+                }
+                // player should always come first
+                if (a.player.isUser !== b.player.isUser) {
+                    return a.player.isUser ? -1 : +1;
+                }
+                return a.id - b.id;
+            })
     }
 
     constructor(board: Board) {
