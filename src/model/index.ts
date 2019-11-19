@@ -1,9 +1,10 @@
 import {action, computed, observable} from "mobx";
 
 export interface UnitDefinition {
-    name: string,
-    readonly baseHealth: number,
-    baseSpeed?: number,
+    name: string;
+    readonly baseHealth: number;
+    initiative?: number;
+    baseSpeed?: number;
 }
 
 export class Unit implements UnitDefinition {
@@ -13,7 +14,11 @@ export class Unit implements UnitDefinition {
     readonly baseHealth: number;
     readonly name: string;
     constructor(definition: UnitDefinition | Unit) {
-        const {name, id, baseHealth} = definition as Unit;
+        const {
+            name,
+            id,
+            baseHealth
+        } = definition as Unit;
         this.name = name;
         this.baseHealth = baseHealth;
         this.id = id !== undefined ? id : PlayerUnit.counter++;
@@ -26,12 +31,14 @@ export class Unit implements UnitDefinition {
 
 export class PlayerUnit extends Unit {
 
+    initiative: number = 10;
     baseSpeed: number = 3;
     @observable exhausted: boolean = false;
 
     constructor(definition: UnitDefinition, readonly player: Player) {
         super(definition);
         if (definition.baseSpeed) this.baseSpeed = definition.baseSpeed;
+        if (definition.initiative) this.initiative = definition.initiative;
     }
 
     @observable private dmgTaken: number = 0;
