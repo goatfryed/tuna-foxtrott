@@ -21,7 +21,10 @@ export function HeroDetail({hero, onClick, style = "is-info"}: HeroDetailProps) 
     );
 
     return <div className="unit-entry">
-        <a tabIndex={-1} className={"button is-small " + style} onClick={handleClick}
-        >{hero.name}</a>
+        <button tabIndex={-1}
+            className={"button is-small " + style}
+            onClick={handleClick}
+            disabled={!handleClick}
+        >{hero.name}</button>
     </div>;
 }
