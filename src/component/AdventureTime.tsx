@@ -1,12 +1,21 @@
 import {AdventureAware} from "../model/Adventure";
 import {useObserver} from "mobx-react-lite";
-import {AdventureProvider} from "../state";
+import {AdventureProvider, useAppContext} from "../state";
 import {Board} from "./Board";
-import React, {useMemo} from "react";
+import React, {useCallback, useEffect} from "react";
 import {HeroAware, HeroDetail} from "./Hero";
-import {selectAction, unselectAction} from "../actions";
 
 export function AdventureView({adventure, isIsometric, onSurrender}: AdventureAware & { onSurrender: () => any, isIsometric?: boolean}) {
+
+    const context = useAppContext();
+
+    useEffect(
+        () => {
+            adventure.currentPlayer = context.user;
+        },
+        [adventure]
+    );
+
     return <AdventureProvider adventure={adventure}>
         <div className="container">
             <hr/>
@@ -34,8 +43,10 @@ export function AdventureView({adventure, isIsometric, onSurrender}: AdventureAw
 
 function LocalHeroDetail({hero, adventure}: HeroAware & AdventureAware) {
     const heroIsActive = useObserver(() => adventure.activeUnit === hero);
-    const handleClick = useMemo(
-        () => (heroIsActive ? unselectAction(adventure) : selectAction(adventure, hero)).run,
+    const handleClick = useCallback(
+        () => {
+            if (!heroIsActive) adventure.activeUnit = hero;
+        },
         [hero, adventure, heroIsActive]
     );
 

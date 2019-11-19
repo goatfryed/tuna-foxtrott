@@ -11,11 +11,12 @@ import {action} from "mobx";
  * Therefore
  */
 
+
 export enum ActionType {
-    SELECT = "SELECT",
-    MOVE = "MOVE",
-    ATTACK = "ATTACK",
-    UNSELECT = "UNSELECT",
+    SELECT = "select",
+    MOVE = "move",
+    ATTACK = "attack",
+    UNSELECT = "unselect",
 }
 
 export interface Action {
@@ -23,26 +24,68 @@ export interface Action {
     type: ActionType;
 }
 
-export function selectAction(adventure: Adventure, unit: PlayerUnit) {
-    return ActionManager.asAction(ActionType.SELECT, () => adventure.activeUnit = unit);
-}
+export class ActionManager {
 
-export function unselectAction(adventure: Adventure) {
-    return ActionManager.asAction(ActionType.UNSELECT, () => adventure.activeUnit = null);
-}
+    constructor(protected adventure: Adventure) {}
 
-export abstract class ActionManager {
-    constructor(private adventure: Adventure) {
+    getDefaultInteraction(cell: Cell): Action|null {
+        const activeUnit = this.adventure.activeUnit;
+        const target = cell.unit;
+
+        if (
+            activeUnit === null
+            || activeUnit === target
+            || !this.canAct(activeUnit)
+            || activeUnit.cell === null
+            || !activeUnit.isAlive
+        ) {
+            return null;
+        }
+
+        if (target === null) {
+            const path = cell.getManhattenDistance(activeUnit.cell);
+            if (path > activeUnit.remainingMovePoints) {
+                return null;
+            }
+            return ActionManager.asAction(
+                ActionType.MOVE,
+                action(() => {
+                    activeUnit.cell = cell;
+                    activeUnit.spentMovePoints(path);
+                })
+            );
+        }
+
+        if (
+            activeUnit.player !== target.player
+            && target.isAlive
+            && activeUnit.canAttack(target)
+        ) {
+            return ActionManager.asAction(
+                ActionType.ATTACK, () => {
+                    target.dealDamage(1);
+                    activeUnit.exhausted = true;
+                    this.adventure.endTurn();
+                });
+        }
+
+        return null;
+    }
+
+    select(unit: PlayerUnit) {
+        return ActionManager.asAction(ActionType.SELECT, () => this.adventure.activeUnit = unit);
+    }
+
+    unselect() {
+        return ActionManager.asAction(ActionType.UNSELECT, () => this.adventure.activeUnit = null);
     }
 
     canAct(unit: PlayerUnit) {
-        return unit === this.adventure.activeUnit;
+        return unit === this.adventure.activeUnit
+            && unit.player === this.adventure.currentPlayer
+            && unit.isAlive
+        ;
     }
-
-    attack(attacker: PlayerUnit, target: PlayerUnit) {}
-
-    move(unit: PlayerUnit, cell: Cell) {}
-
 
     static asAction(type: ActionType, run: () => void): Action {
         return {
@@ -51,41 +94,3 @@ export abstract class ActionManager {
         }
     }
 }
-
-export class AttackManager extends ActionManager {
-    attack(attacker: PlayerUnit, target: PlayerUnit) {
-        if (
-            this.canAct(attacker)
-            && attacker.player !== target.player
-            && attacker.canAttack(target)
-        ) {
-            return ActionManager.asAction(
-                ActionType.ATTACK, () => {
-                    target.dealDamage(1);
-                    attacker.exhausted = true;
-                });
-        }
-    }
-}
-
-export class MovementManager extends ActionManager {
-
-    move(unit: PlayerUnit, cell: Cell) {
-        if (cell.unit !== null || unit.cell === null || !this.canAct(unit)) {
-            return;
-        }
-        const path = cell.getManhattenDistance(unit.cell);
-        if (path > unit.remainingMovePoints) {
-            return;
-        }
-        return ActionManager.asAction(
-            ActionType.MOVE,
-            action(() => {
-                unit.cell = cell;
-                unit.spentMovePoints(path);
-            })
-        );
-    }
-
-}
-

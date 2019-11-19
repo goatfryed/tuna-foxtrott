@@ -1,6 +1,6 @@
 import {Board, Player, PlayerUnit} from "./index";
-import {action, computed, observable} from "mobx";
-import {ActionManager, AttackManager, MovementManager} from "../actions";
+import {action, observable} from "mobx";
+import {ActionManager} from "../actions";
 
 export interface AdventureAware {
     adventure: Adventure
@@ -17,23 +17,13 @@ export class Adventure {
     readonly players: Player[] = [];
     board: Board;
 
-    private phaseRules:PhaseConfig<PhaseNames> = {
-        "movement": {
-            actionManager: new MovementManager(this),
-            nextPhase: "attack",
-        },
-        "attack": {
-            actionManager: new AttackManager(this),
-            nextPhase: "movement",
-        }
-    };
+    private _actionManager: ActionManager = new ActionManager(this);
 
     @observable
     private _currentPhase: PhaseNames = "movement";
 
-    @computed
-    get actions() {
-        return this.getCurrentPhase().actionManager;
+    get actionManager() {
+        return this._actionManager;
     }
 
     constructor(board: Board) {
@@ -52,24 +42,5 @@ export class Adventure {
 
     endTurn() {
         this.refresh();
-        this.setNextActions();
-    }
-
-    private setNextActions() {
-        return this._currentPhase = this.getCurrentPhase().nextPhase;
-    }
-
-    private getCurrentPhase(): Phase<PhaseNames> {
-        return this.phaseRules[this._currentPhase];
     }
 }
-
-interface Phase<PhaseNames extends string> {
-    actionManager: ActionManager,
-    nextPhase: PhaseNames,
-}
-
-type PhaseConfig<PhaseNames extends string> = {
-    [key in PhaseNames]: Phase<PhaseNames>;
-}
-

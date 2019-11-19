@@ -13,6 +13,7 @@ export function disabled() {
 
     return <CellView
         cell={cell}
+        actionLabel={null}
     />
 }
 
@@ -25,6 +26,7 @@ export function selected() {
         cell={cell}
         onClick={action("onClick")}
         style="isSelected"
+        actionLabel={null}
     />
 }
 

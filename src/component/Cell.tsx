@@ -2,62 +2,16 @@ import {AppContext, Cell, PlayerUnit} from "../model";
 import {useAdventure, useAppContext} from "../state";
 import {useObserver} from "mobx-react-lite";
 import React, {useMemo} from "react";
-import {Action, ActionType, selectAction, unselectAction} from "../actions";
+import {Action, ActionType} from "../actions";
 import {Adventure} from "../model/Adventure";
 import classNames from "classnames";
+import {action} from "mobx";
 
 interface CellProp {
     cell: Cell,
 }
 
-function deriveAction(cell: Cell, adventure: Adventure, appContext: AppContext) {
-    const activeUnit = adventure.activeUnit;
-
-    if (activeUnit === null) {
-        if (cell.unit !== null) {
-            return {
-                primary: selectAction(adventure, cell.unit),
-            };
-        }
-        return;
-    }
-
-    if (activeUnit === cell.unit) {
-        return {
-            primary: unselectAction(adventure),
-        };
-    }
-
-    if (activeUnit.player !== appContext.user) {
-        if (cell.unit !== null) {
-            return {
-                primary: selectAction(adventure, cell.unit),
-            };
-        }
-        return;
-    }
-
-    const moveAction = adventure.actions.move(activeUnit, cell);
-    if (moveAction) return {
-        primary: moveAction,
-    };
-    if (cell.unit === null || !cell.unit.isAlive) {
-        return;
-    }
-
-    const attackAction = adventure.actions.attack(activeUnit, cell.unit);
-    if (attackAction) {
-        return {
-            primary: attackAction,
-            secondary: selectAction(adventure, cell.unit),
-        }
-    }
-    return {
-        primary: selectAction(adventure, cell.unit),
-    };
-}
-
-function deriveStyle(cell: Cell, adventure: Adventure, appContext: AppContext, action?: Action) {
+function deriveStyle(cell: Cell, adventure: Adventure, appContext: AppContext, action: Action|null) {
 
     if (adventure.activeUnit && adventure.activeUnit === cell.unit) {
         return "isSelected";
@@ -85,40 +39,60 @@ export function CellPresenter({cell}: CellProp) {
     const adventure = useAdventure();
     const appContext = useAppContext();
 
-    const interaction = useObserver(() => deriveAction(cell, adventure, appContext));
-    const stlye = useObserver( () => deriveStyle(cell, adventure, appContext, interaction && interaction.primary));
+    const {
+        activeUnit,
+        cellUnit,
+        defaultAction,
+        style,
+    } = useObserver(() => {
+        const defaultAction = adventure.actionManager.getDefaultInteraction(cell);
+        const style = deriveStyle(cell, adventure, appContext, defaultAction);
+        return {
+            style,
+            defaultAction,
+            activeUnit: adventure.activeUnit,
+            cellUnit: cell.unit,
+        }
+    });
 
     const onClick = useMemo(
-        () => interaction && ((event: React.MouseEvent) => {
-            event.preventDefault();
-            if (event.button == 2 && interaction.secondary) {
-                interaction.secondary.run();
-                return;
+        () => {
+            if (defaultAction) {
+                return action((event: React.MouseEvent) => {
+                    event.preventDefault();
+                    if (event.button == 2 && activeUnit !== cellUnit) {
+                        adventure.activeUnit = cellUnit;
+                        return;
+                    }
+                    defaultAction.run();
+                })
             }
-            interaction.primary.run();
-        }),
-        [interaction]
+            return action(() => {
+                adventure.activeUnit = cellUnit;
+            })
+        },
+        [adventure,defaultAction, activeUnit, cellUnit]
     );
 
     return <CellView
         cell={cell}
         onClick={onClick}
-        style={stlye}
-        actionLabel={interaction && actionNameDict[interaction.primary.type]}
+        style={style}
+        actionLabel={defaultAction && actionNameDict[defaultAction.type]}
     />
 }
 
-const actionNameDict: Record<ActionType, string|undefined> = {
+const actionNameDict: Record<ActionType, string|null> = {
     [ActionType.ATTACK]: "attack",
     [ActionType.MOVE]: "move",
     [ActionType.SELECT]: "select",
-    [ActionType.UNSELECT]: undefined,
+    [ActionType.UNSELECT]: null,
 };
 
 interface CellViewProps extends CellProp {
     style?: string,
     onClick?: (event: React.MouseEvent) => any,
-    actionLabel?: string
+    actionLabel: string|null
 }
 
 type Wanted = 'currentHealth'|'maxHealth';
