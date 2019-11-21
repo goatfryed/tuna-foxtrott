@@ -24,6 +24,13 @@ export interface Action {
     type: ActionType;
 }
 
+function computePath(start: Cell, target: Cell) {
+    const distance = target.getManhattenDistance(start);
+    return {
+        length: distance
+    }
+}
+
 export class ActionManager {
 
     constructor(protected adventure: Adventure) {}
@@ -44,15 +51,16 @@ export class ActionManager {
         }
 
         if (target === null) {
-            const path = cell.getManhattenDistance(activeUnit.cell);
-            if (path > activeUnit.remainingMovePoints) {
+            // can reach?
+            const path = computePath(activeUnit.cell, cell);
+            if (path.length > activeUnit.remainingMovePoints) {
                 return null;
             }
             return ActionManager.asAction(
                 ActionType.MOVE,
                 action(() => {
                     activeUnit.cell = cell;
-                    activeUnit.spentMovePoints(path);
+                    activeUnit.spentMovePoints(path.length);
                 })
             );
         }
