@@ -36,6 +36,10 @@ interface Path {
     cost: number,
 }
 
+function getCost(neighbor: Cell) {
+    return neighbor.unit ? null : 1;
+}
+
 function findPathWithAStar(board: Board, target: Cell, start: Cell) {
     const itemStore: Array<QueueItem> = [];
 
@@ -69,12 +73,16 @@ function findPathWithAStar(board: Board, target: Cell, start: Cell) {
             return;
         }
         const neighbor = board.getCell(neighborX, neighborY);
+        const stepCost = getCost(neighbor);
+        if (stepCost === null) {
+            return;
+        }
         if (!isVisited[neighborY][neighborX]) {
-            queue.push(asQueueItem(neighbor, visitedItem, 1));
+            queue.push(asQueueItem(neighbor, visitedItem, stepCost));
             return;
         }
         const neighborItem = itemStore[storeIndex(neighbor)];
-        const tentativeScore = visitedItem.cost + 1;
+        const tentativeScore = visitedItem.cost + stepCost;
         if (tentativeScore < neighborItem.cost) {
             neighborItem.cost = tentativeScore;
         }

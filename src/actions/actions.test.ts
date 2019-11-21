@@ -31,4 +31,15 @@ describe("Pathfinding", () => {
             cost: 3,
         });
     });
+    test( "it should find a way around", () => {
+        const board = getBoard();
+        const start = board.getCell(0,4);
+        const end = board.getCell(4,4);
+
+        const actual = computePath(board, start, end);
+        expect(actual).toMatchObject({
+            steps: expect.arrayContaining([start, end]),
+            cost: 12,
+        });
+    })
 });
