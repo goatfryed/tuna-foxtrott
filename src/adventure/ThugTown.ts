@@ -11,8 +11,8 @@ export function createThugTown(user: Player) {
     thugTown.players.push(user);
     thugTown.players.push(thugs);
 
-    board[1][4].unit  = thugs.addUnit({name: "bully", baseHealth: 5, initiativeDelay: 90});
-    board[2][3].unit = thugs.addUnit({name: "thug", baseHealth: 4});
+    board.getCell(4,1).unit  = thugs.addUnit({name: "bully", baseHealth: 5, initiativeDelay: 90});
+    board.getCell(3,2).unit = thugs.addUnit({name: "thug", baseHealth: 4});
 
     return thugTown;
 }

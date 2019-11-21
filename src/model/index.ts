@@ -170,17 +170,40 @@ export class Cell {
     }
 }
 
-export type Board = Cell[][];
+export class Board {
+    readonly cells: ReadonlyArray<ReadonlyArray<Cell>>;
 
-export function createBoard(sizeX: number, sizeY: number) {
-    const board: Board = [];
-    for (let y = 0; y < sizeY; y++) {
-        board[y] = [];
-        for (let x = 0; x < sizeX; x++) {
-            board[y][x] = new Cell(x, y);
+    constructor(readonly sizeX:number, readonly sizeY: number) {
+        const cells: Cell[][] = [];
+        for (let y = 0; y < sizeY; y++) {
+            cells[y] = [];
+            for (let x = 0; x < sizeX; x++) {
+                cells[y][x] = new Cell(x, y);
+            }
+        }
+        this.cells = cells;
+    }
+
+    isInBoard(x:number, y:number) {
+        return 0 <= x && 0 <= y
+            && x < this.sizeX
+            && y < this.sizeY
+    }
+
+    guardBoardRange(x:number, y:number) {
+        if (!this.isInBoard(x,y)) {
+            throw new RangeError(`${x}-${y} not in board of size ${this.sizeX}-${this.sizeY}`);
         }
     }
-    return board;
+
+    getCell(x: number, y:number) {
+        this.guardBoardRange(x,y);
+        return this.cells[y][x];
+    }
+}
+
+export function createBoard(sizeX: number, sizeY: number) {
+    return new Board(sizeX, sizeY);
 }
 
 export class AppContext {

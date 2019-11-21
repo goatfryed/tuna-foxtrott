@@ -27,7 +27,7 @@ export function Board({isIsometric = true}: {isIsometric?: boolean}) {
            onKeyPress={useAdventureKeyPressHandler(adventure)}
         >
                 <div ref={board} className={boardClass}>
-                {adventure.board.map((row, y) => <div key={y} className="row">
+                {adventure.board.cells.map((row, y) => <div key={y} className="row">
                     {row.map(cell => <CellPresenter key={cell.x} cell={cell}/>)}
                 </div>)}
             </div>

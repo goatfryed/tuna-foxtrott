@@ -74,8 +74,8 @@ function createAdventure(user: Player) {
         let soldier1 = enemy.addUnit({name:"soldier1", baseHealth: 5});
         let soldier2 = enemy.addUnit({name:"soldier2", baseHealth: 5});
 
-        adventure.board[0][3].unit = soldier1;
-        adventure.board[1][3].unit = soldier2;
+        adventure.board.getCell(3,0).unit = soldier1;
+        adventure.board.getCell(3,1).unit = soldier2;
 
         return adventure;
     }

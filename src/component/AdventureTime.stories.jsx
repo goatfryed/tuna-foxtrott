@@ -41,10 +41,10 @@ export function thugTown() {
             const adventure = createThugTown(context.user);
             const clubber = context.user.addUnit( {name: "clubber", baseHealth: 5, initiativeDelay: 80});
             context.user.units.forEach(u => adventure.heroes.push(u));
-            context.axel.cell = adventure.board[0][0];
-            context.bower.cell = adventure.board[3][3];
-            context.macel.cell = adventure.board[2][0];
-            clubber.cell = adventure.board[0][4];
+            context.axel.cell = adventure.board.getCell(0,0);
+            context.bower.cell = adventure.board.getCell(3,3);
+            context.macel.cell = adventure.board.getCell(0,2);
+            clubber.cell = adventure.board.getCell(4,0);
 
             return adventure;
         },
