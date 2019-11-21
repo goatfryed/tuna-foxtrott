@@ -48,5 +48,14 @@ describe("Pathfinding", () => {
             steps: expect.arrayContaining([start, end]),
             cost: 12,
         });
+    });
+    test( "it should return null, if no path available", () => {
+        const board = getBoard();
+        const start = board.getCell(0,0);
+        const end = board.getCell(3,0);
+        board.getCell(2,0).unit = {} as PlayerUnit;
+
+        const actual = computePath(board, start, end);
+        expect(actual).toBeNull();
     })
 });
