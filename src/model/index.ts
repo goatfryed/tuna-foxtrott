@@ -158,7 +158,11 @@ export class Cell {
     }
 
     toString() {
-        return "(" + this.x + "-" + this.y + ")";
+        return "(" + this.id + ")";
+    }
+
+    get id() {
+        return this.x + "-" + this.y;
     }
 
     isNeighbor(cell: Cell) {
@@ -167,6 +171,11 @@ export class Cell {
 
     getManhattenDistance(cell: Cell) {
         return Math.abs(this.x - cell.x) + Math.abs(this.y - cell.y);
+    }
+
+    equals(other: Cell) {
+        return this.x === other.x
+            && this.y === other.y
     }
 }
 

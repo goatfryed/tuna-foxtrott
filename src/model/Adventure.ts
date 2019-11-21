@@ -12,7 +12,7 @@ export class Adventure {
     @observable heroes: PlayerUnit[] = [];
 
     readonly players: Player[] = [];
-    board: Board;
+    readonly board: Board;
 
     private _actionManager: ActionManager = new ActionManager(this);
 
