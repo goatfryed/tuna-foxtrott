@@ -25,9 +25,16 @@ describe("Pathfinding", () => {
         const start = board.getCell(0,0);
         const end = board.getCell(3,0);
 
+        const expectedPath = [
+            start,
+            board.getCell(1,0),
+            board.getCell(2,0),
+            end,
+        ];
+
         const actual = computePath(board, start, end);
         expect(actual).toMatchObject({
-            steps: expect.arrayContaining([start, end]),
+            steps: expectedPath,
             cost: 3,
         });
     });

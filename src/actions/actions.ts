@@ -131,7 +131,7 @@ export function computePath(board: Board, start: Cell, target: Cell): Path|null 
         cost += backtrackItem.cost;
         backtrackItem = backtrackItem.predecessor;
     }
-
+    steps.reverse();
     return {steps, cost};
 }
 
