@@ -7,7 +7,8 @@
     "develop": "webpack-dev-server --open",
     "storybook": "start-storybook -p 6006",
     "build-storybook": "build-storybook",
-    "type-check": "tsc --noEmit"
+    "type-check": "tsc --noEmit",
+    "test": "jest"
   },
   "keywords": [],
   "author": "Omar <goatfryed> Sood",
@@ -43,6 +44,7 @@
     "webpack-cli": "^3.3.9"
   },
   "devDependencies": {
+    "jest": "^24.9.0",
     "@storybook/addon-actions": "^5.2.6",
     "@storybook/addon-knobs": "^5.2.6",
     "@storybook/addon-links": "^5.2.6",
