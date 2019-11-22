@@ -1,6 +1,7 @@
 import {Board, Cell, PlayerUnit} from "../model";
 import {Adventure} from "../model/Adventure";
 import {action} from "mobx";
+import {NotNull} from "../helpers";
 
 /**
  * business logic should be tied to the model
@@ -36,11 +37,15 @@ interface Path {
     cost: number,
 }
 
-function getCost(neighbor: Cell) {
-    return neighbor.unit ? null : 1;
+function getCost(unit: PlayerUnit, neighbor: Cell) {
+    if (neighbor.unit !== null && neighbor.unit.player !== unit.player) {
+        return null;
+    }
+    return 1;
 }
 
-function findPathWithAStar(board: Board, target: Cell, start: Cell) {
+function findPathWithAStar(unit: PlayerUnit & {cell: Cell}, board: Board, target: Cell) {
+    const start = unit.cell;
     const itemStore: Array<QueueItem> = [];
 
     function storeIndex(cell: Cell) {
@@ -73,7 +78,7 @@ function findPathWithAStar(board: Board, target: Cell, start: Cell) {
             return;
         }
         const neighbor = board.getCell(neighborX, neighborY);
-        const stepCost = getCost(neighbor);
+        const stepCost = getCost(unit, neighbor);
         if (stepCost === null) {
             return;
         }
@@ -110,15 +115,16 @@ function findPathWithAStar(board: Board, target: Cell, start: Cell) {
     return backtrackItem;
 }
 
-export function computePath(board: Board, start: Cell, target: Cell): Path|null {
-    if (start.equals(target)) {
+export function computePath(unit: NotNull<PlayerUnit, "cell">, board: Board, target: Cell): Path | null {
+
+    if (unit.cell.equals(target)) {
         return {
             steps: [target],
             cost: 0,
         };
     }
 
-    let backtrackItem = findPathWithAStar(board, target, start);
+    let backtrackItem = findPathWithAStar(unit, board, target);
 
     if (backtrackItem === null) {
         return null;
@@ -156,7 +162,7 @@ export class ActionManager {
 
         if (target === null) {
             // can reach?
-            const path = computePath(this.adventure.board, activeUnit.cell, cell);
+            const path = computePath(activeUnit as NotNull<PlayerUnit, "cell">, this.adventure.board, cell);
             if (path === null || path.cost > activeUnit.remainingMovePoints) {
                 return null;
             }
