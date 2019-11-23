@@ -6,7 +6,7 @@ import {Action, ActionType} from "../actions";
 import {Adventure} from "../model/Adventure";
 import classNames from "classnames";
 import {action} from "mobx";
-import {Cell} from "../model/board";
+import {Cell, obstacle} from "../model/board";
 
 interface CellProp {
     cell: Cell,
@@ -33,6 +33,10 @@ function useInteractionStyle(cell: Cell, adventure: Adventure, appContext: AppCo
     }
 
     return classNames(styleClasses);
+}
+
+function useTerrainStyle(cell: Cell) {
+    return cell.terrain === obstacle ? "obstacle" : "ground";
 }
 
 export function CellPresenter({cell}: CellProp) {
@@ -95,6 +99,9 @@ function CellUnitDetail(props: Pick<PlayerUnit, Wanted> & {description: string} 
 }
 
 export function CellView({style, onClick, cell, actionLabel}: CellViewProps) {
+
+    const terrainStyle = useTerrainStyle(cell);
+
     return useObserver(() => <div
         title={String(cell)}
         className="cell">
@@ -104,7 +111,7 @@ export function CellView({style, onClick, cell, actionLabel}: CellViewProps) {
                 onClick={onClick}
                 onContextMenu={onClick}
             >
-                <div className="content">
+                <div className={"content " + terrainStyle}>
                     {cell.unit && <div>
                         <CellUnitDetail
                             currentHealth={cell.unit.currentHealth}

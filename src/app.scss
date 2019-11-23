@@ -45,6 +45,13 @@ $cell-size: 6rem;
     background-color: hsla(29, 100%, 33%, 1);
     height: 100%;
     width: 100%;
+
+    &.obstacle {
+      background-color: hsl(16, 12%, 18%);
+    }
+    &.ground {
+      background-color: hsla(29, 100%, 33%, 1);
+    }
   }
 
   .interaction {
@@ -54,10 +61,6 @@ $cell-size: 6rem;
     height: 100%;
     width: 100%;
     white-space: normal;
-
-    & {
-      background-color: $grey;
-    }
 
     &.friendly {
       color: $green;

@@ -1,10 +1,26 @@
 import {Bot, Player} from "../model";
 import {Adventure} from "../model/Adventure";
 import {autorun} from "mobx";
-import {createBoard} from "../model/board";
+import {createBoard, obstacle} from "../model/board";
 
 export function createThugTown(user: Player) {
-    const board = createBoard(5,4);
+    const board = createBoard(
+        5,4,
+        [
+            {
+                terrain: obstacle,
+                x: 3, y: 1,
+            },
+            {
+                terrain: obstacle,
+                x: 1, y: 2,
+            },
+            {
+                terrain: obstacle,
+                x: 4, y: 3,
+            }
+        ]
+    );
 
     const thugTown = new Adventure(board);
     const thugs = new ThugTownBot("thugs");
