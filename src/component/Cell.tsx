@@ -12,25 +12,24 @@ interface CellProp {
     cell: Cell,
 }
 
-function deriveStyle(cell: Cell, adventure: Adventure, appContext: AppContext, action: Action|null) {
+function useInteractionStyle(cell: Cell, adventure: Adventure, appContext: AppContext, action: Action|null) {
 
     if (adventure.activeUnit && adventure.activeUnit === cell.unit) {
         return "isSelected";
     }
 
-    const styleClasses: any = {};
+    const styleClasses: string[] = [];
     if (cell.unit) {
-        if (cell.unit.player === appContext.user) {
-            styleClasses.friendly = true;
-        } else {
-            styleClasses.enemy = true;
-        }
+        styleClasses.push(cell.unit.player === appContext.user ? "friendly" : "enemy");
     }
     if (action && action.type === ActionType.MOVE) {
-        styleClasses.canMove = true;
+        styleClasses.push("canMove");
+    }
+    if (action === null) {
+        styleClasses.push("is-static");
     }
     if (action && action.type === ActionType.ATTACK) {
-        styleClasses.canAttack = true;
+        styleClasses.push("canAttack");
     }
 
     return classNames(styleClasses);
@@ -44,12 +43,12 @@ export function CellPresenter({cell}: CellProp) {
         activeUnit,
         cellUnit,
         defaultAction,
-        style,
+        interactionStyle,
     } = useObserver(() => {
         const defaultAction = adventure.actionManager.getDefaultInteraction(cell);
-        const style = deriveStyle(cell, adventure, appContext, defaultAction);
+        const interactionStyle = useInteractionStyle(cell, adventure, appContext, defaultAction);
         return {
-            style,
+            interactionStyle,
             defaultAction,
             activeUnit: adventure.activeUnit,
             cellUnit: cell.unit,
@@ -70,7 +69,7 @@ export function CellPresenter({cell}: CellProp) {
     return <CellView
         cell={cell}
         onClick={onClick}
-        style={style}
+        style={interactionStyle}
         actionLabel={defaultAction && actionNameDict[defaultAction.type]}
     />
 }
@@ -100,12 +99,12 @@ export function CellView({style, onClick, cell, actionLabel}: CellViewProps) {
         title={String(cell)}
         className="cell">
             <button
-                className={"content "+ style }
+                className={"interaction "+ style }
                 disabled={onClick === undefined}
                 onClick={onClick}
                 onContextMenu={onClick}
             >
-                <div>
+                <div className="content">
                     {cell.unit && <div>
                         <CellUnitDetail
                             currentHealth={cell.unit.currentHealth}

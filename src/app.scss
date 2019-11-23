@@ -36,30 +36,62 @@ $cell-size: 6rem;
   margin: 0.02 * $cell-size;
 
   .content {
+    @extend .has-text-white;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    background-color: hsla(29, 100%, 33%, 1);
+    height: 100%;
+    width: 100%;
+  }
+
+  .interaction {
     @extend .button;
+    display: block;
+    padding: 0.5em;
     height: 100%;
     width: 100%;
     white-space: normal;
 
+    & {
+      background-color: $grey;
+    }
 
     &.friendly {
-      @extend .is-success;
+      color: $green;
+      background-color: $light;
     }
     &.enemy {
       @extend .is-warning;
 
       &.canAttack {
         @extend .is-danger;
+        background-color: $danger-dark;
+
+        &:hover {
+           background-color: $danger;
+        }
       }
     }
     &.canMove {
       @extend .is-info;
+      background-color: $info-dark;
+
+      &:hover {
+        background-color: $info;
+      }
     }
     &.isSelected {
       @extend .is-primary;
     }
 
   }
+}
+
+@mixin cell-unit-style($color) {
+
 }
 
 .unit-list {
