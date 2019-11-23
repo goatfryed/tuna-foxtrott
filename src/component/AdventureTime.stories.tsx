@@ -4,8 +4,10 @@ import {AppContextProvider} from "../state";
 import {AppContext, Player} from "../model";
 import {createThugTown} from "../adventure/ThugTown";
 import {action} from "@storybook/addon-actions";
-import {boolean, button, withKnobs} from "@storybook/addon-knobs";
+import {boolean, button, select, withKnobs} from "@storybook/addon-knobs";
 import {useMemo} from "@storybook/addons";
+import {createBoard, obstacle} from "../model/board";
+import {Adventure} from "../model/Adventure";
 
 function createStoryContext() {
     const user = new Player("Karli");
@@ -31,6 +33,45 @@ export default {
     parameters: {
         enableShortcuts: false,
     },
+}
+
+export function gameOver() {
+    const context = createStoryContext();
+
+    const board = useMemo(() => createBoard(2,2, [{x: 1, y: 1, terrain: obstacle}]));
+    const gameState = select("victoryState",
+        [
+            "won",
+            "lost",
+            "undecided",
+        ],
+        "won",
+    );
+
+    class GameOverAdventure extends Adventure {
+        constructor() {
+            super(board);
+        }
+
+
+        isWonBy(user: Player): boolean {
+            return gameState === "won";
+        }
+
+        isLostBy(player: Player): boolean {
+            return gameState === "lost";
+        }
+    }
+
+    const adventure = new GameOverAdventure();
+
+    return <AppContextProvider context={context.appContext}><AdventureView
+        adventure={adventure}
+        onSurrender={action("onSurrender")}
+        onDefeat={action("onDefeat")}
+        onVictory={action("onVictory")}
+        isIsometric={false}
+    /></AppContextProvider>
 }
 
 export function thugTown() {
