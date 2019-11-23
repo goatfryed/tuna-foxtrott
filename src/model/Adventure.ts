@@ -82,4 +82,18 @@ export class Adventure {
             .forEach(bot => bot.shutdown())
         ;
     }
+
+    isWonBy(user: Player) {
+        return !this.players
+            .filter(Adventure.playerIsAlive)
+            .some(p => p !== user);
+    }
+
+    isLostBy(player: Player) {
+        return !Adventure.playerIsAlive(player);
+    }
+
+    private static playerIsAlive(player: Player) {
+        return player.units.some(u => u.isAlive);
+    }
 }

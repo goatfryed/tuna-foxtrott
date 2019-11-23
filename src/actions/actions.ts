@@ -38,8 +38,15 @@ interface Path {
     cost: number,
 }
 
-function getCost(unit: PlayerUnit, neighbor: Cell) {
-    if (neighbor.unit !== null && neighbor.unit.player !== unit.player) {
+function getCost(unit: PlayerUnit, cell: Cell) {
+    if (!cell.terrain.isPassable) {
+        return null;
+    }
+    if (
+        cell.unit !== null
+        && cell.unit.player !== unit.player
+        && cell.unit.isAlive
+    ) {
         return null;
     }
     return 1;

@@ -23,7 +23,7 @@ export default {
     component: AdventureView,
     decorators: [
         withKnobs,
-        Story => {
+        (Story: any) => {
             button("Refresh", () => {});
             return <Story />
         },
@@ -54,6 +54,8 @@ export function thugTown() {
     return <AppContextProvider context={context.appContext}><AdventureView
         adventure={thugTownAdventure}
         onSurrender={action("onSurrender")}
+        onDefeat={action("onDefeat")}
+        onVictory={action("onVictory")}
         isIsometric={boolean("Isometric", false)}
     /></AppContextProvider>
 }
