@@ -1,6 +1,7 @@
-import {Board, Player, PlayerUnit} from "../model";
+import {Player, PlayerUnit} from "../model";
 import {computePath} from "./actions";
 import {NotNull} from "../helpers";
+import {Board, createBoard} from "../model/board";
 
 
 describe("Pathfinding", () => {
@@ -14,7 +15,7 @@ describe("Pathfinding", () => {
     const karli = new Player("bob");
 
     function getBoard() {
-        const board = new Board(5,5);
+        const board = createBoard(5,5);
         board.getCell(1,1).unit = {} as PlayerUnit;
         board.getCell(2,1).unit = {} as PlayerUnit;
         board.getCell(3,2).unit = {} as PlayerUnit;

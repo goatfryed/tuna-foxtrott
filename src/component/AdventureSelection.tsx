@@ -2,9 +2,10 @@ import {Adventure, AdventureAware} from "../model/Adventure";
 import {useAppContext} from "../state";
 import {useObserver} from "mobx-react-lite";
 import React, {useCallback, useMemo} from "react";
-import {createBoard, Player, PlayerUnit, UnitDefinition} from "../model";
+import {Player, PlayerUnit, UnitDefinition} from "../model";
 import useForm from "react-hook-form";
 import {HeroDetail} from "./Hero";
+import {createBoard} from "../model/board";
 
 function LocalHeroDetail({hero, adventure}: {hero: PlayerUnit} & AdventureAware) {
     const included = useObserver(() => adventure.heroes.includes(hero));

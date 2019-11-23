@@ -1,5 +1,6 @@
 import {action, computed, observable} from "mobx";
 import {Adventure} from "./Adventure";
+import {Cell} from "./board";
 
 export interface UnitDefinition {
     name: string;
@@ -134,85 +135,6 @@ export abstract class Bot extends Player {
     shutdown() {
         this.shutdownHandler.forEach(handler => handler());
     }
-}
-
-export class Cell {
-
-    constructor(public x: number, public  y: number) {}
-
-    @observable private _unit: PlayerUnit | null = null;
-    get unit() {return this._unit;}
-    set unit(unit: PlayerUnit | null) {this.setUnit(unit);}
-    @action private setUnit(unit: PlayerUnit | null) {
-        if (unit == this._unit) return;
-
-        let lastUnit = this._unit;
-        this._unit = unit;
-
-        if (lastUnit !== null) {
-            lastUnit.cell = null;
-        }
-        if (unit !== null) {
-            unit.cell = this;
-        }
-    }
-
-    toString() {
-        return "(" + this.id + ")";
-    }
-
-    get id() {
-        return this.x + "-" + this.y;
-    }
-
-    isNeighbor(cell: Cell) {
-        return 1 === this.getManhattenDistance(cell);
-    }
-
-    getManhattenDistance(cell: Cell) {
-        return Math.abs(this.x - cell.x) + Math.abs(this.y - cell.y);
-    }
-
-    equals(other: Cell) {
-        return this.x === other.x
-            && this.y === other.y
-    }
-}
-
-export class Board {
-    readonly cells: ReadonlyArray<ReadonlyArray<Cell>>;
-
-    constructor(readonly sizeX:number, readonly sizeY: number) {
-        const cells: Cell[][] = [];
-        for (let y = 0; y < sizeY; y++) {
-            cells[y] = [];
-            for (let x = 0; x < sizeX; x++) {
-                cells[y][x] = new Cell(x, y);
-            }
-        }
-        this.cells = cells;
-    }
-
-    isInBoard(x:number, y:number) {
-        return 0 <= x && 0 <= y
-            && x < this.sizeX
-            && y < this.sizeY
-    }
-
-    guardBoardRange(x:number, y:number) {
-        if (!this.isInBoard(x,y)) {
-            throw new RangeError(`${x}-${y} not in board of size ${this.sizeX}-${this.sizeY}`);
-        }
-    }
-
-    getCell(x: number, y:number) {
-        this.guardBoardRange(x,y);
-        return this.cells[y][x];
-    }
-}
-
-export function createBoard(sizeX: number, sizeY: number) {
-    return new Board(sizeX, sizeY);
 }
 
 export class AppContext {

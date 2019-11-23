@@ -1,7 +1,8 @@
-import {Board, Cell, PlayerUnit} from "../model";
+import {PlayerUnit} from "../model";
 import {Adventure} from "../model/Adventure";
 import {action} from "mobx";
 import {NotNull} from "../helpers";
+import {Board, Cell} from "../model/board";
 
 /**
  * business logic should be tied to the model

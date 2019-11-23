@@ -1,6 +1,7 @@
-import {Bot, createBoard, Player} from "../model";
+import {Bot, Player} from "../model";
 import {Adventure} from "../model/Adventure";
 import {autorun} from "mobx";
+import {createBoard} from "../model/board";
 
 export function createThugTown(user: Player) {
     const board = createBoard(5,4);

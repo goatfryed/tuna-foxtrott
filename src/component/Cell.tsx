@@ -1,4 +1,4 @@
-import {AppContext, Cell, PlayerUnit} from "../model";
+import {AppContext, PlayerUnit} from "../model";
 import {useAdventure, useAppContext} from "../state";
 import {useObserver} from "mobx-react-lite";
 import React, {useMemo} from "react";
@@ -6,6 +6,7 @@ import {Action, ActionType} from "../actions";
 import {Adventure} from "../model/Adventure";
 import classNames from "classnames";
 import {action} from "mobx";
+import {Cell} from "../model/board";
 
 interface CellProp {
     cell: Cell,

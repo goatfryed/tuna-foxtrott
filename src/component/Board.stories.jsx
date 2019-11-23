@@ -1,10 +1,10 @@
 import {Board} from "./Board";
 import {Adventure} from "../model/Adventure";
-import {createBoard} from "../model";
 import React from "react";
 import {AdventureProvider, AppContextProvider} from "../state";
 
 import "../app.scss";
+import {createBoard} from "../model/board";
 
 export default {
     title: "Board"

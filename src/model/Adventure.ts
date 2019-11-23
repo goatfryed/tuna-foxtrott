@@ -1,6 +1,7 @@
-import {Board, Bot, Player, PlayerUnit} from "./index";
+import {Bot, Player, PlayerUnit} from "./index";
 import {action, computed, observable} from "mobx";
 import {ActionManager} from "../actions";
+import {Board} from "./board";
 
 export interface AdventureAware {
     adventure: Adventure

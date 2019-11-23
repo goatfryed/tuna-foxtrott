@@ -1,15 +1,16 @@
 import {CellView} from "./Cell";
-import {Cell, Player} from "../model";
+import {Player} from "../model";
 import React from "react";
 import {storiesOf} from "@storybook/react";
 
 import "../app.scss";
 import {action} from "@storybook/addon-actions";
+import {Cell, ground, obstacle} from "../model/board";
 
 
 
 export function disabled() {
-    const cell = new Cell(6,9);
+    const cell = new Cell(6,9, obstacle);
 
     return <CellView
         cell={cell}
@@ -18,7 +19,7 @@ export function disabled() {
 }
 
 export function selected() {
-    const cell = new Cell(6,9);
+    const cell = new Cell(6,9, ground);
     const player = new Player("Karli");
     cell.unit = player.addUnit({name: "bower", baseHealth: 5});
 
