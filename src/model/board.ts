@@ -59,6 +59,10 @@ export class Cell {
         return this.x === other.x
             && this.y === other.y
     }
+
+    isNeighbor(target: Cell) {
+        return this.getManhattenDistance(target) <= 1;
+    }
 }
 
 interface TerrainDescriptor {

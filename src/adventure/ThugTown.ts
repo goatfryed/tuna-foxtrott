@@ -58,8 +58,27 @@ function playAggressive(
     targetFilter: (unit: PlayerUnit) => boolean
 ) {
 
-    function mayChase({}: PlacedUnit, {}: {path: Path, unit: PlacedUnit}) {
+    function mayChase(unit: PlacedUnit, target: {path: Path, unit: PlacedUnit}) {
+        const currentDistance = unit.cell.getManhattenDistance(target.unit.cell);
 
+        const pathItems = target.path.steps;
+        const nextLocation = pathItems.filter(({distance}) => distance < currentDistance)
+            .filter(({cost}) => cost <= unit.remainingMovePoints)
+            .sort(({cost: costA}, {cost: costB}) => costB - costA)
+            [0]
+        ;
+
+        if (nextLocation === undefined ) {
+            return;
+        }
+
+        const subSteps = pathItems.slice(0, pathItems.indexOf(nextLocation) + 1);
+        const subPath = {
+            steps: subSteps,
+            cost: subSteps.reduce((prev, current) => prev + current.cost, 0)
+        };
+
+        adventure.actionManager.doMoveAction(unit, subPath).run();
     }
 
     function mayAttack(unit: PlacedUnit, target: PlacedUnit) {

@@ -26,15 +26,15 @@ export interface Action {
     type: ActionType;
 }
 
-interface QueueItem {
+interface PathItem {
     cell: Cell,
-    predecessor: QueueItem|null,
+    predecessor: PathItem|null,
     cost: number,
     distance: number,
 }
 
 export interface Path {
-    steps: Cell[],
+    steps: PathItem[],
     cost: number,
 }
 
@@ -60,13 +60,13 @@ function findPathWithAStar(
 ) {
 
     const start = unit.cell;
-    const itemStore: Array<QueueItem> = [];
+    const itemStore: Array<PathItem> = [];
 
     function storeIndex(cell: Cell) {
         return cell.y * board.sizeX + cell.x;
     }
 
-    const asQueueItem = (cell: Cell, predecessor: QueueItem | null, cost: number): QueueItem => {
+    const asQueueItem = (cell: Cell, predecessor: PathItem | null, cost: number): PathItem => {
         const item = {
             cell,
             predecessor,
@@ -77,7 +77,7 @@ function findPathWithAStar(
         return item;
     };
 
-    function pathComparator(a: QueueItem, b: QueueItem) {
+    function pathComparator(a: PathItem, b: PathItem) {
         return (a.cost + a.distance) - (b.cost + b.distance)
     }
 
@@ -87,16 +87,14 @@ function findPathWithAStar(
         isVisited[y] = Array(board.sizeX).fill(false);
     }
 
-    function updateNeighbor(visitedItem: QueueItem, neighborX: number, neighborY: number) {
+    function updateNeighbor(visitedItem: PathItem, neighborX: number, neighborY: number) {
 
         if (!board.isInBoard(neighborX, neighborY)) {
             return;
         }
 
         const neighbor = board.getCell(neighborX, neighborY);
-        const stepCost =
-            approachOnly && neighborX === target.x && neighborY === target.y ?
-            0 : getCost(unit, neighbor);
+        const stepCost = getCost(unit, neighbor);
         if (stepCost === null) {
             return;
         }
@@ -111,12 +109,15 @@ function findPathWithAStar(
         }
     }
 
-    let backtrackItem: QueueItem | null = null;
+    let backtrackItem: PathItem | null = null;
     while (queue.length > 0) {
-        const visitedItem = queue.shift() as QueueItem;
+        const visitedItem = queue.shift() as PathItem;
         const {cell} = visitedItem;
 
-        if (cell.equals(target)) {
+        if (
+            cell.equals(target)
+            || (approachOnly && cell.isNeighbor(target) && cell.unit === null)
+        ) {
             backtrackItem = visitedItem;
             break;
         }
@@ -151,7 +152,12 @@ export function computePath(
 
     if (unit.cell.equals(target)) {
         return {
-            steps: [target],
+            steps: [{
+                cell: target,
+                cost: 0,
+                distance: 0,
+                predecessor: null,
+            }],
             cost: 0,
         };
     }
@@ -162,16 +168,11 @@ export function computePath(
         return null;
     }
 
-    const steps: Array<Cell> = [];
+    const steps: Array<PathItem> = [];
     let cost = 0;
 
-    if (options.approachOnly) {
-        // skip target
-        backtrackItem = backtrackItem.predecessor;
-    }
-
     while (backtrackItem !== null) {
-        steps.push(backtrackItem.cell);
+        steps.push(backtrackItem);
         cost += backtrackItem.cost;
         backtrackItem = backtrackItem.predecessor;
     }
@@ -221,10 +222,14 @@ export class ActionManager {
         if (path === null || path.cost > unit.remainingMovePoints) {
             return null;
         }
+        return this.doMoveAction(unit, path);
+    }
+
+    doMoveAction(unit: PlayerUnit, path: Path) {
         return ActionManager.asAction(
             ActionType.MOVE,
             action(() => {
-                unit.cell = cell;
+                unit.cell = path.steps[path.steps.length - 1].cell;
                 unit.spentMovePoints(path.cost);
             })
         );
