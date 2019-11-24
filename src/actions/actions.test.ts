@@ -52,7 +52,7 @@ describe("Pathfinding", () => {
         const end = board.getCell(4,4);
         const unit = {player: karli, cell: start} as NotNull<PlayerUnit,"cell">;
 
-        const actual = computePath(unit, board, end);
+        const actual = computePath(board, unit, end);
         expect(actual).toMatchObject({
             steps: expect.arrayContaining([start, end]),
             cost: 12,
@@ -66,7 +66,7 @@ describe("Pathfinding", () => {
         board.getCell(2,0).unit = {isAlive: true} as PlayerUnit;
         const unit = {player: karli, cell: start} as NotNull<PlayerUnit,"cell">;
 
-        const actual = computePath(unit, board, end);
+        const actual = computePath(board, unit, end);
         expect(actual).toBeNull();
     });
 
@@ -88,7 +88,7 @@ describe("Pathfinding", () => {
             end,
         ];
 
-        const actual = computePath(unit, board, end);
+        const actual = computePath(board, unit, end);
         expect(actual).toMatchObject({
             steps: expectedPath,
             cost: 3,

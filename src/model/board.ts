@@ -51,10 +51,6 @@ export class Cell {
         return this.x + "-" + this.y;
     }
 
-    isNeighbor(cell: Cell) {
-        return 1 === this.getManhattenDistance(cell);
-    }
-
     getManhattenDistance(cell: Cell) {
         return Math.abs(this.x - cell.x) + Math.abs(this.y - cell.y);
     }
@@ -95,6 +91,23 @@ export class Board {
     getCell(x: number, y: number) {
         this.guardBoardRange(x, y);
         return this.cells[y][x];
+    }
+
+    *getNeighbors(cell: Cell) {
+        const directions = [
+            [-1,0],
+            [0,1],
+            [1,0],
+            [0,-1],
+        ] ;
+
+        for (const [xDiff,yDiff] of directions) {
+            const neighborX = cell.x + xDiff;
+            const neighborY = cell.y + yDiff;
+            if (this.isInBoard(neighborX, neighborY)) {
+                yield this.getCell(neighborX, neighborY);
+            }
+        }
     }
 }
 

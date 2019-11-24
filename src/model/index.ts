@@ -1,6 +1,7 @@
 import {action, computed, observable} from "mobx";
 import {Adventure} from "./Adventure";
 import {Cell} from "./board";
+import {NotNull} from "../helpers";
 
 export interface UnitDefinition {
     name: string;
@@ -88,19 +89,7 @@ export class PlayerUnit extends Unit {
         return !this.exhausted
             && this.cell !== null
             && unit.cell !== null
-            && this.cell.isNeighbor(unit.cell);
-    }
-
-    canReach(cell: Cell|number) {
-        if (typeof cell !== "number") {
-            cell = this.getPath(cell);
-        }
-        return cell <= this.baseSpeed;
-    }
-
-    getPath(cell: Cell) {
-        if (!this.cell) return Infinity;
-        return this.cell.getManhattenDistance(cell)
+            && this.cell.getManhattenDistance(unit.cell) <= 1;
     }
 
     dealDamage(delta: number) {
@@ -141,4 +130,10 @@ export class AppContext {
     constructor(readonly user: Player) {
         user.isUser = true;
     }
+}
+
+export type PlacedUnit = NotNull<PlayerUnit, "cell">;
+
+export function isPlaced(unit: PlayerUnit): unit is PlacedUnit {
+    return unit.cell !== null;
 }

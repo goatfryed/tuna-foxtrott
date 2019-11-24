@@ -18,6 +18,8 @@ export function App() {
                 : <AdventureView
                     adventure={adventure}
                     onSurrender={handleSurrender}
+                    onVictory={() => setAdventure(null)}
+                    onDefeat={() => setAdventure(null)}
                 />
             }
         </div>

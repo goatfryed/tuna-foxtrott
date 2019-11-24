@@ -1,4 +1,4 @@
-import {PlayerUnit} from "../model";
+import {PlacedUnit, PlayerUnit} from "../model";
 import {Adventure} from "../model/Adventure";
 import {action} from "mobx";
 import {NotNull} from "../helpers";
@@ -33,7 +33,7 @@ interface QueueItem {
     distance: number,
 }
 
-interface Path {
+export interface Path {
     steps: Cell[],
     cost: number,
 }
@@ -52,7 +52,13 @@ function getCost(unit: PlayerUnit, cell: Cell) {
     return 1;
 }
 
-function findPathWithAStar(unit: PlayerUnit & {cell: Cell}, board: Board, target: Cell) {
+function findPathWithAStar(
+    unit: PlacedUnit,
+    board: Board,
+    target: Cell,
+    {approachOnly}: PathComputationOptions
+) {
+
     const start = unit.cell;
     const itemStore: Array<QueueItem> = [];
 
@@ -82,11 +88,15 @@ function findPathWithAStar(unit: PlayerUnit & {cell: Cell}, board: Board, target
     }
 
     function updateNeighbor(visitedItem: QueueItem, neighborX: number, neighborY: number) {
+
         if (!board.isInBoard(neighborX, neighborY)) {
             return;
         }
+
         const neighbor = board.getCell(neighborX, neighborY);
-        const stepCost = getCost(unit, neighbor);
+        const stepCost =
+            approachOnly && neighborX === target.x && neighborY === target.y ?
+            0 : getCost(unit, neighbor);
         if (stepCost === null) {
             return;
         }
@@ -123,7 +133,21 @@ function findPathWithAStar(unit: PlayerUnit & {cell: Cell}, board: Board, target
     return backtrackItem;
 }
 
-export function computePath(unit: NotNull<PlayerUnit, "cell">, board: Board, target: Cell): Path | null {
+interface PathComputationOptions {
+    approachOnly: boolean,
+}
+
+const defaultOptions: PathComputationOptions = {
+    approachOnly: false,
+};
+
+export function computePath(
+    board: Board,
+    unit: NotNull<PlayerUnit, "cell">,
+    target: Cell,
+    options: Partial<PathComputationOptions> = defaultOptions
+): Path | null {
+    const allOptions = {...defaultOptions, ...options};
 
     if (unit.cell.equals(target)) {
         return {
@@ -132,7 +156,7 @@ export function computePath(unit: NotNull<PlayerUnit, "cell">, board: Board, tar
         };
     }
 
-    let backtrackItem = findPathWithAStar(unit, board, target);
+    let backtrackItem = findPathWithAStar(unit, board, target, allOptions);
 
     if (backtrackItem === null) {
         return null;
@@ -140,6 +164,12 @@ export function computePath(unit: NotNull<PlayerUnit, "cell">, board: Board, tar
 
     const steps: Array<Cell> = [];
     let cost = 0;
+
+    if (options.approachOnly) {
+        // skip target
+        backtrackItem = backtrackItem.predecessor;
+    }
+
     while (backtrackItem !== null) {
         steps.push(backtrackItem.cell);
         cost += backtrackItem.cost;
@@ -168,39 +198,55 @@ export class ActionManager {
             return null;
         }
 
+        let interaction: Action|null = null;
         if (target === null) {
-            // can reach?
-            const path = computePath(activeUnit as NotNull<PlayerUnit, "cell">, this.adventure.board, cell);
-            if (path === null || path.cost > activeUnit.remainingMovePoints) {
-                return null;
-            }
-            return ActionManager.asAction(
-                ActionType.MOVE,
-                action(() => {
-                    activeUnit.cell = cell;
-                    activeUnit.spentMovePoints(path.cost);
-                })
-            );
+            interaction = this.moveActionOrNull(activeUnit, cell)
         }
 
         if (
-            activeUnit.player !== target.player
+            interaction === null
+            && target !== null
+            && activeUnit.player !== target.player
             && target.isAlive
-            && activeUnit.canAttack(target)
         ) {
-            return ActionManager.asAction(
-                ActionType.ATTACK, () => {
-                    target.dealDamage(1);
-                    activeUnit.exhausted = true;
-                    this.adventure.endTurn();
-                });
+            interaction = this.attackActionOrNull(activeUnit, target);
         }
 
+        return interaction;
+    }
+
+    moveActionOrNull(unit: PlayerUnit, cell: Cell) {
+        // can reach?
+        const path = computePath(this.adventure.board, unit as NotNull<PlayerUnit, "cell">, cell);
+        if (path === null || path.cost > unit.remainingMovePoints) {
+            return null;
+        }
+        return ActionManager.asAction(
+            ActionType.MOVE,
+            action(() => {
+                unit.cell = cell;
+                unit.spentMovePoints(path.cost);
+            })
+        );
+    }
+
+    attackActionOrNull(unit: PlayerUnit, target: PlayerUnit) {
+        if (unit.canAttack(target)) {
+            return ActionManager.asAction(
+                ActionType.ATTACK,
+                action(() => {
+                    target.dealDamage(1);
+                    unit.exhausted = true;
+                    this.adventure.endTurn();
+                })
+            );
+        }
         return null;
     }
 
-    canAct(unit: PlayerUnit) {
+    canAct(unit: PlayerUnit): unit is NotNull<PlayerUnit, "cell"> {
         return unit === this.adventure.activeUnit
+            && unit.cell !== null
             && unit.isAlive
         ;
     }

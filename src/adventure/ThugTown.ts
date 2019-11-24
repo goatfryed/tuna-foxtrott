@@ -1,7 +1,9 @@
-import {Bot, Player} from "../model";
+import {Bot, isPlaced, PlacedUnit, Player, PlayerUnit} from "../model";
 import {Adventure} from "../model/Adventure";
-import {autorun} from "mobx";
+import {reaction} from "mobx";
 import {createBoard, obstacle} from "../model/board";
+import {NotNull} from "../helpers";
+import {computePath, Path} from "../actions";
 
 export function createThugTown(user: Player) {
     const board = createBoard(
@@ -37,13 +39,64 @@ export function createThugTown(user: Player) {
 class ThugTownBot extends Bot {
 
     boot(adventure: Adventure): void {
-        this.shutdownHandler.push(autorun(() => {
-            const activeUnit = adventure.activeUnit;
-            if (activeUnit === null || activeUnit.player !== this) {
-                return;
-            }
-            alert(activeUnit.name + " passes");
-            adventure.endTurn();
-        }));
+        this.shutdownHandler.push(
+            reaction(
+                () => adventure.activeUnit,
+                playAggressive(
+                    adventure,
+                    unit => unit.player === this,
+                    unit => unit.player !== this && unit.isAlive
+                )
+            )
+        );
     }
+}
+
+function playAggressive(
+    adventure: Adventure,
+    unitFilter: (unit: PlayerUnit) => boolean,
+    targetFilter: (unit: PlayerUnit) => boolean
+) {
+
+    function mayChase({}: PlacedUnit, {}: {path: Path, unit: PlacedUnit}) {
+
+    }
+
+    function mayAttack(unit: PlacedUnit, target: PlacedUnit) {
+        console.log(unit, target);
+        if (unit.cell.getManhattenDistance(target.cell) <= 1) {
+            const action = adventure.actionManager.attackActionOrNull(unit,target);
+            if (action !== null) {
+                action.run();
+            }
+        }
+    }
+
+    return (activeUnit: PlayerUnit|null) => {
+        if (activeUnit === null || !unitFilter(activeUnit) || !isPlaced(activeUnit)) {
+            return;
+        }
+
+        const cell = activeUnit.cell;
+        const possibleTargets = adventure.players
+            .flatMap(p => p.units)
+            .filter((u): u is NotNull<PlayerUnit, "cell"> => u.cell !== null)
+            .filter(targetFilter)
+            .sort((a,b) => cell.getManhattenDistance(a.cell) - cell.getManhattenDistance(b.cell))
+            .map(unit => ({
+                unit,
+                path: computePath(adventure.board, activeUnit, unit.cell, {approachOnly: true})
+            }))
+            .filter(<T extends {path: Path|null}>(target: T): target is T & {path: Path} => target.path !== null)
+            .sort((a,b) => a.path.steps.length - b.path.steps.length)
+        ;
+        const target = possibleTargets[0];
+
+        if (target !== undefined) {
+            mayChase(activeUnit, target);
+            mayAttack(activeUnit, target.unit);
+        }
+
+        adventure.endTurn();
+    };
 }

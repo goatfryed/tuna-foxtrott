@@ -1,5 +1,5 @@
 import {Bot, Player, PlayerUnit} from "./index";
-import {action, computed, observable} from "mobx";
+import {action, computed, observable, reaction} from "mobx";
 import {ActionManager} from "../actions";
 import {Board} from "./board";
 
@@ -11,6 +11,7 @@ export class Adventure {
 
     @observable name: string = "test";
     @observable heroes: PlayerUnit[] = [];
+    @observable actionPhase = false;
 
     readonly players: Player[] = [];
     readonly board: Board;
@@ -22,7 +23,7 @@ export class Adventure {
     }
 
     get activeUnit(): PlayerUnit|null {
-        return this.turnOrder[0] || null;
+        return this.actionPhase ? this.turnOrder[0] || null : null;
     }
 
     @computed
@@ -67,13 +68,32 @@ export class Adventure {
         }
         this.refresh();
         currentActive.initiative += currentActive.initiativeDelay;
+        this.actionPhase = false;
     }
 
+    @action
     setup() {
         this.players
             .filter((p: Player): p is Bot => p instanceof Bot)
             .forEach(bot => bot.boot(this))
         ;
+
+        reaction(
+            () => ({
+                nextUnit: this.turnOrder[0],
+                isPrepPhase: !this.actionPhase
+            }),
+            ({nextUnit, isPrepPhase}) => {
+                if (!isPrepPhase) {
+                    return;
+                }
+                nextUnit.exhausted = false;
+                nextUnit.restoreMovePoints();
+                this.actionPhase = true;
+            }
+        );
+
+        this.actionPhase = true;
     }
 
     tearDown() {
@@ -96,4 +116,5 @@ export class Adventure {
     private static playerIsAlive(player: Player) {
         return player.units.some(u => u.isAlive);
     }
+
 }
