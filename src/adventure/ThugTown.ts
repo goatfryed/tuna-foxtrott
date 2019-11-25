@@ -64,7 +64,9 @@ function playAggressive(
         const pathItems = target.path.steps;
         const nextLocation = pathItems.filter(({distance}) => distance < currentDistance)
             .filter(({cost}) => cost <= unit.remainingMovePoints)
-            .sort(({cost: costA}, {cost: costB}) => costB - costA)
+            .filter(({cell}) => cell.unit === null)
+            .sort(({cost: costA}, {cost: costB}) => costA - costB)
+            .sort(({distance: distanceA}, {distance: distanceB}) => distanceA - distanceB)
             [0]
         ;
 
