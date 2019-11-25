@@ -42,7 +42,7 @@ function HeroList({adventure}: AdventureAware) {
     });
 }
 
-function AddHero(props: { onHeroCreation: (unit: UnitDefinition) => any } & AdventureAware) {
+function AddHero(props: { onHeroCreation: (unit: UnitDefinition) => any }) {
     const form = useForm();
     const onSubmit = useCallback(
         form.handleSubmit(({name}) => {
@@ -111,7 +111,7 @@ export function AdventureSelection(
     );
 
     return <>
-        <AddHero onHeroCreation={createHero} adventure={adventure}/>
+        <AddHero onHeroCreation={createHero} />
         <div><HeroList adventure={adventure}/></div>
         <hr/>
         <div>
