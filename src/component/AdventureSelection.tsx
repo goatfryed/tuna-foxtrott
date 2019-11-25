@@ -1,46 +1,45 @@
-import {Adventure, AdventureAware} from "../model/Adventure";
+import {Adventure} from "../model/Adventure";
 import {useAppContext} from "../state";
-import {useObserver} from "mobx-react-lite";
-import React, {useCallback, useMemo} from "react";
+import React, {Reducer, useCallback, useEffect, useMemo, useReducer} from "react";
 import {Player, PlayerUnit, UnitDefinition} from "../model";
 import useForm from "react-hook-form";
 import {HeroDetail} from "./Hero";
 import {createBoard} from "../model/board";
 import {AdventureDescription, adventureDescriptions as defaultAdventures} from "../adventure";
+import {reaction} from "mobx";
 
-function LocalHeroDetail({hero, adventure}: {hero: PlayerUnit} & AdventureAware) {
-    const included = useObserver(() => adventure.heroes.includes(hero));
-    const style = included ? "is-success" : undefined;
+function LocalHeroDetail(
+    {heroItem, onClick}:
+    {heroItem: UnitSelectionItem, onClick: (item: UnitSelectionItem) => void}
+ ) {
+    const style = heroItem.isSelected ? "is-success" : "is-info";
 
-    const onClick = useCallback(
-        () => {
-            if (!included) {
-                adventure.heroes.push(hero)
-            } else {
-                adventure.heroes = adventure.heroes.filter(h => h !== hero);
-            }
-        },
-        [hero, adventure, included]
+    const handleClick = useCallback(
+        () => onClick(heroItem),
+        [heroItem]
     );
 
-    return <HeroDetail hero={hero} onClick={onClick} style={style}/>
+    return <HeroDetail hero={heroItem.unit} onClick={handleClick} style={style}/>
 }
 
-function HeroList({adventure}: AdventureAware) {
+const HeroList = React.memo(
+    (props: {onItemClick: (item: UnitSelectionItem) => void, model: UnitSelectionModel}) => {
+        const {model} = props;
 
-    const appStore = useAppContext();
+        const items = useMemo(() => Object.values(model), [model]);
 
-    return useObserver(() => {
-        if (appStore.user.units.length === 0) {
+        if (items.length === 0) {
             return <div>Create heroes to get started</div>
         }
+
         return <div className="unit-list">
-            {appStore.user.units.map((hero, key) => <LocalHeroDetail
-                key={key} adventure={adventure} hero={hero}
+            {items.map(item => <LocalHeroDetail
+                key={item.unit.id} heroItem={item}
+                onClick={props.onItemClick}
             />)}
         </div>
-    });
-}
+    }
+);
 
 function AddHero(props: { onHeroCreation: (unit: UnitDefinition) => any }) {
     const form = useForm();
@@ -83,10 +82,88 @@ function createAdventure(user: Player) {
     }
 }
 
-type AdventureSelectionProps = {
+interface AdventureSelectionProps {
     onAdventureSelected: (adventure: Adventure) => void,
     adventureDescriptions?: AdventureDescription[],
-};
+}
+
+interface UnitSelectionItem {
+    unit: PlayerUnit,
+    isSelected: boolean,
+}
+
+type UnitSelectionModel = {[key in number]: UnitSelectionItem}
+
+interface RefreshAction {
+    type: "REFRESH",
+    units: PlayerUnit[]
+}
+interface ToggleAction {
+    type: "TOGGLE",
+    item: UnitSelectionItem,
+}
+
+function createUnitSelectionItem(unit: PlayerUnit) {
+    return {
+        unit,
+        isSelected: false
+    }
+}
+
+function useUnitSelectionModel() {
+    const appStore = useAppContext();
+
+    const mapUnitsToSelectionModel = (units: PlayerUnit[]) => {
+        return units
+            .map(createUnitSelectionItem)
+            .reduce((map, item) => {
+                    map[item.unit.id] = item;
+                    return map;
+                }, {} as UnitSelectionModel
+            );
+    };
+
+    const [unitSelectionModel, dispatch] = useReducer<Reducer<UnitSelectionModel, RefreshAction|ToggleAction>, PlayerUnit[]>(
+        (model, action) => {
+            if (action.type === "TOGGLE") {
+                return {...model, [action.item.unit.id]: {...action.item, isSelected: !action.item.isSelected}}
+            }
+            if (action.type === "REFRESH") {
+                const nextModel: UnitSelectionModel = {};
+                for (const unit of action.units) {
+                    nextModel[unit.id] = unit.id in model ?
+                        {...model[unit.id], unit}
+                        : createUnitSelectionItem(unit)
+                }
+
+                return nextModel;
+            }
+            return model;
+        },
+        appStore.user.units,
+        mapUnitsToSelectionModel
+    );
+
+    const toggleItem = useCallback(
+        (item: UnitSelectionItem) => dispatch({type: "TOGGLE", item})
+        , []
+    );
+
+    useEffect(
+        () => reaction(
+            () => appStore.user.units.slice(0),
+            units => {
+                dispatch({type: "REFRESH", units});
+            }
+        ),
+        []
+    );
+
+    return {
+        unitSelectionModel,
+        toggleItem,
+    }
+}
 
 export function AdventureSelection(
     {
@@ -110,9 +187,14 @@ export function AdventureSelection(
         [onAdventureSelected, adventure]
     );
 
+    const {
+        unitSelectionModel,
+        toggleItem
+    } = useUnitSelectionModel();
+
     return <>
         <AddHero onHeroCreation={createHero} />
-        <div><HeroList adventure={adventure}/></div>
+        <div><HeroList model={unitSelectionModel} onItemClick={toggleItem}/></div>
         <hr/>
         <div>
             {adventureDescriptions.map(
