@@ -65,7 +65,7 @@ export class Cell {
     }
 }
 
-interface TerrainDescriptor {
+export interface TerrainDescriptor {
     x: number,
     y: number,
     terrain: Terrain,
