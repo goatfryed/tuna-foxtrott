@@ -1,4 +1,4 @@
-import {Bot, Player, PlayerUnit} from "./index";
+import {Bot, isPlaced, PlacedUnit, Player, PlayerUnit} from "./index";
 import {action, computed, observable, reaction} from "mobx";
 import {ActionManager} from "../actions";
 import {Board} from "./board";
@@ -27,10 +27,12 @@ export class Adventure {
     }
 
     @computed
-    get turnOrder() {
+    get turnOrder(): PlacedUnit[] {
         return this.players.flatMap(p => p.units)
+            .filter(isPlaced)
             .filter(u => u.isAlive)
             .sort( Adventure.sortForTurnOrder)
+        ;
     }
 
     private static sortForTurnOrder(a: PlayerUnit, b: PlayerUnit) {
@@ -73,6 +75,8 @@ export class Adventure {
 
     @action
     setup() {
+        this.actionPhase = false;
+
         this.players
             .filter((p: Player): p is Bot => p instanceof Bot)
             .forEach(bot => bot.boot(this))
@@ -93,7 +97,7 @@ export class Adventure {
             }
         );
 
-        this.actionPhase = true;
+        setTimeout(() => this.actionPhase = true);
     }
 
     tearDown() {
