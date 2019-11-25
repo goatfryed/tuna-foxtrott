@@ -161,6 +161,17 @@ export function computePath(
             cost: 0,
         };
     }
+    if (allOptions.approachOnly && unit.cell.isNeighbor(target)) {
+        return {
+            steps: [{
+                cell: target,
+                cost: 0,
+                distance: 0,
+                predecessor: null,
+            }],
+            cost: 0,
+        };
+    }
 
     let backtrackItem = findPathWithAStar(unit, board, target, allOptions);
 
