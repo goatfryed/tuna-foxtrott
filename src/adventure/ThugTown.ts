@@ -93,29 +93,38 @@ function playAggressive(
         }
     }
 
-    return (activeUnit: PlayerUnit|null) => {
-        if (activeUnit === null || !unitFilter(activeUnit) || !isPlaced(activeUnit)) {
-            return;
-        }
-
-        const cell = activeUnit.cell;
-        const possibleTargets = adventure.players
+    function selectTarget(activeUnit: PlacedUnit) {
+        const paths = adventure.players
             .flatMap(p => p.units)
             .filter((u): u is NotNull<PlayerUnit, "cell"> => u.cell !== null)
             .filter(targetFilter)
-            .sort((a,b) => cell.getManhattenDistance(a.cell) - cell.getManhattenDistance(b.cell))
             .map(unit => ({
                 unit,
                 path: computePath(adventure.board, activeUnit, unit.cell, {approachOnly: true})
-            }))
-            .filter(<T extends {path: Path|null}>(target: T): target is T & {path: Path} => target.path !== null)
-            .sort((a,b) => a.path.steps.length - b.path.steps.length)
+            }));
+        return paths
+            .filter(<T extends { path: Path | null }>(target: T): target is T & { path: Path } => target.path !== null)
+            .sort((a, b) => a.path.cost - b.path.cost
+                || a.unit.currentHealth - b.unit.currentHealth
+                || activeUnit.cell.getManhattenDistance(a.unit.cell) - activeUnit.cell.getManhattenDistance(b.unit.cell)
+                || a.unit.id - b.unit.id
+            )
+            [0] || null
         ;
-        const target = possibleTargets[0];
+    }
 
-        if (target !== undefined) {
-            mayChase(activeUnit, target);
-            mayAttack(activeUnit, target.unit);
+    return (activeUnit: PlayerUnit|null) => {
+        if (activeUnit === null || !unitFilter(activeUnit)) {
+            return;
+        }
+
+        if (isPlaced(activeUnit)) {
+            const target = selectTarget(activeUnit);
+
+            if (target !== null) {
+                mayChase(activeUnit, target);
+                mayAttack(activeUnit, target.unit);
+            }
         }
 
         adventure.endTurn();
