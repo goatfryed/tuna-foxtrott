@@ -5,7 +5,7 @@ import {Adventure} from "../model/Adventure";
 import {AnyKeyBoardEvent, useDocumentKeyPressHandler} from "../hooks";
 import {useAdventure} from "../state";
 
-export function Board({isIsometric = true}: {isIsometric?: boolean}) {
+export function Board({isIsometric = false}: {isIsometric?: boolean}) {
 
     const adventure = useAdventure();
     const viewport = useRef<HTMLDivElement>(null);
