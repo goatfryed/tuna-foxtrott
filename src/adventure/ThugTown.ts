@@ -4,6 +4,12 @@ import {reaction} from "mobx";
 import {createBoard, obstacle} from "../model/board";
 import {NotNull} from "../helpers";
 import {computePath, Path} from "../actions";
+import {AdventureDescription} from "./index";
+
+export const ThugTownDescription: Omit<AdventureDescription, "id"> = {
+    name: "Thug Town",
+    factory: createThugTown,
+};
 
 export function createThugTown(user: Player) {
     const board = createBoard(
