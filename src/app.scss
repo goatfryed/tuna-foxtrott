@@ -27,12 +27,13 @@
   }
 }
 
-$cell-size: 6rem;
+$cell-size: 5em;
+$cell-border-size: 0.25em;
 
 .cell {
   position: relative;
-  height: $cell-size;
-  width: $cell-size;
+  height: $cell-size + $cell-border-size;
+  width: $cell-size + $cell-border-size;
   margin: 0.02 * $cell-size;
 
   .content {
@@ -57,7 +58,7 @@ $cell-size: 6rem;
   .interaction {
     @extend .button;
     display: block;
-    padding: 0.5em;
+    padding: $cell-border-size;
     height: 100%;
     width: 100%;
     white-space: normal;
