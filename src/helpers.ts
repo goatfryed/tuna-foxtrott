@@ -1,3 +1,4 @@
+import {useMemo} from "react";
 
 export function make<T>(val: T) {
     return () => val;
@@ -13,4 +14,8 @@ export type Immutable<T> = {
 
 export type NotNull<T, S extends keyof T> = T & {
     [P in S]: T[P] extends infer S|null|undefined ? S : T[P]
+}
+
+export function useConst<T>(obj: T): T {
+    return useMemo(() => obj, Object.values(obj));
 }
