@@ -6,6 +6,7 @@ import {Player, PlayerUnit, UnitDefinition} from "../model";
 import useForm from "react-hook-form";
 import {HeroDetail} from "./Hero";
 import {createBoard} from "../model/board";
+import {AdventureDescription, adventureDescriptions as defaultAdventures} from "../adventure";
 
 function LocalHeroDetail({hero, adventure}: {hero: PlayerUnit} & AdventureAware) {
     const included = useObserver(() => adventure.heroes.includes(hero));
@@ -82,7 +83,17 @@ function createAdventure(user: Player) {
     }
 }
 
-export function AdventureSelection(props: { onAdventureSelected: (adventure: Adventure) => void }) {
+type AdventureSelectionProps = {
+    onAdventureSelected: (adventure: Adventure) => void,
+    adventureDescriptions?: AdventureDescription[],
+};
+
+export function AdventureSelection(
+    {
+        onAdventureSelected,
+        adventureDescriptions = defaultAdventures
+    }: AdventureSelectionProps
+) {
 
     const appStore = useAppContext();
     const adventure = useMemo(createAdventure(appStore.user), []);
@@ -95,15 +106,24 @@ export function AdventureSelection(props: { onAdventureSelected: (adventure: Adv
     );
 
     const startHandler = useCallback(
-        () => props.onAdventureSelected(adventure),
-        [props.onAdventureSelected, adventure]
+        () => onAdventureSelected(adventure),
+        [onAdventureSelected, adventure]
     );
 
     return <>
         <AddHero onHeroCreation={createHero} adventure={adventure}/>
         <div><HeroList adventure={adventure}/></div>
+        <hr/>
         <div>
-            <button onClick={startHandler}>Start adventure</button>
+            {adventureDescriptions.map(
+                description => <button key={description.id} className="button">
+                    {description.name}
+                </button>
+            )}
+        </div>
+        <hr/>
+        <div>
+            <button className="button" onClick={startHandler}>Start adventure</button>
         </div>
     </>;
 }
