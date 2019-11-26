@@ -1,5 +1,6 @@
 import * as React from "react";
-import {observable} from "mobx";
+import {IObservableArray, observable} from "mobx";
+import {useObserver} from "mobx-react";
 import {UnitDefinition} from "../../model";
 import {useMemo} from "react";
 
@@ -14,13 +15,19 @@ function newRoster() {
 export function RosterManager() {
 
     const roster = useMemo(() => newRoster(), []);
-    return <RosterContext.Provider value={roster}>
-        <div className="container">
-            <div>🐱‍🚀🐱‍👓🐱‍👤</div>
-            <hr/>
-            <div>Your Roster</div>
-            <hr/>
-            <button className="button" disabled>Hire hero</button>
+    return <div className="container">
+        <div>🐱‍🚀🐱‍👓🐱‍👤</div>
+        <hr/>
+        <div>
+            <RosterBrowser roster={roster} />
         </div>
-    </RosterContext.Provider>
+        <hr/>
+        <button className="button is-success" disabled>Hire hero</button>
+    </div>
+}
+
+export function RosterBrowser(props: { roster: IObservableArray<UnitDefinition> }) {
+    return useObserver(() => <div>
+        {props.roster.map( u => <p>{u.name}</p>)}
+    </div>);
 }
