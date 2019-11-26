@@ -4,7 +4,7 @@ import {AppContextProvider} from "../state";
 import {AppContext, Player} from "../model";
 import {createThugTown} from "../adventure/ThugTown";
 import {action} from "@storybook/addon-actions";
-import {boolean, button, select, withKnobs} from "@storybook/addon-knobs";
+import {boolean, select, withKnobs} from "@storybook/addon-knobs";
 import {useMemo} from "@storybook/addons";
 import {createBoard, obstacle} from "../model/board";
 import {Adventure} from "../model/Adventure";
@@ -25,10 +25,6 @@ export default {
     component: AdventureView,
     decorators: [
         withKnobs,
-        (Story: any) => {
-            button("Refresh", () => {});
-            return <Story />
-        },
     ],
     parameters: {
         enableShortcuts: false,
