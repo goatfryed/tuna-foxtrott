@@ -79,15 +79,9 @@ export function thugTown() {
 
     const thugTownAdventure = useMemo(
         () => {
-            const adventure = createThugTown(context.user);
             const clubber = context.user.addUnit( {name: "clubber", baseHealth: 5, initiativeDelay: 80});
-            context.user.units.forEach(u => adventure.heroes.push(u));
-            context.axel.cell = adventure.board.getCell(0,0);
-            context.bower.cell = adventure.board.getCell(3,3);
-            context.macel.cell = adventure.board.getCell(0,2);
-            clubber.cell = adventure.board.getCell(4,0);
-
-            return adventure;
+            const heroes = context.user.units.slice(0,2).concat([clubber]);
+            return createThugTown(context.user, heroes);
         },
         [context]
     );
