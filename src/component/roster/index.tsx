@@ -3,6 +3,7 @@ import {IObservableArray, observable} from "mobx";
 import {useObserver} from "mobx-react";
 import {UnitDefinition} from "../../model";
 import {useMemo} from "react";
+import styled, {css} from "styled-components";
 
 const defaultRoster = newRoster();
 
@@ -26,8 +27,43 @@ export function RosterManager() {
     </div>
 }
 
+const Container = styled.div`
+    padding: 0.5em;
+    border-style: solid;
+`;
+
 export function RosterBrowser(props: { roster: IObservableArray<UnitDefinition> }) {
-    return useObserver(() => <div>
-        {props.roster.map( u => <p>{u.name}</p>)}
-    </div>);
+    return useObserver(() => <Container>
+        {props.roster.map( u => <RosterEntry hero={u} />)}
+    </Container>);
+}
+
+const darkHover = css`
+    &:hover {
+        filter: brightness(0.85);
+    }
+`;
+
+const HeroTile = styled.div`
+    margin: 0.5em;
+    padding: 0.5em;
+    max-width: 24ex;
+    background-color: rgb(150, 232, 158);
+    border-color: rgb(126, 183, 131);
+    border-width: 0 3px 3px 0;
+    border-style: solid;
+    border-radius: 0.3em;
+    ${darkHover}
+`;
+
+const Line = styled.hr`
+    margin: 0 0 0.5em 0;
+`;
+
+export function RosterEntry(props: {hero: UnitDefinition}) {
+    return <HeroTile>
+        {props.hero.name}
+        <Line />
+        ❤ {props.hero.baseHealth} - 👣 {props.hero.baseSpeed} - 🚄 - {props.hero.initiativeDelay}
+    </HeroTile>
 }
