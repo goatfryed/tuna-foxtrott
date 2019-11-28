@@ -2,7 +2,7 @@ import React, {ReactNode} from "react";
 
 interface ModalProps {
     children: ReactNode,
-    onBackground: () => void,
+    onBackground?: () => void,
 }
 
 export function Modal (props: ModalProps) {
