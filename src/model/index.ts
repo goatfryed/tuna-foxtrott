@@ -1,4 +1,4 @@
-import {action, computed, observable} from "mobx";
+import {action, computed, IObservableArray, observable} from "mobx";
 import {Adventure} from "./Adventure";
 import {Cell} from "./board";
 import {NotNull} from "../helpers";
@@ -102,7 +102,8 @@ export class PlayerUnit extends Unit {
 }
 
 export class Player {
-    @observable readonly units: PlayerUnit[] = [];
+
+    readonly units: IObservableArray<PlayerUnit> = observable([]);
 
     isUser: boolean = false;
 
@@ -127,6 +128,9 @@ export abstract class Bot extends Player {
 }
 
 export class AppContext {
+
+    readonly roster: IObservableArray<UnitDefinition> = observable([]);
+
     constructor(readonly user: Player) {
         user.isUser = true;
     }

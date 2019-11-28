@@ -3,24 +3,23 @@ import {AppContext, Player} from "./model";
 import {runInAction} from "mobx";
 import {Adventure, AdventureAware} from "./model/Adventure";
 
-const storeContext = React.createContext<AppContext | null>(null);
-
-const appStore = runInAction(() => {
+const defaultAppContext = runInAction(() => {
     const user = new Player("user");
-
     return new AppContext(user);
 });
 
+const appContext = React.createContext<AppContext>(defaultAppContext);
+
 export const useAppContext = () => {
-    const store = React.useContext(storeContext);
+    const store = React.useContext(appContext);
     if (!store) {
         throw new Error('useAppStore must be used within a StoreProvider');
     }
     return store;
 };
 
-export const AppContextProvider: React.FC<{context?: AppContext}> = ({children, context = appStore}) => {
-    return <storeContext.Provider value={context}>{children}</storeContext.Provider>
+export const AppContextProvider: React.FC<{context?: AppContext}> = ({children, context = defaultAppContext}) => {
+    return <appContext.Provider value={context}>{children}</appContext.Provider>
 };
 
 export const adventureContext = React.createContext<Adventure|null>(null);

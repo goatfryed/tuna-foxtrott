@@ -1,8 +1,7 @@
 import {Adventure} from "../model/Adventure";
 import {useAppContext} from "../state";
 import React, {Reducer, useCallback, useEffect, useMemo, useReducer, useState} from "react";
-import {PlayerUnit, UnitDefinition} from "../model";
-import useForm from "react-hook-form";
+import {PlayerUnit} from "../model";
 import {HeroDetail} from "./Hero";
 import {AdventureDescription, adventureDescriptions as defaultAdventures} from "../adventure";
 import {reaction} from "mobx";
@@ -40,31 +39,10 @@ const HeroList = React.memo(
     }
 );
 
-function AddHero(props: { onHeroCreation: (unit: UnitDefinition) => any }) {
-    const form = useForm();
-    const onSubmit = useCallback(
-        form.handleSubmit(({name}) => {
-            props.onHeroCreation({name, baseHealth: 5});
-            form.reset();
-        }),
-        [props.onHeroCreation]
-    );
-
-    return <form onSubmit={onSubmit}>
-        <input autoComplete="off" name="name" ref={form.register({
-            required: 'Required',
-            pattern: {
-                value: /[A-Z][A-Za-z -_]+/,
-                message: "Invalid name",
-            }
-        })}/>
-        {form.errors.name && form.errors.name.message}
-    </form>
-}
-
 interface AdventureSelectionProps {
     onAdventureSelected: (adventure: Adventure) => void,
     adventureDescriptions?: AdventureDescription[],
+    navigator: (screen: string) => void
 }
 
 interface UnitSelectionItem {
@@ -147,24 +125,20 @@ function useUnitSelectionModel() {
 
 export function AdventureSelection(
     {
+        navigator,
         onAdventureSelected,
         adventureDescriptions = defaultAdventures
     }: AdventureSelectionProps
 ) {
 
     const appStore = useAppContext();
+
     const {
         unitSelectionModel,
         toggleItem
     } = useUnitSelectionModel();
-    const [selectedAdventure, selectAdventure] = useState<AdventureDescription>();
 
-    const createHero = useCallback(
-        (unit: UnitDefinition) => {
-            appStore.user.addUnit(unit);
-        },
-        []
-    );
+    const [selectedAdventure, selectAdventure] = useState<AdventureDescription>();
 
     const selectedUnits = useMemo(() => Object.values(unitSelectionModel)
         .filter(({isSelected}) => isSelected)
@@ -187,8 +161,16 @@ export function AdventureSelection(
 
 
     return <>
-        <AddHero onHeroCreation={createHero} />
-        <div><HeroList model={unitSelectionModel} onItemClick={toggleItem}/></div>
+        <div className="columns">
+            <div className="column is-narrow">
+                <button className="button" onClick={() => navigator("Roster")}>
+                    Manage Roster
+                </button>
+            </div>
+            <div className="column">
+                <HeroList model={unitSelectionModel} onItemClick={toggleItem}/>
+            </div>
+        </div>
         <hr/>
         <div>
             {adventureDescriptions.map(

@@ -1,19 +1,12 @@
 import * as React from "react";
-import {useLayoutEffect, useMemo, useRef, useState} from "react";
-import {IObservableArray, observable} from "mobx";
+import {useLayoutEffect, useRef, useState} from "react";
+import {IObservableArray} from "mobx";
 import {useObserver} from "mobx-react";
-import {Unit, UnitDefinition} from "../../model";
+import {UnitDefinition} from "../../model";
 import styled, {css} from "styled-components";
 import {Modal} from "../Modal";
 import useForm from "react-hook-form";
-
-const defaultRoster = newRoster();
-
-export const RosterContext = React.createContext(defaultRoster);
-
-function newRoster() {
-    return observable<UnitDefinition>([]);
-}
+import {useAppContext} from "../../state";
 
 const heroClasses: UnitDefinition[] = [
     {
@@ -36,7 +29,7 @@ const heroClasses: UnitDefinition[] = [
     }
 ];
 
-function HireHeroCard(props: { onCancel: () => void, onHire: (u: Unit) => void }) {
+function HireHeroCard(props: { onCancel: () => void, onHire: (u: UnitDefinition) => void }) {
     const [heroClass, setSelectedClass] = useState(heroClasses[0]);
     const lastHeroClass = useRef(heroClass);
     const {register, errors, handleSubmit} = useForm<{name: string}>();
@@ -66,10 +59,10 @@ function HireHeroCard(props: { onCancel: () => void, onHire: (u: Unit) => void }
 
     const onSubmit = handleSubmit(
         ({name}) => {
-            props.onHire(new Unit({
+            props.onHire({
                 ...heroClass,
                 name
-            }));
+            });
         }
     );
 
@@ -103,16 +96,16 @@ function HireHeroCard(props: { onCancel: () => void, onHire: (u: Unit) => void }
     </div>;
 }
 
-export function RosterManager() {
+export function RosterManager(props: {navigator: (screen: string) => void}) {
     const [showHeroHire, setShowHeroHire] = useState(false);
-    const roster = useMemo(() => newRoster(), []);
+    const {user} = useAppContext();
 
-    function handleHire(unit: Unit) {
-        roster.push(unit);
+    function handleHire(unit: UnitDefinition) {
+        user.addUnit(unit);
         setShowHeroHire(false);
     }
 
-    return <div className="container">
+    return useObserver( () => <div className="container">
         {showHeroHire && <Modal>
             <HireHeroCard
                 onCancel={() => setShowHeroHire(false)}
@@ -123,11 +116,15 @@ export function RosterManager() {
         <div>🐱‍🚀🐱‍👓🐱‍👤</div>
         <hr/>
         <div>
-            <RosterBrowser roster={roster} />
+            <RosterBrowser roster={user.units} />
         </div>
         <hr/>
+        <button className={"button " + (user.units.length === 0 ? "is-warning" : "is-primary")}
+                onClick={() => props.navigator("Adventures")}
+                disabled={user.units.length === 0}
+        >Adventures</button>
         <button className="button is-success" onClick={() => setShowHeroHire(true)}>Hire hero</button>
-    </div>
+    </div>)
 }
 
 const Container = styled.div`

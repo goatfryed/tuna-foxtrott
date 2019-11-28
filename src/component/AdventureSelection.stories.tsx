@@ -18,6 +18,9 @@ export default {
 
 export function main() {
     return <AppContextProvider context={defaultContext}>
-        <AdventureSelection onAdventureSelected={action("onAdventureSelected")}/>
+        <AdventureSelection
+            onAdventureSelected={action("onAdventureSelected")}
+            navigator={action("navigator")}
+        />
     </AppContextProvider>
 }

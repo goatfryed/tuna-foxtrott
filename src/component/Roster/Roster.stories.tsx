@@ -3,6 +3,9 @@ import {RosterBrowser, RosterManager, HeroEntry} from "./index";
 import {observable} from "mobx";
 import styled from "styled-components";
 import {CornerBorders} from "../Highlighting/CornerBorders";
+import {action} from "@storybook/addon-actions";
+import {AppContextProvider} from "../../state";
+import {AppContext, Player} from "../../model";
 
 const Boxed = styled(CornerBorders)`
     margin: 2em;
@@ -14,7 +17,10 @@ export default {
 }
 
 export function manager() {
-    return <RosterManager />
+    const context = new AppContext(new Player("Dave"));
+    return <AppContextProvider context={context}>
+        <RosterManager navigator={action("navigation")}/>
+    </AppContextProvider>
 }
 
 const roster = observable([
