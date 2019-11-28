@@ -1,12 +1,10 @@
 import * as React from "react";
-import {RosterBrowser, RosterManager} from "./index";
+import {RosterBrowser, RosterManager, HeroEntry} from "./index";
 import {observable} from "mobx";
 import styled from "styled-components";
+import {CornerBorders} from "../display/CornerBorders";
 
-const Boxed = styled.div`
-    border-color: black;
-    border-style: dashed;
-    border-width: 2px;
+const Boxed = styled(CornerBorders)`
     margin: 2em;
 `;
 
@@ -32,5 +30,14 @@ const roster = observable([
 
 export function browser() {
     return <RosterBrowser roster={roster}/>
+}
+
+export function hero() {
+    return <HeroEntry
+        hero={{
+            name: "Dave",
+            baseHealth: 3,
+        }}
+    />
 }
 
