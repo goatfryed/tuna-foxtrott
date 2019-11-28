@@ -2,7 +2,7 @@ import * as React from "react";
 import {RosterBrowser, RosterManager, HeroEntry} from "./index";
 import {observable} from "mobx";
 import styled from "styled-components";
-import {CornerBorders} from "../display/CornerBorders";
+import {CornerBorders} from "../Highlighting/CornerBorders";
 
 const Boxed = styled(CornerBorders)`
     margin: 2em;

@@ -14,7 +14,6 @@ function newRoster() {
 }
 
 export function RosterManager() {
-
     const roster = useMemo(() => newRoster(), []);
     return <div className="container">
         <div>🐱‍🚀🐱‍👓🐱‍👤</div>
