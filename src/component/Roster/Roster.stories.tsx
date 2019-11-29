@@ -2,7 +2,7 @@ import * as React from "react";
 import {RosterBrowser, RosterManager, HeroEntry} from "./index";
 import {observable} from "mobx";
 import styled from "styled-components";
-import {CornerBorders} from "../Highlighting/CornerBorders";
+import {CornerBorders} from "../Display/CornerBorders";
 import {action} from "@storybook/addon-actions";
 import {AppContextProvider} from "../../state";
 import {AppContext, Player} from "../../model";
