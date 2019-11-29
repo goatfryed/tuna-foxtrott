@@ -1,7 +1,6 @@
 import {CircleDisplay} from "./CircleDisplay";
 import React from "react";
 import styled from "styled-components";
-import {number} from "@storybook/addon-knobs";
 
 export default {
     title: "Circle Display",
@@ -11,8 +10,8 @@ export default {
 const Dot = styled.div`
   border-radius: 50%;
   background-color: red;
-  height: 1em;
-  width: 1em;
+  height: 100%;
+  width: 100%;
   color: white;
   text-align: center;
   vertical-align: middle;
@@ -21,12 +20,12 @@ const Dot = styled.div`
 
 
 export function standard() {
-    const childCount = number("childCount", 7, {min: 1, step: 1, max: 20});
+    const childCount = 9;
     const children = [];
     for (let i = 0; i < childCount; i++) {
         children.push(<Dot key={i}>{i}</Dot>)
     }
-    return <CircleDisplay circleSize="5em" itemSize="1em">
+    return <CircleDisplay circleSize="12em" itemSize="2.5em">
         {children}
     </CircleDisplay>
 }

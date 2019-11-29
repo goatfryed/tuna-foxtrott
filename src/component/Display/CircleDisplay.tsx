@@ -17,7 +17,7 @@ const CircleItem = styled.div<{
     
     transform:
         rotate(${props => props.angle}deg)
-        translate(calc(${props => props.circleSize} / 2 - ${props => props.itemSize}/2))
+        translate(calc(${props => props.circleSize} / 2 - ${props => props.itemSize} / 2))
         rotate(-${props => props.angle}deg)
     ;
 `;
@@ -42,6 +42,7 @@ export function CircleDisplay(props: {
 
     return <CircleContainer circleSize={props.circleSize}>
         {props.children.map((child,index) => <CircleItem
+            key={index}
             circleSize={props.circleSize}
             itemSize={props.itemSize || "1em"}
             angle={(index * steps) + 315}
