@@ -8,7 +8,8 @@
     "storybook": "start-storybook -p 6006",
     "build-storybook": "build-storybook",
     "type-check": "tsc --noEmit",
-    "test": "jest"
+    "test": "jest",
+    "postinstall": "rm -rf node_modules/@types/react-native"
   },
   "keywords": [],
   "author": "Omar <goatfryed> Sood",
