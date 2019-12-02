@@ -1,12 +1,13 @@
-import {Player, PlayerUnit} from "../model";
+import {Player} from "../model";
 import {Adventure} from "../model/Adventure";
 import {ThugTownDescription} from "./ThugTown";
 import {Board, createBoard, TerrainDescriptor} from "../model/board";
+import {IngameUnit} from "../model/IngameUnit";
 
 export interface AdventureDescription {
     id: number,
     name: string,
-    factory: (user: Player, selectedUnits: PlayerUnit[]) => Adventure,
+    factory: (user: Player, selectedUnits: IngameUnit[]) => Adventure,
 }
 
 export const adventureDescriptions: AdventureDescription[] = [
@@ -20,7 +21,7 @@ export function adventureFactory(
     startLocations: Coordinate[],
     setup: (adventure: Adventure) => void,
 ) {
-    return (user: Player, playerUnits: PlayerUnit[]) => {
+    return (user: Player, playerUnits: IngameUnit[]) => {
         const board = createBoard(sizeX, sizeY, terrain);
         const adventure = new Adventure(board);
         adventure.players.push(user);
@@ -30,7 +31,7 @@ export function adventureFactory(
     }
 }
 
-function placeUnits(board: Board, startLocations: Coordinate[], selectedUnits: PlayerUnit[]) {
+function placeUnits(board: Board, startLocations: Coordinate[], selectedUnits: IngameUnit[]) {
     for (let i = 0; i < startLocations.length; i++) {
         const unit = selectedUnits[i];
         const [x, y] = startLocations[i];

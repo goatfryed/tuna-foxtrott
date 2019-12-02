@@ -8,14 +8,15 @@ import {boolean, select, withKnobs} from "@storybook/addon-knobs";
 import {useMemo} from "@storybook/addons";
 import {createBoard, obstacle} from "../model/board";
 import {Adventure} from "../model/Adventure";
+import {axelBase, bowerBase, clubberBase, macelBase} from "../fixtures";
 
 function createStoryContext() {
     const user = new Player("Karli");
     return {
         user,
-        axel: user.addUnit({name: "axel", baseHealth: 5, initiativeDelay: 80}),
-        bower: user.addUnit({name: "bower", baseSpeed: 2, baseHealth: 4}),
-        macel: user.addUnit({name: "macel", baseHealth: 6, initiativeDelay: 105}),
+        axel: user.addUnit(axelBase),
+        bower: user.addUnit(bowerBase),
+        macel: user.addUnit(macelBase),
         appContext: new AppContext(user)
     }
 }
@@ -75,7 +76,7 @@ export function thugTown() {
 
     const thugTownAdventure = useMemo(
         () => {
-            const clubber = context.user.addUnit( {name: "clubber", baseHealth: 5, initiativeDelay: 80});
+            const clubber = context.user.addUnit( clubberBase);
             const heroes = context.user.units.slice(0,2).concat([clubber]);
             return createThugTown(context.user, heroes);
         },

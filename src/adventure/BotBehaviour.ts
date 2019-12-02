@@ -1,12 +1,12 @@
 import {Adventure} from "../model/Adventure";
-import {isPlaced, PlacedUnit, PlayerUnit} from "../model";
 import {computePath, Path} from "../actions";
 import {NotNull} from "../helpers";
+import {IngameUnit, isPlaced, PlacedUnit} from "../model/IngameUnit";
 
 export function playAggressive(
     adventure: Adventure,
-    unitFilter: (unit: PlayerUnit) => boolean,
-    targetFilter: (unit: PlayerUnit) => boolean
+    unitFilter: (unit: IngameUnit) => boolean,
+    targetFilter: (unit: IngameUnit) => boolean
 ) {
 
     function mayChase(unit: PlacedUnit, target: { path: Path, unit: PlacedUnit }) {
@@ -47,7 +47,7 @@ export function playAggressive(
     function selectTarget(activeUnit: PlacedUnit) {
         const paths = adventure.players
             .flatMap(p => p.units)
-            .filter((u): u is NotNull<PlayerUnit, "cell"> => u.cell !== null)
+            .filter((u): u is NotNull<IngameUnit, "cell"> => u.cell !== null)
             .filter(targetFilter)
             .map(unit => ({
                 unit,
@@ -64,7 +64,7 @@ export function playAggressive(
             ;
     }
 
-    return (activeUnit: PlayerUnit | null) => {
+    return (activeUnit: IngameUnit | null) => {
         if (activeUnit === null || !unitFilter(activeUnit)) {
             return;
         }

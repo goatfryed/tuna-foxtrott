@@ -1,13 +1,13 @@
 import React, {useMemo} from "react";
-import {PlayerUnit, Unit} from "../model";
+import {IngameUnit} from "../model/IngameUnit";
 
 interface HeroDetailProps extends HeroAware {
-    onClick?: (hero: Unit) => any,
+    onClick?: (hero: IngameUnit) => any,
     style?: string,
 }
 
 export interface HeroAware {
-    hero: PlayerUnit,
+    hero: IngameUnit,
 }
 export function HeroDetail({hero, onClick, style = "is-info"}: HeroDetailProps) {
 

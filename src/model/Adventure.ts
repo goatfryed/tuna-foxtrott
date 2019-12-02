@@ -1,7 +1,8 @@
-import {Bot, isPlaced, PlacedUnit, Player, PlayerUnit} from "./index";
+import {Bot, Player} from "./index";
 import {action, computed, observable, reaction} from "mobx";
 import {ActionManager} from "../actions";
 import {Board} from "./board";
+import {IngameUnit, isPlaced, PlacedUnit} from "./IngameUnit";
 
 export interface AdventureAware {
     adventure: Adventure
@@ -10,7 +11,7 @@ export interface AdventureAware {
 export class Adventure {
 
     @observable name: string = "test";
-    @observable heroes: PlayerUnit[] = [];
+    @observable heroes: IngameUnit[] = [];
     @observable actionPhase = false;
 
     readonly players: Player[] = [];
@@ -22,7 +23,7 @@ export class Adventure {
         return this._actionManager;
     }
 
-    get activeUnit(): PlayerUnit|null {
+    get activeUnit(): IngameUnit|null {
         return this.actionPhase ? this.turnOrder[0] || null : null;
     }
 
@@ -35,7 +36,7 @@ export class Adventure {
         ;
     }
 
-    private static sortForTurnOrder(a: PlayerUnit, b: PlayerUnit) {
+    private static sortForTurnOrder(a: IngameUnit, b: IngameUnit) {
         // lower initiative should come first
         const iniOrder = a.initiative - b.initiative;
         if (iniOrder !== 0) {

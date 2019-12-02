@@ -1,10 +1,10 @@
 import {Adventure} from "../model/Adventure";
 import {useAppContext} from "../state";
 import React, {Reducer, useCallback, useEffect, useMemo, useReducer, useState} from "react";
-import {PlayerUnit} from "../model";
 import {HeroDetail} from "./Hero";
 import {AdventureDescription, adventureDescriptions as defaultAdventures} from "../adventure";
 import {reaction} from "mobx";
+import {IngameUnit} from "../model/IngameUnit";
 
 function LocalHeroDetail(
     {heroItem, onClick}:
@@ -46,7 +46,7 @@ interface AdventureSelectionProps {
 }
 
 interface UnitSelectionItem {
-    unit: PlayerUnit,
+    unit: IngameUnit,
     isSelected: boolean,
 }
 
@@ -54,14 +54,14 @@ type UnitSelectionModel = {[key: number]: UnitSelectionItem}
 
 interface RefreshAction {
     type: "REFRESH",
-    units: PlayerUnit[]
+    units: IngameUnit[]
 }
 interface ToggleAction {
     type: "TOGGLE",
     item: UnitSelectionItem,
 }
 
-function createUnitSelectionItem(unit: PlayerUnit) {
+function createUnitSelectionItem(unit: IngameUnit) {
     return {
         unit,
         isSelected: false
@@ -71,7 +71,7 @@ function createUnitSelectionItem(unit: PlayerUnit) {
 function useUnitSelectionModel() {
     const appStore = useAppContext();
 
-    const mapUnitsToSelectionModel = (units: PlayerUnit[]) => {
+    const mapUnitsToSelectionModel = (units: IngameUnit[]) => {
         return units
             .map(createUnitSelectionItem)
             .reduce((map, item) => {
@@ -81,7 +81,7 @@ function useUnitSelectionModel() {
             );
     };
 
-    const [unitSelectionModel, dispatch] = useReducer<Reducer<UnitSelectionModel, RefreshAction|ToggleAction>, PlayerUnit[]>(
+    const [unitSelectionModel, dispatch] = useReducer<Reducer<UnitSelectionModel, RefreshAction|ToggleAction>, IngameUnit[]>(
         (model, action) => {
             if (action.type === "TOGGLE") {
                 return {...model, [action.item.unit.id]: {...action.item, isSelected: !action.item.isSelected}}

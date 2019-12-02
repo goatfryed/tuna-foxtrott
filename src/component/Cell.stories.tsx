@@ -6,8 +6,7 @@ import {storiesOf} from "@storybook/react";
 import "../app.scss";
 import {action} from "@storybook/addon-actions";
 import {Cell, ground, obstacle} from "../model/board";
-
-
+import {bowerBase} from "../fixtures";
 
 export function disabled() {
     const cell = new Cell(6,9, obstacle);
@@ -21,7 +20,7 @@ export function disabled() {
 export function selected() {
     const cell = new Cell(6,9, ground);
     const player = new Player("Karli");
-    cell.unit = player.addUnit({name: "bower", baseHealth: 5});
+    cell.unit = player.addUnit(bowerBase);
 
     return <CellView
         cell={cell}

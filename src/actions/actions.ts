@@ -1,8 +1,8 @@
-import {PlacedUnit, PlayerUnit} from "../model";
 import {Adventure} from "../model/Adventure";
 import {action} from "mobx";
 import {NotNull} from "../helpers";
 import {Board, Cell} from "../model/board";
+import {IngameUnit, PlacedUnit} from "../model/IngameUnit";
 
 /**
  * business logic should be tied to the model
@@ -38,7 +38,7 @@ export interface Path {
     cost: number,
 }
 
-function getCost(unit: PlayerUnit, cell: Cell) {
+function getCost(unit: IngameUnit, cell: Cell) {
     if (!cell.terrain.isPassable) {
         return null;
     }
@@ -144,7 +144,7 @@ const defaultOptions: PathComputationOptions = {
 
 export function computePath(
     board: Board,
-    unit: NotNull<PlayerUnit, "cell">,
+    unit: NotNull<IngameUnit, "cell">,
     target: Cell,
     options: Partial<PathComputationOptions> = defaultOptions
 ): Path | null {
@@ -227,16 +227,16 @@ export class ActionManager {
         return interaction;
     }
 
-    moveActionOrNull(unit: PlayerUnit, cell: Cell) {
+    moveActionOrNull(unit: IngameUnit, cell: Cell) {
         // can reach?
-        const path = computePath(this.adventure.board, unit as NotNull<PlayerUnit, "cell">, cell);
+        const path = computePath(this.adventure.board, unit as NotNull<IngameUnit, "cell">, cell);
         if (path === null || path.cost > unit.remainingMovePoints) {
             return null;
         }
         return this.doMoveAction(unit, path);
     }
 
-    doMoveAction(unit: PlayerUnit, path: Path) {
+    doMoveAction(unit: IngameUnit, path: Path) {
         return ActionManager.asAction(
             ActionType.MOVE,
             action(() => {
@@ -246,7 +246,7 @@ export class ActionManager {
         );
     }
 
-    attackActionOrNull(unit: PlayerUnit, target: PlayerUnit) {
+    attackActionOrNull(unit: IngameUnit, target: IngameUnit) {
         if (unit.canAttack(target)) {
             return ActionManager.asAction(
                 ActionType.ATTACK,
@@ -260,7 +260,7 @@ export class ActionManager {
         return null;
     }
 
-    canAct(unit: PlayerUnit): unit is NotNull<PlayerUnit, "cell"> {
+    canAct(unit: IngameUnit): unit is NotNull<IngameUnit, "cell"> {
         return unit === this.adventure.activeUnit
             && unit.cell !== null
             && unit.isAlive

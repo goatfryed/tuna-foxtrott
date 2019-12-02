@@ -1,5 +1,5 @@
 import {action, observable} from "mobx";
-import {PlayerUnit} from "./index";
+import {IngameUnit} from "./IngameUnit";
 
 class Terrain {
     constructor(
@@ -19,17 +19,17 @@ export class Cell {
     ) {
     }
 
-    @observable private _unit: PlayerUnit | null = null;
+    @observable private _unit: IngameUnit | null = null;
     get unit() {
         return this._unit;
     }
 
-    set unit(unit: PlayerUnit | null) {
+    set unit(unit: IngameUnit | null) {
         this.setUnit(unit);
     }
 
     @action
-    private setUnit(unit: PlayerUnit | null) {
+    private setUnit(unit: IngameUnit | null) {
         if (unit == this._unit) return;
 
         let lastUnit = this._unit;

@@ -1,7 +1,8 @@
-import {Player, PlayerUnit} from "../model";
+import {Player} from "../model";
 import {computePath} from "./actions";
 import {NotNull} from "../helpers";
 import {Board, createBoard, obstacle} from "../model/board";
+import {IngameUnit} from "../model/IngameUnit";
 
 
 describe("Pathfinding", () => {
@@ -50,7 +51,7 @@ describe("Pathfinding", () => {
         const board = getBoard();
         const start = board.getCell(0,4);
         const end = board.getCell(4,4);
-        const unit = {player: karli, cell: start} as NotNull<PlayerUnit,"cell">;
+        const unit = {player: karli, cell: start} as NotNull<IngameUnit,"cell">;
 
         const actual = computePath(board, unit, end);
         expect(actual).toMatchObject({
@@ -63,8 +64,8 @@ describe("Pathfinding", () => {
         const board = getBoard();
         const start = board.getCell(0,0);
         const end = board.getCell(3,0);
-        board.getCell(2,0).unit = {isAlive: true} as PlayerUnit;
-        const unit = {player: karli, cell: start} as NotNull<PlayerUnit,"cell">;
+        board.getCell(2,0).unit = {isAlive: true} as IngameUnit;
+        const unit = {player: karli, cell: start} as NotNull<IngameUnit,"cell">;
 
         const actual = computePath(board, unit, end);
         expect(actual).toBeNull();
@@ -72,14 +73,14 @@ describe("Pathfinding", () => {
 
     test( "it shouldn't be blocked by dead units", () => {
         const board = getBoard();
-        board.getCell(2,0).unit = {isAlive: false} as PlayerUnit;
+        board.getCell(2,0).unit = {isAlive: false} as IngameUnit;
         testDirectPath(board);
     });
 
     function testDirectPath(board: Board) {
         const start = board.getCell(0, 0);
         const end = board.getCell(3, 0);
-        const unit = {player: karli, cell: start} as NotNull<PlayerUnit, "cell">;
+        const unit = {player: karli, cell: start} as NotNull<IngameUnit, "cell">;
 
         const expectedPath = [
             start,
@@ -97,7 +98,7 @@ describe("Pathfinding", () => {
 
     test( "it should allow passing allies", () => {
         const board = getBoard();
-        board.getCell(1,0).unit = {player: karli} as PlayerUnit;
+        board.getCell(1,0).unit = {player: karli} as IngameUnit;
         testDirectPath(board);
     })
 });

@@ -4,6 +4,7 @@ import {reaction} from "mobx";
 import {obstacle} from "../model/board";
 import {AdventureDescription, adventureFactory, Coordinate} from "./index";
 import {playAggressive} from "./BotBehaviour";
+import {createUnitDefinition, UnitImpl} from "../model/UnitImpl";
 
 const thugTownTerrain = [
     {
@@ -23,6 +24,15 @@ const thugTownStartLocations: Coordinate[] = [
     [1,0],[0,1],[0,0]
 ];
 
+const bullyDef =  createUnitDefinition({
+    baseHealth: 5,
+    initiativeDelay: 90,
+});
+
+const thugDef = createUnitDefinition({
+   baseHealth: 4,
+});
+
 export const createThugTown = adventureFactory(
     5,4,
     thugTownTerrain,
@@ -30,8 +40,8 @@ export const createThugTown = adventureFactory(
     adventure => {
         const thugs = new ThugTownBot("thugs");
         adventure.players.push(thugs);
-        adventure.board.getCell(4,1).unit  = thugs.addUnit({name: "bully", baseHealth: 5, initiativeDelay: 90});
-        adventure.board.getCell(3,2).unit = thugs.addUnit({name: "thug", baseHealth: 4});
+        adventure.board.getCell(4,1).unit  = thugs.addUnit(new UnitImpl("bully", bullyDef));
+        adventure.board.getCell(3,2).unit = thugs.addUnit(new UnitImpl("thug", thugDef));
     }
 );
 

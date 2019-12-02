@@ -1,4 +1,4 @@
-import {AppContext, PlayerUnit} from "../model";
+import {AppContext} from "../model";
 import {useAdventure, useAppContext} from "../state";
 import {useObserver} from "mobx-react-lite";
 import React, {useMemo} from "react";
@@ -7,6 +7,7 @@ import {Adventure} from "../model/Adventure";
 import classNames from "classnames";
 import {action} from "mobx";
 import {Cell, obstacle} from "../model/board";
+import {IngameUnit} from "../model/IngameUnit";
 
 interface CellProp {
     cell: Cell,
@@ -92,7 +93,7 @@ interface CellViewProps extends CellProp {
 }
 
 type Wanted = 'currentHealth'|'maxHealth';
-function CellUnitDetail(props: Pick<PlayerUnit, Wanted> & {description: string} ) {
+function CellUnitDetail(props: Pick<IngameUnit, Wanted> & {description: string} ) {
     return <>
         {props.description + ` (${props.currentHealth}/${props.maxHealth})`}
     </>;

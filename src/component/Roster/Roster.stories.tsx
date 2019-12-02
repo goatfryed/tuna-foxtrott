@@ -6,6 +6,7 @@ import {CornerBorders} from "../Display/CornerBorders";
 import {action} from "@storybook/addon-actions";
 import {AppContextProvider} from "../../state";
 import {AppContext, Player} from "../../model";
+import {axelBase, bowerBase} from "../../fixtures";
 
 const Boxed = styled(CornerBorders)`
     margin: 2em;
@@ -24,14 +25,8 @@ export function manager() {
 }
 
 const roster = observable([
-    {
-        name: "Axel",
-        baseHealth: 6,
-    },
-    {
-        name: "Bower",
-        baseHealth: 3,
-    },
+    axelBase,
+    bowerBase,
 ]);
 
 export function browser() {
@@ -41,8 +36,11 @@ export function browser() {
 export function hero() {
     return <HeroEntry
         hero={{
+            id: 0,
             name: "Dave",
             baseHealth: 3,
+            baseSpeed: 3,
+            initiativeDelay: 100,
         }}
     />
 }

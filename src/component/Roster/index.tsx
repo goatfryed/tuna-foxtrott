@@ -2,34 +2,34 @@ import * as React from "react";
 import {useLayoutEffect, useRef, useState} from "react";
 import {IObservableArray} from "mobx";
 import {useObserver} from "mobx-react";
-import {UnitDefinition} from "../../model";
 import styled, {css} from "styled-components";
 import {Modal} from "../Modal";
 import useForm from "react-hook-form";
 import {useAppContext} from "../../state";
+import {Unit, UnitDefinition, UnitImpl} from "../../model/UnitImpl";
 
-const heroClasses: UnitDefinition[] = [
-    {
-        name: "Axel",
+const heroClasses: [string,UnitDefinition][] = [
+    [
+        "Axel", {
         baseHealth: 6,
         baseSpeed: 3,
         initiativeDelay: 110,
-    },
-    {
-        name: "Bower",
+    }],
+    [
+        "Bower", {
         baseHealth: 4,
         baseSpeed: 2,
         initiativeDelay: 80,
-    },
-    {
-        name: "Macel",
+    }],
+    [
+        "Macel", {
         baseHealth: 5,
         baseSpeed: 4,
         initiativeDelay: 95,
-    }
+    }],
 ];
 
-function HireHeroCard(props: { onCancel: () => void, onHire: (u: UnitDefinition) => void }) {
+function HireHeroCard(props: { onCancel: () => void, onHire: (name: string, u: UnitDefinition) => void }) {
     const [heroClass, setSelectedClass] = useState(heroClasses[0]);
     const lastHeroClass = useRef(heroClass);
     const {register, errors, handleSubmit} = useForm<{name: string}>();
@@ -47,9 +47,9 @@ function HireHeroCard(props: { onCancel: () => void, onHire: (u: UnitDefinition)
             if (nameRef.current) {
                 if (
                     !nameRef.current.value ||
-                    lastHeroClass.current.name === nameRef.current.value
+                    lastHeroClass.current[0] === nameRef.current.value
                 ) {
-                    nameRef.current.value = heroClass.name;
+                    nameRef.current.value = heroClass[0];
                 }
             }
             lastHeroClass.current = heroClass;
@@ -59,10 +59,7 @@ function HireHeroCard(props: { onCancel: () => void, onHire: (u: UnitDefinition)
 
     const onSubmit = handleSubmit(
         ({name}) => {
-            props.onHire({
-                ...heroClass,
-                name
-            });
+            props.onHire(name, heroClass[1]);
         }
     );
 
@@ -74,7 +71,7 @@ function HireHeroCard(props: { onCancel: () => void, onHire: (u: UnitDefinition)
                         className={"button" + (def === heroClass ? " is-primary":"")}
                         onClick={() => setSelectedClass(def)}
                     >
-                        {def.name}
+                        {def[0]}
                     </button>
                     )
                 }
@@ -100,8 +97,8 @@ export function RosterManager(props: {navigator: (screen: string) => void}) {
     const [showHeroHire, setShowHeroHire] = useState(false);
     const {user} = useAppContext();
 
-    function handleHire(unit: UnitDefinition) {
-        user.addUnit(unit);
+    function handleHire(name: string, definition: UnitDefinition) {
+        user.addUnit(new UnitImpl(name, definition));
         setShowHeroHire(false);
     }
 
@@ -135,7 +132,7 @@ const Container = styled.div`
     align-items: center;
 `;
 
-export function RosterBrowser(props: { roster: IObservableArray<UnitDefinition> }) {
+export function RosterBrowser(props: { roster: IObservableArray<Unit> }) {
     return useObserver(() => <Container>
         {props.roster.map( u => <HeroEntry hero={u} />)}
     </Container>);
@@ -164,7 +161,7 @@ const Line = styled.hr`
     margin: 0 0 0.5em 0;
 `;
 
-export function HeroEntry(props: {hero: UnitDefinition}) {
+export function HeroEntry(props: {hero: Omit<Unit,"specials">}) {
     return <HeroTile>
         {props.hero.name}
         <Line />
