@@ -118,11 +118,16 @@ function InteractionSelection({adventure}:AdventureAware) {
         if (adventure.actionManager.interactionRequest === null) {
             return null;
         }
+        const intents = adventure.actionManager.interactionIntents;
+        if (intents.length === 0) {
+            adventure.actionManager.interactionRequest = null;
+            return null;
+        }
 
         return <Modal onBackground={dismiss}>
             <ModalContent>
                 <InteractionSelectionContainer>
-                    {adventure.actionManager.interactionIntents.map(
+                    {intents.map(
                         intent => <p><button onClick={intent.execute} className="button">{intent.name}</button></p>
                     )}
                 </InteractionSelectionContainer>

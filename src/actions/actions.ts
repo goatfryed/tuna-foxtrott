@@ -207,6 +207,7 @@ export class ActionManager {
     @observable interactionRequest: InteractionRequest|null = null;
 
     get interactionIntents(): InteractionIntent[] {
+        if (this.interactionRequest === null) return [];
         return this.adventure.activeUnit?.specials ?? [];
     }
 
