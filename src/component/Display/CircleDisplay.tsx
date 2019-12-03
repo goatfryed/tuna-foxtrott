@@ -45,7 +45,7 @@ export function CircleDisplay(props: {
             key={index}
             circleSize={props.circleSize}
             itemSize={props.itemSize || "1em"}
-            angle={(index * steps) + 315}
+            angle={(index * steps) + 270}
             >{child}
         </CircleItem>)}
     </CircleContainer>

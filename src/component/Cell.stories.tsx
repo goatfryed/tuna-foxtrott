@@ -1,12 +1,13 @@
 import {CellView} from "./Cell";
 import {Player} from "../model";
 import React from "react";
-import {storiesOf} from "@storybook/react";
 
 import "../app.scss";
 import {action} from "@storybook/addon-actions";
-import {Cell, ground, obstacle} from "../model/board";
+import {Cell, createBoard, ground, obstacle} from "../model/board";
 import {bowerBase} from "../fixtures";
+import {AdventureProvider} from "../state";
+import {Adventure} from "../model/Adventure";
 
 export function disabled() {
     const cell = new Cell(6,9, obstacle);
@@ -30,17 +31,30 @@ export function selected() {
     />
 }
 
+const dummyAdventure = (()=>{
+    const adventure = new Adventure(createBoard(1,1));
+    const karli = new Player("karli");
+    adventure.players.push(karli);
+    adventure.board.getCell(0,0).unit = karli.addUnit(bowerBase);
+    adventure.setup();
+
+    return adventure;
+})();
+
 function decorator(story: any) {
-    return <div
+
+
+    return <AdventureProvider adventure={dummyAdventure}><div
         style={{
             padding: "2rem"
         }}
     >{story()}
-    </div>
+    </div></AdventureProvider>
 }
 
-storiesOf("CellView", module)
-    .addDecorator( decorator)
-    .add("selected", selected)
-    .add("disabled", disabled)
-;
+export default {
+    title: "Cell View",
+    decorators: [
+        decorator
+    ],
+}
