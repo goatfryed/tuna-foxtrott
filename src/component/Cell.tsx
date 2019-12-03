@@ -1,7 +1,7 @@
 import {AppContext} from "../model";
 import {useAdventure, useAppContext} from "../state";
 import {useObserver} from "mobx-react-lite";
-import React, {useMemo, useState} from "react";
+import React, {useMemo} from "react";
 import {Action, ActionType} from "../actions";
 import {Adventure} from "../model/Adventure";
 import classNames from "classnames";
@@ -9,7 +9,6 @@ import {action} from "mobx";
 import {Cell, obstacle} from "../model/board";
 import {IngameUnit} from "../model/IngameUnit";
 import styled from "styled-components";
-import {CircleDisplay} from "./Display/CircleDisplay";
 
 interface CellProp {
     cell: Cell,
@@ -51,6 +50,7 @@ export function CellPresenter({cell}: CellProp) {
         cellUnit,
         defaultAction,
         interactionStyle,
+        actionManager,
     } = useObserver(() => {
         const defaultAction = adventure.actionManager.getDefaultInteraction(cell);
         const interactionStyle = useInteractionStyle(cell, adventure, appContext, defaultAction);
@@ -59,6 +59,7 @@ export function CellPresenter({cell}: CellProp) {
             defaultAction,
             activeUnit: adventure.activeUnit,
             cellUnit: cell.unit,
+            actionManager: adventure.actionManager,
         }
     });
 
@@ -73,9 +74,16 @@ export function CellPresenter({cell}: CellProp) {
         [adventure,defaultAction, activeUnit, cellUnit]
     );
 
+    const onRightClick = (event: React.MouseEvent) => {
+        event.preventDefault();
+
+        actionManager.interactionIntent = {cell};
+    };
+
     return <CellView
         cell={cell}
         onClick={onClick}
+        onRightClick={onRightClick}
         style={interactionStyle}
         actionLabel={defaultAction && actionNameDict[defaultAction.type]}
     />
@@ -91,6 +99,7 @@ const actionNameDict: Record<ActionType, string|null> = {
 interface CellViewProps extends CellProp {
     style?: string,
     onClick?: (event: React.MouseEvent) => any,
+    onRightClick?: (event: React.MouseEvent) => any,
     actionLabel: string|null
 }
 
@@ -106,6 +115,7 @@ const CellContainer = styled.div`
     overflow: visible;
     width: 5em;
     height: 5em;
+    margin: 0.25em;
     
     & > * {
       position: absolute;
@@ -113,47 +123,24 @@ const CellContainer = styled.div`
     }
 `;
 
-function useStableOnBlur(action: () => void, deps?: any[]) {
-    return useMemo(() => {
-        let scheduled: number|undefined = undefined;
-        const onBlur = () => (scheduled = setTimeout(action));
-        const onFocus = () => scheduled !== undefined && clearTimeout(scheduled);
-        return {onBlur, onFocus}
-    }, deps);
-}
-
-export function CellView({style, onClick, cell, actionLabel}: CellViewProps) {
+export function CellView({
+    style,
+    onClick,
+    onRightClick,
+    cell,
+    actionLabel
+}: CellViewProps) {
 
     const terrainStyle = useTerrainStyle(cell);
 
-    const adventure = useAdventure();
-
-    const [displaySkillPicker, enableSkillPicker] = useState(false);
-
-    const handleClick = onClick && ((event: React.MouseEvent) => {
-        if (event.button === 2) {
-            event.preventDefault();
-            enableSkillPicker(true);
-            return true;
-        }
-        return onClick(event);
-    });
-
-    const {onBlur, onFocus} = useStableOnBlur(() => enableSkillPicker(false), []);
-
-    console.log(adventure.activeUnit);
-
-    return useObserver(() => <CellContainer
-            onBlur={onBlur}
-            onFocus={onFocus}
-        >
+    return useObserver(() => <CellContainer>
         <div title={String(cell)}
             className="cell">
                 <button
                     className={"interaction "+ style }
                     disabled={onClick === undefined}
-                    onClick={handleClick}
-                    onContextMenu={handleClick}
+                    onClick={onClick}
+                    onContextMenu={onRightClick}
                 >
                     <div className={"content " + terrainStyle}>
                         {cell.unit && <div>
@@ -167,33 +154,6 @@ export function CellView({style, onClick, cell, actionLabel}: CellViewProps) {
                     </div>
                 </button>
             </div>
-        {displaySkillPicker && adventure.activeUnit?.specials && <SkillPicker unit={adventure.activeUnit}/>}
         </CellContainer>
     );
-}
-
-const SkillPickerContainer = styled.div`
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  height: 8em;
-  width: 8em;
-  margin-left: -4em;
-  margin-top: -4em;
-`;
-
-const Gizmo = styled.button`
-    background-color: darkred;
-    border-radius: 50%;
-    border-color: darkred;
-    width: 100%;
-    height: 100%;
-`;
-
-function SkillPicker({unit}: {unit: IngameUnit}) {
-    return <SkillPickerContainer>
-        <CircleDisplay circleSize="8em" itemSize="2.5em">
-            {unit.specials.map((value, index) => <Gizmo key={index} />)}
-        </CircleDisplay>
-    </SkillPickerContainer>;
 }

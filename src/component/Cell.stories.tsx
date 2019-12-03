@@ -26,6 +26,7 @@ export function selected() {
     return <CellView
         cell={cell}
         onClick={action("onClick")}
+        onRightClick={action("rightClick")}
         style="isSelected"
         actionLabel={null}
     />

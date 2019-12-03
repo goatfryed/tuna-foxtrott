@@ -2,7 +2,12 @@ export interface UnitDefinition {
     readonly baseHealth: number;
     readonly baseSpeed: number;
     readonly initiativeDelay: number;
-    readonly specials?: any[];
+    readonly specials?: SpecialAbility[];
+}
+
+export interface SpecialAbility {
+    name: string,
+    execute: () => void,
 }
 
 export interface Unit extends UnitDefinition {

@@ -1,5 +1,5 @@
 import {Adventure} from "../model/Adventure";
-import {action} from "mobx";
+import {action, observable} from "mobx";
 import {NotNull} from "../helpers";
 import {Board, Cell} from "../model/board";
 import {IngameUnit, PlacedUnit} from "../model/IngameUnit";
@@ -191,9 +191,15 @@ export function computePath(
     return {steps, cost};
 }
 
+interface InteractionIntent {
+    cell: Cell,
+}
+
 export class ActionManager {
 
     constructor(protected adventure: Adventure) {}
+
+    @observable interactionIntent: InteractionIntent|null = null;
 
     getDefaultInteraction(cell: Cell): Action|null {
         const activeUnit = this.adventure.activeUnit;
