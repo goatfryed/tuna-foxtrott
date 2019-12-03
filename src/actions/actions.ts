@@ -191,15 +191,24 @@ export function computePath(
     return {steps, cost};
 }
 
-interface InteractionIntent {
+interface InteractionRequest {
     cell: Cell,
+}
+
+interface InteractionIntent {
+    name: string,
+    execute: () => void,
 }
 
 export class ActionManager {
 
     constructor(protected adventure: Adventure) {}
 
-    @observable interactionIntent: InteractionIntent|null = null;
+    @observable interactionRequest: InteractionRequest|null = null;
+
+    get interactionIntents(): InteractionIntent[] {
+        return this.adventure.activeUnit?.specials ?? [];
+    }
 
     getDefaultInteraction(cell: Cell): Action|null {
         const activeUnit = this.adventure.activeUnit;

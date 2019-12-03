@@ -5,6 +5,8 @@ import {Board} from "./Board";
 import React, {useEffect} from "react";
 import {HeroAware, HeroDetail} from "./Hero";
 import {Observer} from "mobx-react";
+import {Modal} from "./Modal";
+import styled from "styled-components";
 
 type AdventureViewProps = AdventureAware & {
     onSurrender: () => any,
@@ -35,6 +37,7 @@ export function AdventureView({
                 {adventure.isWonBy(appContext.user) && <VictoryAnnouncment onClose={onVictory}/>}
                 {adventure.isLostBy(appContext.user) && <DefeatAnnouncment onClose={onDefeat}/>}
             </>}</Observer>
+            <InteractionSelection adventure={adventure}/>
             <hr/>
             <div className="columns">
                 <div className="column">
@@ -82,14 +85,14 @@ interface AnnouncmentProps {
 }
 
 const VictoryAnnouncment = ({onClose}: AnnouncmentProps) => {
-    return <Modal
+    return <Announcement
         announcment="You have won!"
         interaction={<button className="button is-success" onClick={onClose}>VICTORY</button>}
     />
 };
 
 const DefeatAnnouncment = ({onClose}: AnnouncmentProps) => {
-    return <Modal
+    return <Announcement
         announcment="You have lost :("
         interaction={<button className="button is-danger" onClick={onClose}>DEFEAT</button>}
     />
@@ -100,11 +103,43 @@ interface ModalProps {
     interaction: React.ReactNode,
 }
 
-const Modal = ({announcment, interaction}: ModalProps) => {
-    return <div className="modal-background" style={{zIndex: 20}}>
-        <div className="modal is-active">
+const Announcement = ({announcment, interaction}: ModalProps) => {
+    return <Modal>
             <div>{announcment}</div>
             <div>{interaction}</div>
-        </div>
-    </div>
+    </Modal>
 };
+
+function InteractionSelection({adventure}:AdventureAware) {
+
+    const dismiss = () => adventure.actionManager.interactionRequest = null;
+
+    return useObserver(() => {
+        if (adventure.actionManager.interactionRequest === null) {
+            return null;
+        }
+
+        return <Modal onBackground={dismiss}>
+            <ModalContent>
+                <InteractionSelectionContainer>
+                    {adventure.actionManager.interactionIntents.map(
+                        intent => <p><button onClick={intent.execute} className="button">{intent.name}</button></p>
+                    )}
+                </InteractionSelectionContainer>
+            </ModalContent>
+        </Modal>
+    })
+}
+const ModalContent = styled.div`
+    position: relative;
+    display: flex;
+    justify-content: center;
+    background-color: white;
+    width: fit-content;
+    min-width: 20vw;
+    padding: 1em;
+`;
+
+const InteractionSelectionContainer = styled.div`
+    width: fit-content;
+`;

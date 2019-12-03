@@ -77,7 +77,7 @@ export function CellPresenter({cell}: CellProp) {
     const onRightClick = (event: React.MouseEvent) => {
         event.preventDefault();
 
-        actionManager.interactionIntent = {cell};
+        actionManager.interactionRequest = {cell};
     };
 
     return <CellView
