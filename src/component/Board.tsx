@@ -2,7 +2,7 @@ import {useObserver} from "mobx-react-lite";
 import {CellPresenter} from "./Cell";
 import React, {useLayoutEffect, useMemo, useRef} from "react";
 import {Adventure} from "../model/Adventure";
-import {AnyKeyBoardEvent, useDocumentKeyPressHandler} from "../hooks";
+import {AnyKeyBoardEvent, useDocumentKeyDownHandler} from "../hooks";
 import {useAdventure} from "../state";
 
 export function Board({isIsometric = false}: {isIsometric?: boolean}) {
@@ -24,7 +24,7 @@ export function Board({isIsometric = false}: {isIsometric?: boolean}) {
 
     return useObserver(
         () => <div ref={viewport} className="board-viewport"
-           onKeyPress={useAdventureKeyPressHandler(adventure)}
+           onKeyDown={useAdventureKeyDownHandler(adventure)}
         >
                 <div ref={board} className={boardClass}>
                 {adventure.board.cells.map((row, y) => <div key={y} className="row">
@@ -51,6 +51,7 @@ function endTurnHandler(adventure: Adventure, event: AnyKeyBoardEvent) {
     if (event.key !== " ") {
         return;
     }
+    event.preventDefault();
     adventure.endTurn();
 }
 
@@ -59,7 +60,7 @@ const keyPressHandlers: StoreAwareKeyboardEventHandler[] = [
     endTurnHandler,
 ];
 
-function useAdventureKeyPressHandler(adventure: Adventure) {
+function useAdventureKeyDownHandler(adventure: Adventure) {
     const handler = useMemo(
         () => {
             const boundHandlers = keyPressHandlers.map(
@@ -76,7 +77,7 @@ function useAdventureKeyPressHandler(adventure: Adventure) {
         }
         , [adventure, keyPressHandlers]
     );
-    useDocumentKeyPressHandler(handler);
+    useDocumentKeyDownHandler(handler, true);
     return handler;
 }
 

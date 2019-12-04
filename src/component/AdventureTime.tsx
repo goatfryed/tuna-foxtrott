@@ -37,7 +37,7 @@ export function AdventureView({
                 {adventure.isWonBy(appContext.user) && <VictoryAnnouncment onClose={onVictory}/>}
                 {adventure.isLostBy(appContext.user) && <DefeatAnnouncment onClose={onDefeat}/>}
             </>}</Observer>
-            <InteractionSelection adventure={adventure}/>
+            <InteractionsWhenUseful adventure={adventure}/>
             <hr/>
             <div className="columns">
                 <div className="column">
@@ -110,6 +110,11 @@ const Announcement = ({announcment, interaction}: ModalProps) => {
     </Modal>
 };
 
+/**
+ * @TODO: this render component has an side effect to reset the interactionRequest if it's not valid
+ * @param adventure
+ * @constructor
+ */
 function InteractionSelection({adventure}:AdventureAware) {
 
     const dismiss = () => adventure.actionManager.interactionRequest = null;
@@ -119,10 +124,6 @@ function InteractionSelection({adventure}:AdventureAware) {
             return null;
         }
         const intents = adventure.actionManager.interactionIntents;
-        if (intents.length === 0) {
-            adventure.actionManager.interactionRequest = null;
-            return null;
-        }
 
         return <Modal onBackground={dismiss}>
             <ModalContent>
@@ -135,6 +136,32 @@ function InteractionSelection({adventure}:AdventureAware) {
         </Modal>
     })
 }
+
+function InteractionsWhenUseful({adventure}: AdventureAware) {
+    return useObserver(() => {
+        if (adventure.actionManager.interactionRequest === null) {
+            return null;
+        }
+        const intents = adventure.actionManager.interactionIntents;
+
+        if (intents.length === 0) {
+            return <InteractionCleanup adventure={adventure} />
+        }
+
+        return <InteractionSelection adventure={adventure}/>
+    });
+}
+
+function InteractionCleanup({message, adventure}: AdventureAware & {message?: string}) {
+    useEffect(() => {
+        if (message) {
+            alert(message);
+        }
+        adventure.actionManager.interactionRequest = null;
+    });
+    return null;
+}
+
 const ModalContent = styled.div`
     position: relative;
     display: flex;

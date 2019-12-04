@@ -2,7 +2,7 @@ import React, {useLayoutEffect} from "react";
 
 export type AnyKeyBoardEvent = React.KeyboardEvent | KeyboardEvent;
 
-export function useDocumentKeyPressHandler(handler: (event: AnyKeyBoardEvent) => void) {
+export function useDocumentKeyDownHandler(handler: (event: AnyKeyBoardEvent) => void, capturePhase = false) {
     useLayoutEffect(
         () => {
             if (handler) {
@@ -12,8 +12,8 @@ export function useDocumentKeyPressHandler(handler: (event: AnyKeyBoardEvent) =>
                     }
                 }
 
-                document.addEventListener("keypress", noTargetHandler);
-                return () => document.removeEventListener("keypress", noTargetHandler);
+                document.addEventListener("keydown", noTargetHandler, capturePhase);
+                return () => document.removeEventListener("keydown", noTargetHandler, capturePhase);
             }
         },
         [handler]

@@ -5,7 +5,6 @@ import React, {useMemo} from "react";
 import {Action, ActionType} from "../actions";
 import {Adventure} from "../model/Adventure";
 import classNames from "classnames";
-import {action} from "mobx";
 import {Cell, obstacle} from "../model/board";
 import {IngameUnit} from "../model/IngameUnit";
 import styled from "styled-components";
@@ -66,9 +65,12 @@ export function CellPresenter({cell}: CellProp) {
     const onClick = useMemo(
         () => {
             if (defaultAction) {
-                return action(({}: React.MouseEvent) => {
+                return (event: React.MouseEvent) => {
+                    if ((event.nativeEvent as any).__keyboardWorkaround === true) {
+                        return;
+                    }
                     defaultAction.run();
-                })
+                }
             }
         },
         [adventure,defaultAction, activeUnit, cellUnit]
