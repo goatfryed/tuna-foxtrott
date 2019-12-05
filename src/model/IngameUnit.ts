@@ -1,7 +1,6 @@
 import {action, computed, observable} from "mobx";
 import {Player} from "./index";
 import {Cell} from "./board";
-import {NotNull} from "../helpers";
 import {Unit, UnitImpl} from "./UnitImpl";
 
 export class IngameUnit implements Unit {
@@ -48,16 +47,18 @@ export class IngameUnit implements Unit {
 
     @observable private _cell: Cell | null = null;
 
-    get cell() {
-        return this._cell;
-    }
-
-    set cell(cell: Cell | null) {
+    //@TODO type hint will break if get is used before set
+    set cell(cell: Cell|null) {
         this.setCell(cell);
     }
 
+    get cell(): Cell|null {
+        return this._cell;
+    }
+
+
     @action
-    private setCell(cell: Cell | null) {
+    private setCell(cell: Cell|null) {
         if (cell == this._cell) return;
 
         let lastCell = this._cell;
@@ -91,7 +92,7 @@ export class IngameUnit implements Unit {
     }
 }
 
-export type PlacedUnit = NotNull<IngameUnit, "cell">;
+export type PlacedUnit = IngameUnit & {cell:  Cell};
 
 export function isPlaced(unit: IngameUnit): unit is PlacedUnit {
     return unit.cell !== null;

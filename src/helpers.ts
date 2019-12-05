@@ -13,7 +13,7 @@ export type Immutable<T> = {
 }
 
 export type NotNull<T, S extends keyof T> = T & {
-    [P in S]: T[P] extends infer S|null|undefined ? S : T[P]
+    [P in S]: Exclude<T[P], null|undefined>
 }
 
 export function useConst<T>(obj: T): T {
