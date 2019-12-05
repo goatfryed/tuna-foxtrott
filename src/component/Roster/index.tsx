@@ -7,29 +7,18 @@ import {Modal} from "../Modal";
 import useForm from "react-hook-form";
 import {useAppContext} from "../../state";
 import {Unit, UnitDefinition, UnitImpl} from "../../model/UnitImpl";
+import {Definitions} from "../../config";
+import {assertNever} from "../../Utility";
 
-const heroClasses: [string,UnitDefinition][] = [
-    [
-        "Axel", {
-        baseHealth: 6,
-        baseSpeed: 3,
-        initiativeDelay: 110,
-    }],
-    [
-        "Bower", {
-        baseHealth: 4,
-        baseSpeed: 2,
-        initiativeDelay: 80,
-    }],
-    [
-        "Macel", {
-        baseHealth: 5,
-        baseSpeed: 4,
-        initiativeDelay: 95,
-    }],
+type UnitBlueprint = {definition: UnitDefinition}
+
+const heroClasses: [string,UnitBlueprint][] = [
+    [ "Axel", {definition: Definitions.AXEL}],
+    [ "Bower", {definition: Definitions.BOWER}],
+    [ "Macel", {definition: Definitions.MACEL}],
 ];
 
-function HireHeroCard(props: { onCancel: () => void, onHire: (name: string, u: UnitDefinition) => void }) {
+function HireHeroCard(props: { onCancel: () => void, onHire: (name: string, u: UnitBlueprint) => void }) {
     const [heroClass, setSelectedClass] = useState(heroClasses[0]);
     const lastHeroClass = useRef(heroClass);
     const {register, errors, handleSubmit} = useForm<{name: string}>();
@@ -93,12 +82,20 @@ function HireHeroCard(props: { onCancel: () => void, onHire: (name: string, u: U
     </div>;
 }
 
+function createFromBlueprint(name: string, blueprint: UnitBlueprint): UnitImpl {
+    if ("definition" in blueprint) {
+        return  new UnitImpl(name, blueprint.definition);
+    }
+    assertNever(blueprint, "unexpected blueprint case");
+}
+
 export function RosterManager(props: {navigator: (screen: string) => void}) {
     const [showHeroHire, setShowHeroHire] = useState(false);
     const {user} = useAppContext();
 
-    function handleHire(name: string, definition: UnitDefinition) {
-        user.addUnit(new UnitImpl(name, definition));
+    function handleHire(name: string, blueprint: UnitBlueprint) {
+
+        user.addUnit(createFromBlueprint(name, blueprint));
         setShowHeroHire(false);
     }
 

@@ -23,7 +23,7 @@ export class Adventure {
         return this._actionManager;
     }
 
-    get activeUnit(): IngameUnit|null {
+    get activeUnit(): PlacedUnit|null {
         return this.actionPhase ? this.turnOrder[0] || null : null;
     }
 

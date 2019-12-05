@@ -1,3 +1,6 @@
+import {Cell} from "./board";
+import {PlacedUnit} from "./IngameUnit";
+
 export interface UnitDefinition {
     readonly baseHealth: number;
     readonly baseSpeed: number;
@@ -7,7 +10,7 @@ export interface UnitDefinition {
 
 export interface SpecialAbility {
     name: string,
-    execute: () => void,
+    actionFactory: (unit: PlacedUnit, cell: Cell) => (( () => void )|null),
 }
 
 export interface Unit extends UnitDefinition {

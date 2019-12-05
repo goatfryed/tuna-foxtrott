@@ -207,8 +207,21 @@ export class ActionManager {
     @observable interactionRequest: InteractionRequest|null = null;
 
     get interactionIntents(): InteractionIntent[] {
-        if (this.interactionRequest === null) return [];
-        return this.adventure.activeUnit?.specials ?? [];
+        const interactionRequest = this.interactionRequest;
+        if (interactionRequest === null) return [];
+
+        const unit = this.adventure.activeUnit;
+        if (unit?.specials === undefined) return [];
+
+        return unit.specials
+            .map(value => ({
+                name: value.name,
+                execute: value.actionFactory(unit, interactionRequest.cell)
+            }))
+            .filter(
+                (action): action is InteractionIntent  => action.execute !== null
+            )
+        ;
     }
 
     getDefaultInteraction(cell: Cell): Action|null {
