@@ -1,7 +1,7 @@
 import {Adventure} from "../model/Adventure";
-import {computePath, Path} from "../actions";
 import {NotNull} from "../helpers";
 import {IngameUnit, isPlaced, PlacedUnit} from "../model/IngameUnit";
+import {computePath, Path} from "../service/pathfinder";
 
 export function playAggressive(
     adventure: Adventure,
@@ -31,7 +31,7 @@ export function playAggressive(
             cost: subSteps.reduce((prev, current) => prev + current.cost, 0)
         };
 
-        adventure.actionManager.doMoveAction(unit, subPath).run();
+        adventure.actionManager.doMoveAction(unit, subPath)();
     }
 
     function mayAttack(unit: PlacedUnit, target: PlacedUnit) {
@@ -39,7 +39,7 @@ export function playAggressive(
         if (unit.cell.getManhattenDistance(target.cell) <= 1) {
             const action = adventure.actionManager.attackActionOrNull(unit, target);
             if (action !== null) {
-                action.run();
+                action();
             }
         }
     }

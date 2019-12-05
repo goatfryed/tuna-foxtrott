@@ -1,34 +1,9 @@
-import {Adventure} from "../model/Adventure";
-import {action, observable} from "mobx";
-import {NotNull} from "../helpers";
 import {Board, Cell} from "../model/board";
 import {IngameUnit, PlacedUnit} from "../model/IngameUnit";
 
-/**
- * business logic should be tied to the model
- * All actions here should just be callback creators
- * to delay execution of that business logic and bind arguments
- *
- * Please be aware, that ActionCreator and Action type are inferred from all exports of this file.
- * Therefore
- */
-
-
-export enum ActionType {
-    SELECT = "select",
-    MOVE = "move",
-    ATTACK = "attack",
-    UNSELECT = "unselect",
-}
-
-export interface Action {
-    run(): void,
-    type: ActionType;
-}
-
 interface PathItem {
     cell: Cell,
-    predecessor: PathItem|null,
+    predecessor: PathItem | null,
     cost: number,
     distance: number,
 }
@@ -144,7 +119,7 @@ const defaultOptions: PathComputationOptions = {
 
 export function computePath(
     board: Board,
-    unit: NotNull<IngameUnit, "cell">,
+    unit: PlacedUnit,
     target: Cell,
     options: Partial<PathComputationOptions> = defaultOptions
 ): Path | null {
@@ -189,117 +164,4 @@ export function computePath(
     }
     steps.reverse();
     return {steps, cost};
-}
-
-interface InteractionRequest {
-    cell: Cell,
-}
-
-interface InteractionIntent {
-    name: string,
-    execute: () => void,
-}
-
-export class ActionManager {
-
-    constructor(protected adventure: Adventure) {}
-
-    @observable interactionRequest: InteractionRequest|null = null;
-
-    get interactionIntents(): InteractionIntent[] {
-        const interactionRequest = this.interactionRequest;
-        if (interactionRequest === null) return [];
-
-        const unit = this.adventure.activeUnit;
-        if (unit?.specials === undefined) return [];
-
-        return unit.specials
-            .map(value => ({
-                name: value.name,
-                execute: value.actionFactory(unit, interactionRequest.cell)
-            }))
-            .filter(
-                (action): action is InteractionIntent  => action.execute !== null
-            )
-        ;
-    }
-
-    getDefaultInteraction(cell: Cell): Action|null {
-        const activeUnit = this.adventure.activeUnit;
-
-        const target = cell.unit;
-
-        if (
-            activeUnit === null
-            || activeUnit === target
-            || !this.canAct(activeUnit)
-            || activeUnit.cell === null
-            || !activeUnit.isAlive
-        ) {
-            return null;
-        }
-
-        let interaction: Action|null = null;
-        if (target === null) {
-            interaction = this.moveActionOrNull(activeUnit, cell)
-        }
-
-        if (
-            interaction === null
-            && target !== null
-            && activeUnit.player !== target.player
-            && target.isAlive
-        ) {
-            interaction = this.attackActionOrNull(activeUnit, target);
-        }
-
-        return interaction;
-    }
-
-    moveActionOrNull(unit: IngameUnit, cell: Cell) {
-        // can reach?
-        const path = computePath(this.adventure.board, unit as NotNull<IngameUnit, "cell">, cell);
-        if (path === null || path.cost > unit.remainingMovePoints) {
-            return null;
-        }
-        return this.doMoveAction(unit, path);
-    }
-
-    doMoveAction(unit: IngameUnit, path: Path) {
-        return ActionManager.asAction(
-            ActionType.MOVE,
-            action(() => {
-                unit.cell = path.steps[path.steps.length - 1].cell;
-                unit.spentMovePoints(path.cost);
-            })
-        );
-    }
-
-    attackActionOrNull(unit: IngameUnit, target: IngameUnit) {
-        if (unit.canAttack(target)) {
-            return ActionManager.asAction(
-                ActionType.ATTACK,
-                action(() => {
-                    target.dealDamage(1);
-                    unit.exhausted = true;
-                    this.adventure.endTurn();
-                })
-            );
-        }
-        return null;
-    }
-
-    canAct(unit: IngameUnit): unit is NotNull<IngameUnit, "cell"> {
-        return unit === this.adventure.activeUnit
-            && unit.cell !== null
-            && unit.isAlive
-        ;
-    }
-
-    static asAction(type: ActionType, run: () => void): Action {
-        return {
-            type,
-            run,
-        }
-    }
 }

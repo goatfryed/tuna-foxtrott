@@ -1,6 +1,6 @@
 import {AppContext, Player} from "../model";
 import {UnitImpl} from "../model/UnitImpl";
-import {Definitions} from "../config";
+import {Definitions} from "../config/Heroes";
 
 export const defaultUser = new Player("karli");
 

@@ -2,7 +2,7 @@ import {AppContext} from "../model";
 import {useAdventure, useAppContext} from "../state";
 import {useObserver} from "mobx-react-lite";
 import React, {useMemo} from "react";
-import {Action, ActionType} from "../actions";
+import {Action} from "../actions";
 import {Adventure} from "../model/Adventure";
 import classNames from "classnames";
 import {Cell, obstacle} from "../model/board";
@@ -23,14 +23,16 @@ function useInteractionStyle(cell: Cell, adventure: Adventure, appContext: AppCo
     if (cell.unit) {
         styleClasses.push(cell.unit.player === appContext.user ? "friendly" : "enemy");
     }
-    if (action && action.type === ActionType.MOVE) {
-        styleClasses.push("canMove");
-    }
     if (action === null) {
         styleClasses.push("is-static");
+        return;
     }
-    if (action && action.type === ActionType.ATTACK) {
+    if (action.type.isAttack) {
         styleClasses.push("canAttack");
+    }
+    if (action.type.isMove) {
+        styleClasses.push("canMove");
+        return;
     }
 
     return classNames(styleClasses);
@@ -69,7 +71,7 @@ export function CellPresenter({cell}: CellProp) {
                     if ((event.nativeEvent as any).__keyboardWorkaround === true) {
                         return;
                     }
-                    defaultAction.run();
+                    defaultAction.use.apply()
                 }
             }
         },
@@ -87,16 +89,9 @@ export function CellPresenter({cell}: CellProp) {
         onClick={onClick}
         onRightClick={onRightClick}
         style={interactionStyle}
-        actionLabel={defaultAction && actionNameDict[defaultAction.type]}
+        actionLabel={defaultAction && defaultAction.type.name}
     />
 }
-
-const actionNameDict: Record<ActionType, string|null> = {
-    [ActionType.ATTACK]: "attack",
-    [ActionType.MOVE]: "move",
-    [ActionType.SELECT]: "select",
-    [ActionType.UNSELECT]: null,
-};
 
 interface CellViewProps extends CellProp {
     style?: string,

@@ -7,7 +7,7 @@ import {Modal} from "../Modal";
 import useForm from "react-hook-form";
 import {useAppContext} from "../../state";
 import {Unit, UnitDefinition, UnitImpl} from "../../model/UnitImpl";
-import {Definitions} from "../../config";
+import {Definitions} from "../../config/Heroes";
 import {assertNever} from "../../Utility";
 
 type UnitBlueprint = {definition: UnitDefinition}

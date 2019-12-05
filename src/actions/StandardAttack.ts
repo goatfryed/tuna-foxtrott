@@ -15,6 +15,7 @@ export const StandardAttack: Typed<AbilityDeclaration> = {
 
 function canStandardAttack(actor: PlacedUnit, target: Cell): target is Attackable {
     return target.unit !== null
+        && !actor.exhausted
         && actor.cell.isNeighbor(target)
         && actor.player !== target.unit.player
         && target.unit.isAlive
@@ -26,7 +27,8 @@ function prepareStandardAttack(unit: PlacedUnit, cell: Cell): AbilityUse | null 
     }
     return {
         apply: () => {
-            cell.unit.dealDamage(-1);
+            cell.unit.dealDamage(1);
+            unit.exhausted = true;
         }
     }
 }

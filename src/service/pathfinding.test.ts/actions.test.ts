@@ -1,8 +1,8 @@
-import {Player} from "../model";
-import {computePath} from "./actions";
-import {NotNull} from "../helpers";
-import {Board, createBoard, obstacle} from "../model/board";
-import {IngameUnit} from "../model/IngameUnit";
+import {Player} from "../../model";
+import {NotNull} from "../../helpers";
+import {Board, createBoard, obstacle} from "../../model/board";
+import {IngameUnit} from "../../model/IngameUnit";
+import {computePath} from "../pathfinder";
 
 
 describe("Pathfinding", () => {

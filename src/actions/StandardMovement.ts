@@ -1,7 +1,7 @@
-import {AbilityContext, AbilityDeclaration, AbilityUse, Typed} from "./index";
 import {PlacedUnit} from "../model/IngameUnit";
 import {Cell} from "../model/board";
-import {computePath} from "../actions";
+import {AbilityContext, AbilityDeclaration, AbilityUse, Typed} from "./index";
+import {computePath} from "../service/pathfinder";
 
 export const StandardMovement: Typed<AbilityDeclaration> = {
     type: {
