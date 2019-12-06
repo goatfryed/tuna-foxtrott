@@ -7,15 +7,15 @@ import {Modal} from "../Modal";
 import useForm from "react-hook-form";
 import {useAppContext} from "../../state";
 import {Unit, UnitDefinition, UnitImpl} from "../../model/UnitImpl";
-import {Definitions} from "../../config/Heroes";
+import {HeroDefinitions} from "../../config/Heroes";
 import {assertNever} from "../../Utility";
 
 type UnitBlueprint = {definition: UnitDefinition}
 
 const heroClasses: [string,UnitBlueprint][] = [
-    [ "Axel", {definition: Definitions.AXEL}],
-    [ "Bower", {definition: Definitions.BOWER}],
-    [ "Macel", {definition: Definitions.MACEL}],
+    [ "Axel", {definition: HeroDefinitions.AXEL}],
+    [ "Bower", {definition: HeroDefinitions.BOWER}],
+    [ "Macel", {definition: HeroDefinitions.MACEL}],
 ];
 
 function HireHeroCard(props: { onCancel: () => void, onHire: (name: string, u: UnitBlueprint) => void }) {

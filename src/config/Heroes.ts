@@ -2,7 +2,7 @@ import {UnitDefinition} from "../model/UnitImpl";
 import {HeavyStrike} from "./Attacks";
 import {AbilityDeclaration} from "../actions";
 
-export const Definitions = {
+export const HeroDefinitions = {
     AXEL: {
         baseHealth: 10,
         initiativeDelay: 80,
@@ -37,4 +37,4 @@ export const Definitions = {
 
 // config validation
 // noinspection BadExpressionStatementJS
-false as true && Definitions as {[k in string]: UnitDefinition};
+false as true && HeroDefinitions as {[k in string]: UnitDefinition};
