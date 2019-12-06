@@ -17,10 +17,10 @@ export const StandardAttack: AbilityDeclaration = {
 
 export function canStandardAttack(actor: PlacedUnit, target: Cell): target is Attackable {
     return target.unit !== null
-        && !actor.exhausted
+        && !actor.mainActionUsed
         && actor.cell.isNeighbor(target)
         && actor.player !== target.unit.player
-        && target.unit.isAlive
+        && target.unit.isCombatReady
 }
 
 function prepareStandardAttack(unit: PlacedUnit, cell: Cell): AbilityUse | null {
@@ -30,8 +30,8 @@ function prepareStandardAttack(unit: PlacedUnit, cell: Cell): AbilityUse | null 
     return {
         type: StandardAttackType,
         apply: () => {
-            cell.unit.dealDamage(1);
-            unit.exhausted = true;
+            cell.unit.dealHealthDamage(1);
+            unit.mainActionUsed = true;
         }
     }
 }

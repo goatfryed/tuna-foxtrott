@@ -64,7 +64,7 @@ describe("Pathfinding", () => {
         const board = getBoard();
         const start = board.getCell(0,0);
         const end = board.getCell(3,0);
-        board.getCell(2,0).unit = {isAlive: true} as IngameUnit;
+        board.getCell(2,0).unit = {isCombatReady: true} as IngameUnit;
         const unit = {player: karli, cell: start} as NotNull<IngameUnit,"cell">;
 
         const actual = computePath(board, unit, end);
@@ -73,7 +73,7 @@ describe("Pathfinding", () => {
 
     test( "it shouldn't be blocked by dead units", () => {
         const board = getBoard();
-        board.getCell(2,0).unit = {isAlive: false} as IngameUnit;
+        board.getCell(2,0).unit = {isCombatReady: false} as IngameUnit;
         testDirectPath(board);
     });
 

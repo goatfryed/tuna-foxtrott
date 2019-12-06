@@ -25,7 +25,7 @@ export class IngameUnit implements Unit {
     }
 
     @observable initiative: number = this.initiativeDelay;
-    @observable exhausted: boolean = false;
+    @observable mainActionUsed: boolean = false;
 
     constructor(
         readonly wrapped: UnitImpl,
@@ -41,6 +41,24 @@ export class IngameUnit implements Unit {
     get maxHealth() {
         return this.wrapped.definition.baseHealth;
     }
+
+    dealHealthDamage(delta: number) {
+        this.dmgTaken = this.dmgTaken + delta;
+        this.limitStamina();
+    }
+
+    @observable private _stamina: number = 0;
+    set stamina(stamina: number) {
+        this._stamina = stamina;
+        this.limitStamina();
+    }
+    get stamina() { return this._stamina;}
+
+    updateStamina(delta: number) {
+        this.stamina += delta;
+    }
+
+    private limitStamina() { if (this._stamina > this.currentHealth) this._stamina = this.currentHealth}
 
     @observable private movePointsSpent: number = 0;
 
@@ -84,14 +102,18 @@ export class IngameUnit implements Unit {
     }
 
     canAttack(unit: IngameUnit) {
-        return !this.exhausted
+        return !this.mainActionUsed
             && this.cell !== null
             && unit.cell !== null
             && this.cell.getManhattenDistance(unit.cell) <= 1;
     }
 
-    dealDamage(delta: number) {
-        this.dmgTaken = this.dmgTaken + delta;
+    @computed get exhausted() {
+        return this.stamina <= 0;
+    }
+
+    @computed get isCombatReady() {
+        return this.isAlive && !this.exhausted;
     }
 
     @computed get isAlive() {

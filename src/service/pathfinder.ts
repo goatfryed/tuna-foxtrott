@@ -20,7 +20,7 @@ function getCost(unit: IngameUnit, cell: Cell) {
     if (
         cell.unit !== null
         && cell.unit.player !== unit.player
-        && cell.unit.isAlive
+        && cell.unit.isCombatReady
     ) {
         return null;
     }

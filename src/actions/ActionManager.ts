@@ -44,7 +44,7 @@ export class ActionManager {
             || activeUnit === target
             || !this.canAct(activeUnit)
             || activeUnit.cell === null
-            || !activeUnit.isAlive
+            || !activeUnit.isCombatReady
         ) {
             return null;
         }
@@ -78,8 +78,8 @@ export class ActionManager {
     attackActionOrNull(unit: IngameUnit, target: IngameUnit) {
         if (unit.canAttack(target)) {
             return action(() => {
-                target.dealDamage(1);
-                unit.exhausted = true;
+                target.dealHealthDamage(1);
+                unit.mainActionUsed = true;
                 this.adventure.endTurn();
             });
         }
@@ -89,7 +89,7 @@ export class ActionManager {
     canAct(unit: IngameUnit): unit is NotNull<IngameUnit, "cell"> {
         return unit === this.adventure.activeUnit
             && unit.cell !== null
-            && unit.isAlive
+            && unit.isCombatReady
         ;
     }
 }

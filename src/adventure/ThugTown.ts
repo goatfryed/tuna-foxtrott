@@ -55,7 +55,7 @@ class ThugTownBot extends Bot {
                 playAggressive(
                     adventure,
                     unit => unit.player === this,
-                    unit => unit.player !== this && unit.isAlive
+                    unit => unit.player !== this && unit.isCombatReady
                 )
             )
         );

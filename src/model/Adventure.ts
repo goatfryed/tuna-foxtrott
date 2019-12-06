@@ -31,7 +31,7 @@ export class Adventure {
     get turnOrder(): PlacedUnit[] {
         return this.players.flatMap(p => p.units)
             .filter(isPlaced)
-            .filter(u => u.isAlive)
+            .filter(u => u.isCombatReady)
             .sort( Adventure.sortForTurnOrder)
         ;
     }
@@ -57,7 +57,7 @@ export class Adventure {
     refresh() {
         this.heroes.forEach(
             h => {
-                h.exhausted = false;
+                h.mainActionUsed = false;
                 h.restoreMovePoints()
             }
         )
@@ -92,7 +92,7 @@ export class Adventure {
                 if (!isPrepPhase) {
                     return;
                 }
-                nextUnit.exhausted = false;
+                nextUnit.mainActionUsed = false;
                 nextUnit.restoreMovePoints();
                 this.actionPhase = true;
             }
@@ -119,7 +119,7 @@ export class Adventure {
     }
 
     private static playerIsAlive(player: Player) {
-        return player.units.some(u => u.isAlive);
+        return player.units.some(u => u.isCombatReady);
     }
 
 }
