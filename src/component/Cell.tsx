@@ -124,7 +124,6 @@ function CellUnitDetail(props: {unit: IngameUnit}) {
 const HealthBarCurrentValue = styled.div<{percentage: number}>`
     width: ${props => props.percentage * 100}%;
     height: 100%;
-    border-radius: 0.3em;
 `;
 const HealthBarHealth = styled(HealthBarCurrentValue)`
     background-color: orange;
@@ -138,7 +137,8 @@ const HealthBarDmgSection = styled.div`
     align-items: flex-start;
     justify-content: left;
     
-    background-color: darkgray;
+    background-color: darkred;
+    overflow: hidden;
     flex-grow: 1;
     min-width: 0;
     height: 0.6em;
