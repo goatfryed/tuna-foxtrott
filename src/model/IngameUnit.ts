@@ -6,12 +6,12 @@ import {BoundAbility} from "../actions";
 
 export class IngameUnit implements Unit {
 
-    initiativeDelay: number = 100;
     baseSpeed: number = 3;
 
     get id() {return this.wrapped.id;}
     get baseHealth() {return this.wrapped.baseHealth;}
     get name() {return this.wrapped.name;}
+    get initiativeDelay() {return this.wrapped.initiativeDelay;}
 
     get staminaRegeneration() {return this.wrapped.staminaRegeneration;}
 
