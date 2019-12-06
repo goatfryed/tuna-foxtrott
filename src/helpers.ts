@@ -19,3 +19,7 @@ export type NotNull<T, S extends keyof T> = T & {
 export function useConst<T>(obj: T): T {
     return useMemo(() => obj, Object.values(obj));
 }
+
+export function definedValue<T>(val: T): val is Exclude<T, undefined|null> {
+    return val !== null && val !== undefined;
+}

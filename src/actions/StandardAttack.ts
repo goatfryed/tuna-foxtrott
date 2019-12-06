@@ -1,19 +1,21 @@
 import {PlacedUnit} from "../model/IngameUnit";
 import {Cell} from "../model/board";
-import {AbilityDeclaration, AbilityUse, Attackable, Typed} from "./index";
+import {AbilityDeclaration, AbilityUse, Attackable, contextAgnostic} from "./index";
 
-export const StandardAttack: Typed<AbilityDeclaration> = {
-    type: {
-        name: "attack"
-    } as const,
-    implementation: {
-        apply: unit => ({
-            apply: cell => prepareStandardAttack(unit, cell)
-        })
-    }
+const StandardAttackType = {
+    name: "attack",
+    isAttack: true,
+} as const;
+
+export const StandardAttack: AbilityDeclaration = {
+    type: StandardAttackType,
+    apply: unit => contextAgnostic({
+        type: StandardAttackType,
+        apply: cell => prepareStandardAttack(unit, cell)
+    })
 };
 
-function canStandardAttack(actor: PlacedUnit, target: Cell): target is Attackable {
+export function canStandardAttack(actor: PlacedUnit, target: Cell): target is Attackable {
     return target.unit !== null
         && !actor.exhausted
         && actor.cell.isNeighbor(target)
@@ -26,6 +28,7 @@ function prepareStandardAttack(unit: PlacedUnit, cell: Cell): AbilityUse | null 
         return null;
     }
     return {
+        type: StandardAttackType,
         apply: () => {
             cell.unit.dealDamage(1);
             unit.exhausted = true;

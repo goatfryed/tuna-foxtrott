@@ -1,12 +1,12 @@
 import {Adventure} from "../model/Adventure";
 import {action, observable} from "mobx";
-import {NotNull} from "../helpers";
+import {definedValue, NotNull} from "../helpers";
 import {Cell} from "../model/board";
 import {IngameUnit} from "../model/IngameUnit";
 import {StandardAttack} from "./StandardAttack";
 import {StandardMovement} from "./StandardMovement";
 import {Path} from "../service/pathfinder";
-import {Action, InteractionIntent, InteractionRequest} from "./index";
+import {AbilityUse, Action, InteractionRequest} from "./index";
 
 const standardActions = [
     StandardAttack,
@@ -19,21 +19,18 @@ export class ActionManager {
 
     @observable interactionRequest: InteractionRequest|null = null;
 
-    get interactionIntents(): InteractionIntent[] {
+    get interactionIntents(): AbilityUse[] {
         const interactionRequest = this.interactionRequest;
         if (interactionRequest === null) return [];
 
         const unit = this.adventure.activeUnit;
-        if (unit?.specials === undefined) return [];
+        if (unit?.abilities === undefined) return [];
 
-        return unit.specials
-            .map(value => ({
-                name: value.name,
-                execute: value.actionFactory(unit, interactionRequest.cell)
-            }))
-            .filter(
-                (action): action is InteractionIntent  => action.execute !== null
-            )
+        return unit.abilities
+            .map(ability => ability.apply({adventure: this.adventure}))
+            .filter(definedValue)
+            .map(ability => ability.apply(interactionRequest.cell))
+            .filter(definedValue)
         ;
     }
 
@@ -55,8 +52,9 @@ export class ActionManager {
         const context = {adventure: this.adventure};
 
         for (let ability of standardActions) {
-            const action = ability.implementation
-                .apply(activeUnit, context)
+            const action = ability
+                .apply(activeUnit)
+                ?.apply(context)
                 ?.apply(cell)
             ;
             if (action) {

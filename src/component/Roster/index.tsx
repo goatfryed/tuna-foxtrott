@@ -158,7 +158,7 @@ const Line = styled.hr`
     margin: 0 0 0.5em 0;
 `;
 
-export function HeroEntry(props: {hero: Omit<Unit,"specials">}) {
+export function HeroEntry(props: {hero: Omit<Unit,"abilities">}) {
     return <HeroTile>
         {props.hero.name}
         <Line />

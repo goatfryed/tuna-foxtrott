@@ -1,27 +1,24 @@
-import {Cell} from "./board";
-import {PlacedUnit} from "./IngameUnit";
+import {AbilityDeclaration} from "../actions";
 
-export interface UnitDefinition {
+export interface UnitBaseValues {
     readonly baseHealth: number;
     readonly baseSpeed: number;
     readonly initiativeDelay: number;
-    readonly specials?: SpecialAbility[];
 }
 
-export interface SpecialAbility {
-    name: string,
-    actionFactory: (unit: PlacedUnit, cell: Cell) => (( () => void )|null),
+export interface UnitDefinition extends UnitBaseValues {
+    readonly abilities: AbilityDeclaration[];
 }
 
-export interface Unit extends UnitDefinition {
+export interface Unit extends UnitBaseValues {
     readonly name: string;
     readonly id: number;
-    readonly specials: any[];
 }
 
 const unitDefaults = {
     baseSpeed: 3,
     initiativeDelay: 100,
+    abilities: [] as AbilityDeclaration[],
 } as const;
 
 export function createUnitDefinition(
@@ -50,7 +47,7 @@ export class UnitImpl implements Unit {
         return `${this.name}`;
     }
 
-    get specials() {return this.definition.specials ?? [];}
+    get abilities() {return this.definition.abilities ?? [];}
 
     get baseHealth() {return this.definition.baseHealth};
     get baseSpeed() {return this.definition.baseSpeed};

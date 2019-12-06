@@ -13,11 +13,18 @@ export interface AbilityType {
 }
 
 export interface AbilityUse {
+    type: AbilityType,
     apply(): void,
 }
 
 export interface IngameAbility {
+    type: AbilityType,
     apply(cell: Cell): AbilityUse | null
+}
+
+export interface BoundAbility {
+    type: AbilityType,
+    apply(context: AbilityContext): IngameAbility | null
 }
 
 export interface AbilityContext {
@@ -25,12 +32,8 @@ export interface AbilityContext {
 }
 
 export interface AbilityDeclaration<T extends PlacedUnit = PlacedUnit> {
-    apply(unit: T, context: AbilityContext): IngameAbility | null
-}
-
-export interface Typed<I, T = AbilityType> {
-    type: T,
-    implementation: I,
+    type: AbilityType,
+    apply(unit: T): BoundAbility | null
 }
 
 export type Attackable = NotNull<Cell, "unit">
@@ -44,7 +47,9 @@ export interface InteractionRequest {
     cell: Cell,
 }
 
-export interface InteractionIntent {
-    name: string,
-    execute: () => void,
+export function contextAgnostic(ability: IngameAbility) {
+    return ({
+        type: ability.type,
+        apply: () => ability
+    })
 }

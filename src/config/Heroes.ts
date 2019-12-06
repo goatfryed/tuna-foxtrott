@@ -1,51 +1,33 @@
-import {SpecialAbility, UnitDefinition} from "../model/UnitImpl";
-import {PlacedUnit} from "../model/IngameUnit";
-import {Cell} from "../model/board";
+import {UnitDefinition} from "../model/UnitImpl";
+import {HeavyStrike} from "./Attacks";
+import {AbilityDeclaration} from "../actions";
 
 export const Definitions = {
     AXEL: {
         baseHealth: 5,
         initiativeDelay: 80,
         baseSpeed: 3,
-        specials: [
-            {
-                name: "Heavy Strike",
-                actionFactory(unit: PlacedUnit, cell: Cell) {
-                    const target = cell.unit;
-                    if (!cell.isNeighbor(unit.cell)
-                        || target === null
-                        || unit.exhausted
-                    ) {
-                        return null;
-                    }
-                    return () => {
-                        unit.exhausted = true;
-                        target.dealDamage(2);
-                    }
-                }
-            }
-        ] as SpecialAbility[]
+        abilities: [
+            HeavyStrike,
+        ] as AbilityDeclaration[]
     },
     BOWER: {
         baseHealth: 4,
         initiativeDelay: 100,
         baseSpeed: 2,
-        specials: [
-            {
-                name: "Clap",
-                actionFactory: () => (() => alert("clap! clap!"))
-            }
-        ] as SpecialAbility[]
+        abilities: [] as AbilityDeclaration[]
     },
     MACEL: {
         baseHealth: 6,
         initiativeDelay: 105,
         baseSpeed: 3,
+        abilities: [] as AbilityDeclaration[]
     },
     CLUBBER: {
         baseHealth: 4,
         initiativeDelay: 80,
         baseSpeed: 4,
+        abilities: [] as AbilityDeclaration[]
     },
 } as const;
 

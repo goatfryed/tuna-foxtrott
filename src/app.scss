@@ -64,8 +64,7 @@ $cell-border-size: 0.25em;
     white-space: normal;
 
     &.friendly {
-      color: $green;
-      background-color: $light;
+      background-color: $success-dark;
     }
     &.enemy {
       @extend .is-warning;

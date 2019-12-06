@@ -2,6 +2,7 @@ import {action, computed, observable} from "mobx";
 import {Player} from "./index";
 import {Cell} from "./board";
 import {Unit, UnitImpl} from "./UnitImpl";
+import {BoundAbility} from "../actions";
 
 export class IngameUnit implements Unit {
 
@@ -11,7 +12,15 @@ export class IngameUnit implements Unit {
     get id() {return this.wrapped.id;}
     get baseHealth() {return this.wrapped.baseHealth;}
     get name() {return this.wrapped.name;}
-    get specials() {return this.wrapped.specials;}
+
+    get abilities(): BoundAbility[] {
+        if (!isPlaced(this)) return [];
+
+        return this.wrapped.abilities
+            .map(ability => ability.apply(this as PlacedUnit))
+            .filter((value): value is BoundAbility => value !== null)
+        ;
+    }
 
     @observable initiative: number = this.initiativeDelay;
     @observable exhausted: boolean = false;

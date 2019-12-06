@@ -25,14 +25,12 @@ function useInteractionStyle(cell: Cell, adventure: Adventure, appContext: AppCo
     }
     if (action === null) {
         styleClasses.push("is-static");
-        return;
-    }
-    if (action.type.isAttack) {
+
+    } else if (action.type.isAttack) {
         styleClasses.push("canAttack");
-    }
-    if (action.type.isMove) {
+
+    } else if (action.type.isMove) {
         styleClasses.push("canMove");
-        return;
     }
 
     return classNames(styleClasses);

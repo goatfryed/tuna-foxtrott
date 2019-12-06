@@ -129,7 +129,7 @@ function InteractionSelection({adventure}:AdventureAware) {
             <ModalContent>
                 <InteractionSelectionContainer>
                     {intents.map(
-                        intent => <p><button onClick={intent.execute} className="button">{intent.name}</button></p>
+                        intent => <p><button onClick={intent.apply} className="button">{intent.type.name}</button></p>
                     )}
                 </InteractionSelectionContainer>
             </ModalContent>
