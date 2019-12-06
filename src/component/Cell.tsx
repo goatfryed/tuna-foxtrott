@@ -87,7 +87,6 @@ export function CellPresenter({cell}: CellProp) {
         onClick={onClick}
         onRightClick={onRightClick}
         style={interactionStyle}
-        actionLabel={defaultAction && defaultAction.type.name}
     />
 }
 

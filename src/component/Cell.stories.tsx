@@ -12,10 +12,7 @@ import {Adventure} from "../model/Adventure";
 export function disabled() {
     const cell = new Cell(6,9, obstacle);
 
-    return <CellView
-        cell={cell}
-        actionLabel={null}
-    />
+    return <CellView cell={cell} />
 }
 
 export function selected() {
@@ -30,7 +27,6 @@ export function selected() {
         onClick={action("onClick")}
         onRightClick={action("rightClick")}
         style="isSelected"
-        actionLabel={null}
     />
 }
 
