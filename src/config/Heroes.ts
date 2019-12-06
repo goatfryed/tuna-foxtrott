@@ -4,7 +4,7 @@ import {AbilityDeclaration} from "../actions";
 
 export const Definitions = {
     AXEL: {
-        baseHealth: 5,
+        baseHealth: 10,
         initiativeDelay: 80,
         baseSpeed: 3,
         abilities: [
@@ -12,19 +12,19 @@ export const Definitions = {
         ] as AbilityDeclaration[]
     },
     BOWER: {
-        baseHealth: 4,
+        baseHealth: 8,
         initiativeDelay: 100,
         baseSpeed: 2,
         abilities: [] as AbilityDeclaration[]
     },
     MACEL: {
-        baseHealth: 6,
+        baseHealth: 12,
         initiativeDelay: 105,
         baseSpeed: 3,
         abilities: [] as AbilityDeclaration[]
     },
     CLUBBER: {
-        baseHealth: 4,
+        baseHealth: 8,
         initiativeDelay: 80,
         baseSpeed: 4,
         abilities: [] as AbilityDeclaration[]

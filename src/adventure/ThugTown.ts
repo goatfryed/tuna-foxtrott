@@ -25,12 +25,13 @@ const thugTownStartLocations: Coordinate[] = [
 ];
 
 const bullyDef =  createUnitDefinition({
-    baseHealth: 5,
+    baseHealth: 10,
     initiativeDelay: 90,
+    abilities: [],
 });
 
 const thugDef = createUnitDefinition({
-   baseHealth: 4,
+   baseHealth: 8
 });
 
 export const createThugTown = adventureFactory(
