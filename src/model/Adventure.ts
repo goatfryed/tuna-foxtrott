@@ -51,6 +51,7 @@ export class Adventure {
 
     constructor(board: Board) {
         this.board = board;
+        this.onUnitTurnStart = this.onUnitTurnStart.bind(this);
     }
 
     @action
@@ -88,17 +89,23 @@ export class Adventure {
                 nextUnit: this.turnOrder[0],
                 isPrepPhase: !this.actionPhase
             }),
-            ({nextUnit, isPrepPhase}) => {
-                if (!isPrepPhase) {
-                    return;
-                }
-                nextUnit.mainActionUsed = false;
-                nextUnit.restoreMovePoints();
-                this.actionPhase = true;
-            }
+            this.onUnitTurnStart
         );
 
         setTimeout(() => this.actionPhase = true);
+    }
+
+    private onUnitTurnStart(
+        {nextUnit, isPrepPhase}:
+        {nextUnit: PlacedUnit, isPrepPhase: boolean}
+    ) {
+        if (!isPrepPhase) {
+            return;
+        }
+        nextUnit.mainActionUsed = false;
+        nextUnit.restoreMovePoints();
+        nextUnit.updateStamina(nextUnit.staminaRegeneration);
+        this.actionPhase = true;
     }
 
     tearDown() {
