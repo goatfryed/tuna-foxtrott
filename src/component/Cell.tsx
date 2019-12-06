@@ -5,7 +5,7 @@ import React, {useMemo} from "react";
 import {Action} from "../actions";
 import {Adventure} from "../model/Adventure";
 import classNames from "classnames";
-import {Cell, obstacle} from "../model/board";
+import {Cell, OBSTACLE} from "../model/board";
 import {IngameUnit} from "../model/IngameUnit";
 import styled from "styled-components";
 
@@ -37,7 +37,7 @@ function useInteractionStyle(cell: Cell, adventure: Adventure, appContext: AppCo
 }
 
 function useTerrainStyle(cell: Cell) {
-    return cell.terrain === obstacle ? "obstacle" : "ground";
+    return cell.terrain === OBSTACLE ? "obstacle" : "ground";
 }
 
 export function CellPresenter({cell}: CellProp) {

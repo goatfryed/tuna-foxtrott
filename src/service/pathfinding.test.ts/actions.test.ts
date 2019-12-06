@@ -1,6 +1,6 @@
 import {Player} from "../../model";
 import {NotNull} from "../../helpers";
-import {Board, createBoard, obstacle} from "../../model/board";
+import {Board, createBoard, OBSTACLE} from "../../model/board";
 import {IngameUnit} from "../../model/IngameUnit";
 import {computePath} from "../pathfinder";
 
@@ -19,23 +19,23 @@ describe("Pathfinding", () => {
         return createBoard(5, 5,
             [
                 {
-                    terrain: obstacle,
+                    terrain: OBSTACLE,
                     x: 1, y: 1,
                 },
                 {
-                    terrain: obstacle,
+                    terrain: OBSTACLE,
                     x: 2, y: 1,
                 },
                 {
-                    terrain: obstacle,
+                    terrain: OBSTACLE,
                     x: 3, y: 2,
                 },
                 {
-                    terrain: obstacle,
+                    terrain: OBSTACLE,
                     x: 3, y: 3,
                 },
                 {
-                    terrain: obstacle,
+                    terrain: OBSTACLE,
                     x: 3, y: 4,
                 },
             ]

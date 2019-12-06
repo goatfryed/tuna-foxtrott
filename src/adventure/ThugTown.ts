@@ -1,4 +1,4 @@
-import {obstacle} from "../model/board";
+import {OBSTACLE} from "../model/board";
 import {AdventureDescription, adventureFactory, Coordinate} from "./index";
 import {ZergBot} from "./BotBehaviour";
 import {UnitImpl} from "../model/UnitImpl";
@@ -6,15 +6,15 @@ import {BullyDefinition, ThugDefinition} from "./Gangsters";
 
 const thugTownTerrain = [
     {
-        terrain: obstacle,
+        terrain: OBSTACLE,
         x: 3, y: 1,
     },
     {
-        terrain: obstacle,
+        terrain: OBSTACLE,
         x: 1, y: 2,
     },
     {
-        terrain: obstacle,
+        terrain: OBSTACLE,
         x: 4, y: 3,
     }
 ];

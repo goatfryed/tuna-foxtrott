@@ -7,7 +7,7 @@ class Terrain {
     ) {}
 }
 
-export const obstacle = new Terrain(false);
+export const OBSTACLE = new Terrain(false);
 export const ground = new Terrain(true);
 
 export class Cell {

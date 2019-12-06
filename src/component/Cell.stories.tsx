@@ -4,13 +4,13 @@ import React from "react";
 
 import "../app.scss";
 import {action} from "@storybook/addon-actions";
-import {Cell, createBoard, ground, obstacle} from "../model/board";
+import {Cell, createBoard, ground, OBSTACLE} from "../model/board";
 import {bowerBase} from "../fixtures";
 import {AdventureProvider} from "../state";
 import {Adventure} from "../model/Adventure";
 
 export function disabled() {
-    const cell = new Cell(6,9, obstacle);
+    const cell = new Cell(6,9, OBSTACLE);
 
     return <CellView cell={cell} />
 }
