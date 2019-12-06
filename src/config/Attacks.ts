@@ -21,7 +21,8 @@ export const HeavyStrike: AbilityDeclaration = {
             return {
                 type: HeavyStrikeType,
                 apply(): void {
-                    cell.unit.dealHealthDamage(2);
+                    cell.unit.dealHealthDamage(6);
+                    unit.updateStamina(-4);
                     unit.mainActionUsed = true;
                 }
             }

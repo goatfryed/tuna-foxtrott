@@ -30,7 +30,8 @@ function prepareStandardAttack(unit: PlacedUnit, cell: Cell): AbilityUse | null 
     return {
         type: StandardAttackType,
         apply: () => {
-            cell.unit.dealHealthDamage(1);
+            cell.unit.dealHealthDamage(3);
+            unit.updateStamina(-2);
             unit.mainActionUsed = true;
         }
     }
