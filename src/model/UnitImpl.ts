@@ -3,6 +3,7 @@ import {AbilityDeclaration} from "../actions";
 export interface UnitBaseValues {
     readonly baseHealth: number;
     readonly baseSpeed: number;
+    readonly staminaRegeneration: number,
     readonly initiativeDelay: number;
 }
 
@@ -15,14 +16,16 @@ export interface Unit extends UnitBaseValues {
     readonly id: number;
 }
 
-const unitDefaults = {
+const unitDefaults: UnitDefinition = {
+    baseHealth: 10,
+    staminaRegeneration: 1,
     baseSpeed: 3,
     initiativeDelay: 100,
     abilities: [] as AbilityDeclaration[],
-} as const;
+};
 
 export function createUnitDefinition(
-    definition: Partial<UnitDefinition> & Omit<UnitDefinition, keyof typeof unitDefaults>
+    definition: Partial<UnitDefinition>
 ): UnitDefinition {
     return {
         ...unitDefaults,
@@ -47,10 +50,10 @@ export class UnitImpl implements Unit {
         return `${this.name}`;
     }
 
-    get abilities() {return this.definition.abilities ?? [];}
-
+    get abilities() {return this.definition.abilities;}
     get baseHealth() {return this.definition.baseHealth};
     get baseSpeed() {return this.definition.baseSpeed};
     get initiativeDelay() {return this.definition.initiativeDelay};
+    get staminaRegeneration() {return this.definition.staminaRegeneration;}
 }
 

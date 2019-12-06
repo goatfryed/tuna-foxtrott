@@ -13,6 +13,8 @@ export class IngameUnit implements Unit {
     get baseHealth() {return this.wrapped.baseHealth;}
     get name() {return this.wrapped.name;}
 
+    get staminaRegeneration() {return this.wrapped.staminaRegeneration;}
+
     get abilities(): BoundAbility[] {
         if (!isPlaced(this)) return [];
 
