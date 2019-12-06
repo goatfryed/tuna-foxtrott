@@ -104,6 +104,11 @@ const HealthBarContainer = styled.div`
 `;
 
 function CellUnitDetail(props: {unit: IngameUnit}) {
+
+    const unitLabelStyle = !props.unit.isAlive? "has-text-danger"
+        : props.unit.isCombatReady? ""
+        : "has-text-warning";
+
     return useObserver(() => <>
         <HealthBarContainer>
             <HealthBar
@@ -112,7 +117,7 @@ function CellUnitDetail(props: {unit: IngameUnit}) {
                 maxHealth={props.unit.maxHealth}
             />
         </HealthBarContainer>
-        <div>{String(props.unit)}</div>
+        <div className={unitLabelStyle}>{String(props.unit)}</div>
     </>);
 }
 
