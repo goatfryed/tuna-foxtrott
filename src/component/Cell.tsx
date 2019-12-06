@@ -104,7 +104,7 @@ const HealthBarContainer = styled.div`
 `;
 
 function CellUnitDetail(props: {unit: IngameUnit}) {
-    return <>
+    return useObserver(() => <>
         <HealthBarContainer>
             <HealthBar
                 stamina={props.unit.stamina}
@@ -113,7 +113,7 @@ function CellUnitDetail(props: {unit: IngameUnit}) {
             />
         </HealthBarContainer>
         <div>{String(props.unit)}</div>
-    </>;
+    </>);
 }
 
 const HealthBarCurrentValue = styled.div<{percentage: number}>`
