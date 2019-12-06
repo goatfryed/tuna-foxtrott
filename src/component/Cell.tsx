@@ -95,14 +95,65 @@ interface CellViewProps extends CellProp {
     style?: string,
     onClick?: (event: React.MouseEvent) => any,
     onRightClick?: (event: React.MouseEvent) => any,
-    actionLabel: string|null
 }
 
-type Wanted = 'currentHealth'|'maxHealth';
-function CellUnitDetail(props: Pick<IngameUnit, Wanted> & {description: string} ) {
+const HealthBarContainer = styled.div`
+  height: fit-content;
+  width: 100%;
+  padding: 0 0.5em;
+  justify-content: center;
+`;
+
+function CellUnitDetail(props: {unit: IngameUnit}) {
     return <>
-        {props.description + ` (${props.currentHealth}/${props.maxHealth})`}
+        <HealthBarContainer>
+            <HealthBar
+                stamina={props.unit.stamina}
+                currentHealth={props.unit.currentHealth}
+                maxHealth={props.unit.maxHealth}
+            />
+        </HealthBarContainer>
+        <div>{String(props.unit)}</div>
     </>;
+}
+
+const HealthBarCurrentValue = styled.div<{percentage: number}>`
+    width: ${props => props.percentage * 100}%;
+    height: 100%;
+    border-radius: 0.3em;
+`;
+const HealthBarHealth = styled(HealthBarCurrentValue)`
+    background-color: orange;
+`;
+const HealthBarStamina = styled(HealthBarCurrentValue)`
+    background-color: green;
+`;
+const HealthBarDmgSection = styled.div`
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    justify-content: left;
+    
+    background-color: darkgray;
+    flex-grow: 1;
+    min-width: 0;
+    height: 0.6em;
+    border-radius: 0.3em;
+`;
+
+
+function HealthBar(props: {stamina: number, currentHealth: number, maxHealth: number}) {
+    if (props.currentHealth <= 0) {
+        return <HealthBarDmgSection />
+    }
+
+    const relativeHealth = props.currentHealth / props.maxHealth;
+    const relativeStamina = props.stamina / props.currentHealth;
+    return <HealthBarDmgSection>
+        <HealthBarHealth percentage={relativeHealth}>
+            <HealthBarStamina percentage={relativeStamina}/>
+        </HealthBarHealth>
+    </HealthBarDmgSection>
 }
 
 const CellContainer = styled.div`
@@ -123,7 +174,6 @@ export function CellView({
     onClick,
     onRightClick,
     cell,
-    actionLabel
 }: CellViewProps) {
 
     const terrainStyle = useTerrainStyle(cell);
@@ -138,14 +188,7 @@ export function CellView({
                     onContextMenu={onRightClick}
                 >
                     <div className={"content " + terrainStyle}>
-                        {cell.unit && <div>
-                            <CellUnitDetail
-                                currentHealth={cell.unit.currentHealth}
-                                maxHealth={cell.unit.maxHealth}
-                                description={String(cell.unit)}
-                            />
-                        </div>}
-                        {actionLabel && <div>{actionLabel}</div>}
+                        {cell.unit && <CellUnitDetail unit={cell.unit}/>}
                     </div>
                 </button>
             </div>

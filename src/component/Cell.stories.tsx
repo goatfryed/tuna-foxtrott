@@ -22,6 +22,8 @@ export function selected() {
     const cell = new Cell(6,9, ground);
     const player = new Player("Karli");
     cell.unit = player.addUnit(bowerBase);
+    cell.unit.dealHealthDamage( 2);
+    cell.unit.updateStamina(-3);
 
     return <CellView
         cell={cell}

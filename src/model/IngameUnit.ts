@@ -30,7 +30,9 @@ export class IngameUnit implements Unit {
     constructor(
         readonly wrapped: UnitImpl,
         readonly player: Player
-    ) {}
+    ) {
+        this.stamina = this.maxHealth;
+    }
 
     @observable private dmgTaken: number = 0;
 
@@ -54,8 +56,8 @@ export class IngameUnit implements Unit {
     }
     get stamina() { return this._stamina;}
 
-    updateStamina(delta: number) {
-        this.stamina += delta;
+    updateStamina(deltaIncrease: number) {
+        this.stamina += deltaIncrease;
     }
 
     private limitStamina() { if (this._stamina > this.currentHealth) this._stamina = this.currentHealth}

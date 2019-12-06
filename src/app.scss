@@ -39,7 +39,7 @@ $cell-border-size: 0.25em;
   .content {
     @extend .has-text-white;
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
     flex-wrap: wrap;
     justify-content: center;
     align-items: center;
