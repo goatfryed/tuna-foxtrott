@@ -1,10 +1,8 @@
-import {Bot} from "../model";
-import {Adventure} from "../model/Adventure";
-import {reaction} from "mobx";
 import {obstacle} from "../model/board";
 import {AdventureDescription, adventureFactory, Coordinate} from "./index";
-import {playAggressive} from "./BotBehaviour";
-import {createUnitDefinition, UnitImpl} from "../model/UnitImpl";
+import {ZergBot} from "./BotBehaviour";
+import {UnitImpl} from "../model/UnitImpl";
+import {BullyDefinition, ThugDefinition} from "./Gangsters";
 
 const thugTownTerrain = [
     {
@@ -24,43 +22,17 @@ const thugTownStartLocations: Coordinate[] = [
     [1,0],[0,1],[0,0]
 ];
 
-const bullyDef =  createUnitDefinition({
-    baseHealth: 11,
-    initiativeDelay: 90,
-    abilities: [],
-});
-
-const thugDef = createUnitDefinition({
-   baseHealth: 9
-});
-
 export const createThugTown = adventureFactory(
     5,4,
     thugTownTerrain,
     thugTownStartLocations,
     adventure => {
-        const thugs = new ThugTownBot("thugs");
+        const thugs = new ZergBot("thugs");
         adventure.players.push(thugs);
-        adventure.board.getCell(4,1).unit  = thugs.addUnit(new UnitImpl("bully", bullyDef));
-        adventure.board.getCell(3,2).unit = thugs.addUnit(new UnitImpl("thug", thugDef));
+        adventure.board.getCell(4,1).unit  = thugs.addUnit(new UnitImpl("bully", BullyDefinition));
+        adventure.board.getCell(3,2).unit = thugs.addUnit(new UnitImpl("thug", ThugDefinition));
     }
 );
-
-class ThugTownBot extends Bot {
-
-    boot(adventure: Adventure): void {
-        this.shutdownHandler.push(
-            reaction(
-                () => adventure.activeUnit,
-                playAggressive(
-                    adventure,
-                    unit => unit.player === this,
-                    unit => unit.player !== this && unit.isCombatReady
-                )
-            )
-        );
-    }
-}
 
 export const ThugTownDescription: Omit<AdventureDescription, "id"> = {
     name: "Thug Town",

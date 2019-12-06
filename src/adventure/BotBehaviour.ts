@@ -2,6 +2,8 @@ import {Adventure} from "../model/Adventure";
 import {NotNull} from "../helpers";
 import {IngameUnit, isPlaced, PlacedUnit} from "../model/IngameUnit";
 import {computePath, Path} from "../service/pathfinder";
+import {Bot} from "../model";
+import {reaction} from "mobx";
 
 export function playAggressive(
     adventure: Adventure,
@@ -80,4 +82,20 @@ export function playAggressive(
 
         adventure.endTurn();
     };
+}
+
+export class ZergBot extends Bot {
+
+    boot(adventure: Adventure): void {
+        this.shutdownHandler.push(
+            reaction(
+                () => adventure.activeUnit,
+                playAggressive(
+                    adventure,
+                    unit => unit.player === this,
+                    unit => unit.player !== this && unit.isCombatReady
+                )
+            )
+        );
+    }
 }
