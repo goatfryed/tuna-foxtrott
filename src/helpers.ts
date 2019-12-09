@@ -23,3 +23,5 @@ export function useConst<T>(obj: T): T {
 export function definedValue<T>(val: T): val is Exclude<T, undefined|null> {
     return val !== null && val !== undefined;
 }
+
+export type Consumer<T> = (arg: T) => void;
