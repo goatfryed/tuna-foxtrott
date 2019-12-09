@@ -1,5 +1,5 @@
 import {Adventure} from "../model/Adventure";
-import {action, observable} from "mobx";
+import {action, computed, observable} from "mobx";
 import {definedValue, NotNull} from "../helpers";
 import {Cell} from "../model/board";
 import {IngameUnit} from "../model/IngameUnit";
@@ -8,7 +8,7 @@ import {StandardMovement} from "./StandardMovement";
 import {Path} from "../service/pathfinder";
 import {
     AbilityUse,
-    Action,
+    Action, IngameAbility,
     InteractionRequest,
     isAbilityRequest,
     isCellInteractionRequest,
@@ -35,6 +35,17 @@ export class ActionManager {
         return this.interactionRequest.ability.apply(this.interactionRequest.cell);
     }
 
+    @computed
+    get abilities(): IngameAbility[] {
+        const unit = this.adventure.activeUnit;
+        if (!unit?.abilities) return [];
+
+        return unit.abilities
+            .map(ability => ability.apply({adventure: this.adventure}))
+            .filter(definedValue)
+        ;
+    }
+
     get expectedAbilityIntends(): AbilityUse[] {
         const interactionRequest = this.interactionRequest;
         if (interactionRequest === null) return [];
@@ -46,12 +57,7 @@ export class ActionManager {
             assertNever(interactionRequest, "interaction request of unexpected mix type");
         }
 
-        const unit = this.adventure.activeUnit;
-        if (unit?.abilities === undefined) return [];
-
-        return unit.abilities
-            .map(ability => ability.apply({adventure: this.adventure}))
-            .filter(definedValue)
+        return this.abilities
             .map(ability => ability.apply(interactionRequest.cell))
             .filter(definedValue)
         ;
