@@ -1,12 +1,13 @@
 import {AdventureAware} from "../model/Adventure";
 import {useObserver} from "mobx-react-lite";
-import {AdventureProvider, useAppContext} from "../state";
+import {AdventureProvider, useAdventure, useAppContext} from "../state";
 import {Board} from "./Board";
 import React, {useEffect} from "react";
 import {HeroAware, HeroDetail} from "./Hero";
 import {Observer} from "mobx-react";
 import {Modal} from "./Modal";
 import styled from "styled-components";
+import {button} from "@storybook/addon-knobs";
 
 type AdventureViewProps = AdventureAware & {
     onSurrender: () => any,
@@ -38,7 +39,6 @@ export function AdventureView({
                 {adventure.isLostBy(appContext.user) && <DefeatAnnouncment onClose={onDefeat}/>}
             </>}</Observer>
             <InteractionsWhenUseful adventure={adventure}/>
-            <hr/>
             <div className="columns">
                 <div className="column">
                     <Observer>{() => (<div className="buttons">
@@ -56,10 +56,17 @@ export function AdventureView({
                 </div>
             </div>
             <hr/>
+            <ActionBar />
+            <hr/>
             <Board isIsometric={isIsometric}/>
             <hr/>
         </div>
     </AdventureProvider>
+}
+
+function ActionBar(): React.ReactNodeArray {
+    const adventure = useAdventure();
+    return useObserver(() => adventure.actionManager.abilities.map(ability => <button key={ability.type.name} className="button">{ability.type.name}</button>))
 }
 
 function LocalHeroDetail({hero, adventure}: HeroAware & AdventureAware) {
