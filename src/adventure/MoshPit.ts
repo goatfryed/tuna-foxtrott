@@ -30,8 +30,10 @@ export const createMoshPit = adventureFactory(
         adventure.players.push(thugs);
         adventure.board.getCell(6,2).unit  = thugs.addUnit(new UnitImpl("bully", BullyDefinition));
         adventure.board.getCell(6,3).unit  = thugs.addUnit(new UnitImpl("bully", BullyDefinition));
+        adventure.board.getCell(5,0).unit = thugs.addUnit(new UnitImpl("thug", ThugDefinition));
         adventure.board.getCell(7,1).unit = thugs.addUnit(new UnitImpl("thug", ThugDefinition));
         adventure.board.getCell(7,4).unit = thugs.addUnit(new UnitImpl("thug", ThugDefinition));
+        adventure.board.getCell(5,5).unit = thugs.addUnit(new UnitImpl("thug", ThugDefinition));
     }
 );
 

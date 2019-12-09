@@ -6,7 +6,15 @@ import {IngameUnit} from "../model/IngameUnit";
 import {StandardAttack} from "./StandardAttack";
 import {StandardMovement} from "./StandardMovement";
 import {Path} from "../service/pathfinder";
-import {AbilityUse, Action, InteractionRequest} from "./index";
+import {
+    AbilityUse,
+    Action,
+    InteractionRequest,
+    isAbilityRequest,
+    isCellInteractionRequest,
+    isCompleteIntend
+} from "./index";
+import {assertNever} from "../Utility";
 
 const standardActions = [
     StandardAttack,
@@ -19,9 +27,24 @@ export class ActionManager {
 
     @observable interactionRequest: InteractionRequest|null = null;
 
-    get interactionIntents(): AbilityUse[] {
+    get interactionIntend() {
+        if (this.interactionRequest === null || !isCompleteIntend(this.interactionRequest)) {
+            return null;
+        }
+
+        return this.interactionRequest.ability.apply(this.interactionRequest.cell);
+    }
+
+    get expectedAbilityIntends(): AbilityUse[] {
         const interactionRequest = this.interactionRequest;
         if (interactionRequest === null) return [];
+
+        if (isAbilityRequest(interactionRequest)) {
+            return [];
+        }
+        if (!isCellInteractionRequest(interactionRequest)) {
+            assertNever(interactionRequest, "interaction request of unexpected mix type");
+        }
 
         const unit = this.adventure.activeUnit;
         if (unit?.abilities === undefined) return [];

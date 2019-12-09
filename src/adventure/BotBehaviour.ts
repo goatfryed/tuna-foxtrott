@@ -23,7 +23,7 @@ export function playAggressive(
             [0]
         ;
 
-        if (nextLocation === undefined) {
+        if (!nextLocation) {
             return;
         }
 

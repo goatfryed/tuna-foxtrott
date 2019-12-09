@@ -1,7 +1,7 @@
 import {AbilityDeclaration, AbilityUse, BoundAbility, contextAgnostic} from "../actions";
 import {PlacedUnit} from "../model/IngameUnit";
 import {Cell} from "../model/board";
-import {canStandardAttack} from "../actions/StandardAttack";
+import {isMeleeTarget, isRangedTarget} from "../actions/StandardAttack";
 
 const HeavyStrikeType = {
     name: "Heavy strike",
@@ -14,7 +14,7 @@ export const HeavyStrike: AbilityDeclaration = {
     apply: (unit: PlacedUnit): BoundAbility | null => contextAgnostic({
         type: HeavyStrikeType,
         apply(cell: Cell): AbilityUse | null {
-            if (!canStandardAttack(unit, cell)) {
+            if (!isMeleeTarget(unit, cell)) {
                 return null;
             }
 
@@ -29,3 +29,36 @@ export const HeavyStrike: AbilityDeclaration = {
         }
     })
 } as const;
+
+const DeadlyShotType = {
+    name: "Deadly shot",
+    range: 4,
+    executeRange: 8,
+    isAttack: true,
+};
+
+export const DeadlyShot: AbilityDeclaration = {
+    type: DeadlyShotType,
+    apply: (unit: PlacedUnit): BoundAbility | null => contextAgnostic({
+        type: DeadlyShotType,
+        apply(cell: Cell): AbilityUse | null {
+            if (!isRangedTarget(unit, cell, DeadlyShotType.range)) {
+                return null;
+            }
+
+            if (cell.unit.stamina > DeadlyShotType.executeRange) {
+                return null;
+            }
+
+            return {
+                type: DeadlyShotType,
+                apply(): void {
+                    cell.unit.dealHealthDamage(cell.unit.currentHealth);
+                    unit.updateStamina(-3);
+                    unit.mainActionUsed = true;
+                }
+            }
+        }
+    })
+
+};

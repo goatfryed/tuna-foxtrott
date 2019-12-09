@@ -15,16 +15,32 @@ export const StandardAttack: AbilityDeclaration = {
     })
 };
 
-export function canStandardAttack(actor: PlacedUnit, target: Cell): target is Attackable {
+export function isStandardTarget(unit: PlacedUnit, target: Cell): target is Attackable {
     return target.unit !== null
-        && !actor.mainActionUsed
-        && actor.cell.isNeighbor(target)
-        && actor.player !== target.unit.player
+        && !unit.mainActionUsed
+        && unit.cell.isNeighbor(target)
+        && unit.player !== target.unit.player
         && target.unit.isCombatReady
 }
 
+function isMelee(unit: PlacedUnit, target: Cell) {
+    return unit.cell.isNeighbor(target)
+}
+
+function isInRange(unit: PlacedUnit, target: Cell, range: number) {
+    return unit.cell.getManhattenDistance(target) <= range;
+
+}
+export function isMeleeTarget(unit: PlacedUnit, target: Cell): target is Attackable {
+    return isStandardTarget(unit, target) && isMelee(unit, target);
+
+}
+export function isRangedTarget(unit: PlacedUnit, target: Cell, range: number): target is Attackable {
+    return isStandardTarget(unit, target) && isInRange(unit, target, range);
+}
+
 function prepareStandardAttack(unit: PlacedUnit, cell: Cell): AbilityUse | null {
-    if (!canStandardAttack(unit, cell)) {
+    if (!isMeleeTarget(unit, cell)) {
         return null;
     }
     return {

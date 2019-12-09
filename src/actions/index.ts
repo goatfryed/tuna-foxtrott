@@ -43,8 +43,28 @@ export interface Action {
     type: AbilityType;
 }
 
-export interface InteractionRequest {
+export interface CellInteractionRequest {
     cell: Cell,
+}
+
+export interface AbilityRequest {
+    ability: IngameAbility,
+}
+
+export type InteractionRequest = AbilityRequest | CellInteractionRequest;
+type InteractionIntend = AbilityRequest & CellInteractionRequest;
+
+export function isCompleteIntend(request: InteractionRequest): request is InteractionIntend {
+    return isCellInteractionRequest(request)
+        && isAbilityRequest(request)
+    ;
+}
+
+export function isCellInteractionRequest(request: InteractionRequest): request is CellInteractionRequest {
+    return "cell" in request;
+}
+export function isAbilityRequest(request: InteractionRequest): request is AbilityRequest {
+    return "ability" in request;
 }
 
 export function contextAgnostic(ability: IngameAbility) {

@@ -123,7 +123,7 @@ function InteractionSelection({adventure}:AdventureAware) {
         if (adventure.actionManager.interactionRequest === null) {
             return null;
         }
-        const intents = adventure.actionManager.interactionIntents;
+        const intents = adventure.actionManager.expectedAbilityIntends;
 
         return <Modal onBackground={dismiss}>
             <ModalContent>
@@ -142,7 +142,7 @@ function InteractionsWhenUseful({adventure}: AdventureAware) {
         if (adventure.actionManager.interactionRequest === null) {
             return null;
         }
-        const intents = adventure.actionManager.interactionIntents;
+        const intents = adventure.actionManager.expectedAbilityIntends;
 
         if (intents.length === 0) {
             return <InteractionCleanup adventure={adventure} />

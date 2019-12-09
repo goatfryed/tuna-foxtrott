@@ -155,13 +155,15 @@ export function computePath(
     }
 
     const steps: Array<PathItem> = [];
-    let cost = 0;
-
     while (backtrackItem !== null) {
-        steps.push(backtrackItem);
-        cost += backtrackItem.cost;
+        steps.push({...backtrackItem});
         backtrackItem = backtrackItem.predecessor;
     }
     steps.reverse();
+    let cost = 0;
+    for (let step of steps) {
+        cost += step.cost;
+        step.cost = cost;
+    }
     return {steps, cost};
 }

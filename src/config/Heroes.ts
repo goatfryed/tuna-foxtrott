@@ -1,5 +1,5 @@
 import {UnitDefinition} from "../model/UnitImpl";
-import {HeavyStrike} from "./Attacks";
+import {DeadlyShot, HeavyStrike} from "./Attacks";
 import {AbilityDeclaration} from "../actions";
 
 export const HeroDefinitions = {
@@ -17,21 +17,27 @@ export const HeroDefinitions = {
         initiativeDelay: 100,
         baseSpeed: 2,
         staminaRegeneration: 1,
-        abilities: [] as AbilityDeclaration[]
+        abilities: [
+            DeadlyShot
+        ] as AbilityDeclaration[]
     },
     MACEL: {
         baseHealth: 12,
         initiativeDelay: 105,
         baseSpeed: 3,
         staminaRegeneration: 1,
-        abilities: [] as AbilityDeclaration[]
+        abilities: [
+            HeavyStrike
+        ] as AbilityDeclaration[]
     },
     CLUBBER: {
         baseHealth: 8,
         initiativeDelay: 80,
         baseSpeed: 4,
         staminaRegeneration: 1,
-        abilities: [] as AbilityDeclaration[]
+        abilities: [
+            HeavyStrike
+        ] as AbilityDeclaration[]
     },
 } as const;
 
