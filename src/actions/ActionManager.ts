@@ -23,9 +23,11 @@ const standardActions = [
 
 export class ActionManager {
 
-    constructor(protected adventure: Adventure) {}
+    constructor(protected adventure: Adventure) {
+    }
 
-    @observable interactionRequest: InteractionRequest|null = null;
+    @observable interactionRequest: InteractionRequest | null = null;
+    @observable.ref abilityIntend: IngameAbility|null = null;
 
     get interactionIntend() {
         if (this.interactionRequest === null || !isCompleteIntend(this.interactionRequest)) {

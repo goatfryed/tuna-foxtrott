@@ -8,6 +8,8 @@ import {Observer} from "mobx-react";
 import {Modal} from "./Modal";
 import styled from "styled-components";
 import {button} from "@storybook/addon-knobs";
+import {IngameAbility} from "../actions";
+import classNames from "classnames";
 
 type AdventureViewProps = AdventureAware & {
     onSurrender: () => any,
@@ -64,9 +66,25 @@ export function AdventureView({
     </AdventureProvider>
 }
 
+function ActionBarButton(props: { ability: IngameAbility}) {
+    const adventure = useAdventure();
+    const onClick = () => adventure.actionManager.abilityIntend = props.ability;
+
+    const {
+        isActive
+    } = useObserver(() => ({
+        isActive: adventure.actionManager.abilityIntend == props.ability
+    }));
+    const className = classNames("button", {"is-primary":isActive});
+
+    return <button className={className} onClick={onClick}>{props.ability.type.name}</button>;
+}
+
 function ActionBar(): React.ReactNodeArray {
     const adventure = useAdventure();
-    return useObserver(() => adventure.actionManager.abilities.map(ability => <button key={ability.type.name} className="button">{ability.type.name}</button>))
+    return useObserver(() => adventure.actionManager.abilities.map(ability => <ActionBarButton key={ability.type.name}
+                                                                                               ability={ability}
+    />))
 }
 
 function LocalHeroDetail({hero, adventure}: HeroAware & AdventureAware) {
