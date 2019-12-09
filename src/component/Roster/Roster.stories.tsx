@@ -38,6 +38,7 @@ export function hero() {
         hero={{
             id: 0,
             name: "Dave",
+            staminaRegeneration: 1,
             baseHealth: 3,
             baseSpeed: 3,
             initiativeDelay: 100,
