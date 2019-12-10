@@ -9,7 +9,7 @@ export interface AbilityType {
     name: string,
     isMove?: boolean,
     isAttack?: boolean,
-
+    isStandard?: boolean,
 }
 
 export interface AbilityUse {

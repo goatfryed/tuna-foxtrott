@@ -40,7 +40,7 @@ export function AdventureView({
                 {adventure.isWonBy(appContext.user) && <VictoryAnnouncment onClose={onVictory}/>}
                 {adventure.isLostBy(appContext.user) && <DefeatAnnouncment onClose={onDefeat}/>}
             </>}</Observer>
-            <InteractionsWhenUseful adventure={adventure}/>
+            <ActionCompletion adventure={adventure}/>
             <div className="columns">
                 <div className="column">
                     <Observer>{() => (<div className="buttons">
@@ -85,9 +85,14 @@ function ActionBarButton(props: { ability: IngameAbility}) {
 
 function ActionBar(): React.ReactNodeArray {
     const adventure = useAdventure();
-    return useObserver(() => adventure.actionManager.abilities.map(ability => <ActionBarButton key={ability.type.name}
-                                                                                               ability={ability}
-    />))
+    return useObserver(() => adventure.actionManager
+        .abilities
+        .filter(ability => !ability.type.isStandard)
+        .map(ability => <ActionBarButton key={ability.type.name}
+                ability={ability}
+            />
+        )
+    );
 }
 
 function LocalHeroDetail({hero, adventure}: HeroAware & AdventureAware) {
@@ -165,7 +170,7 @@ function InteractionSelection({adventure}:AdventureAware) {
     })
 }
 
-function InteractionsWhenUseful({adventure}: AdventureAware) {
+function ActionCompletion({adventure}: AdventureAware) {
     return useObserver(() => {
         if (adventure.actionManager.interactionRequest === null) {
             return null;

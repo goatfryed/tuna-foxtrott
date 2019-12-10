@@ -3,8 +3,6 @@ import {action, computed, observable} from "mobx";
 import {definedValue, NotNull} from "../helpers";
 import {Cell} from "../model/board";
 import {IngameUnit} from "../model/IngameUnit";
-import {StandardAttack} from "./StandardAttack";
-import {StandardMovement} from "./StandardMovement";
 import {Path} from "../service/pathfinder";
 import {
     AbilityUse,
@@ -15,11 +13,6 @@ import {
     isCompleteIntend
 } from "./index";
 import {assertNever} from "../Utility";
-
-const standardActions = [
-    StandardAttack,
-    StandardMovement,
-];
 
 export class ActionManager {
 
@@ -87,8 +80,9 @@ export class ActionManager {
 
         const context = {adventure: this.adventure};
 
-        return standardActions
-            .map(action => action.apply(activeUnit)?.apply(context)?.apply(cell))
+        return activeUnit.abilities
+            .filter(ability => ability.type.isStandard)
+            .map(action => action.apply(context)?.apply(cell))
             .filter(definedValue)
             [0] || null
         ;

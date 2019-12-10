@@ -5,6 +5,7 @@ import {AbilityDeclaration, AbilityUse, Attackable, contextAgnostic} from "./ind
 const StandardAttackType = {
     name: "attack",
     isAttack: true,
+    isStandard: true,
 } as const;
 
 export const StandardAttack: AbilityDeclaration = {

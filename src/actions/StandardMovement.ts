@@ -6,6 +6,7 @@ import {computePath} from "../service/pathfinder";
 export const StandardMoveType = {
     name: "move",
     isMove: true,
+    isStandard: true,
 } as const;
 
 export const StandardMovement: AbilityDeclaration = {
