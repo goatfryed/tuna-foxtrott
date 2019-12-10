@@ -18,7 +18,6 @@ export const StandardAttack: AbilityDeclaration = {
 export function isStandardTarget(unit: PlacedUnit, target: Cell): target is Attackable {
     return target.unit !== null
         && !unit.mainActionUsed
-        && unit.cell.isNeighbor(target)
         && unit.player !== target.unit.player
         && target.unit.isCombatReady
 }
