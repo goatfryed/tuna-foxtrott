@@ -79,7 +79,7 @@ export function CellPresenter({cell}: CellProp) {
     const onRightClick = (event: React.MouseEvent) => {
         event.preventDefault();
 
-        actionManager.interactionRequest = {cell};
+        actionManager.cellIntend = cell;
     };
 
     return <CellView

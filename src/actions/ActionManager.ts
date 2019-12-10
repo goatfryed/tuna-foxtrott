@@ -4,31 +4,20 @@ import {definedValue, NotNull} from "../helpers";
 import {Cell} from "../model/board";
 import {IngameUnit} from "../model/IngameUnit";
 import {Path} from "../service/pathfinder";
-import {
-    AbilityUse,
-    IngameAbility,
-    InteractionRequest,
-    isAbilityRequest,
-    isCellInteractionRequest,
-    isCompleteIntend
-} from "./index";
-import {assertNever} from "../Utility";
+import {AbilityContext, AbilityUse, IngameAbility} from "./index";
 
 export class ActionManager {
 
+    readonly context: AbilityContext;
+
     constructor(protected adventure: Adventure) {
-    }
-
-    @observable interactionRequest: InteractionRequest | null = null;
-    @observable.ref abilityIntend: IngameAbility|null = null;
-
-    get interactionIntend() {
-        if (this.interactionRequest === null || !isCompleteIntend(this.interactionRequest)) {
-            return null;
+        this.context = {
+            adventure,
         }
-
-        return this.interactionRequest.ability.apply(this.interactionRequest.cell);
     }
+
+    @observable.ref cellIntend: Cell|null = null;
+    @observable.ref abilityIntend: IngameAbility|null = null;
 
     @computed
     get abilities(): IngameAbility[] {
@@ -41,19 +30,18 @@ export class ActionManager {
         ;
     }
 
-    get expectedAbilityIntends(): AbilityUse[] {
-        const interactionRequest = this.interactionRequest;
-        if (interactionRequest === null) return [];
+    get suggestedAbilities(): AbilityUse[] {
 
-        if (isAbilityRequest(interactionRequest)) {
-            return [];
-        }
-        if (!isCellInteractionRequest(interactionRequest)) {
-            assertNever(interactionRequest, "interaction request of unexpected mix type");
-        }
+        if (!this.cellIntend) return [];
+        const cellIntend = this.cellIntend;
 
-        return this.abilities
-            .map(ability => ability.apply(interactionRequest.cell))
+        return (this.abilityIntend !== null ?
+                [this.abilityIntend]
+                : (this.adventure.activeUnit?.abilities ?? [])
+                    .map(ability => ability.apply(this.context))
+                    .filter(definedValue)
+            )
+            .map(ability => ability.apply(cellIntend))
             .filter(definedValue)
         ;
     }
@@ -78,11 +66,9 @@ export class ActionManager {
             return null;
         }
 
-        const context = {adventure: this.adventure};
-
         return activeUnit.abilities
             .filter(ability => ability.type.isStandard)
-            .map(action => action.apply(context)?.apply(cell))
+            .map(action => action.apply(this.context)?.apply(cell))
             .filter(definedValue)
             [0] || null
         ;

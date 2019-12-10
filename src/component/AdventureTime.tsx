@@ -8,8 +8,11 @@ import {Observer} from "mobx-react";
 import {Modal} from "./Modal";
 import styled from "styled-components";
 import {button} from "@storybook/addon-knobs";
-import {IngameAbility} from "../actions";
+import {AbilityUse, IngameAbility} from "../actions";
 import classNames from "classnames";
+import {Runnable} from "../Utility";
+import {action} from "mobx";
+import {Consumer} from "../helpers";
 
 type AdventureViewProps = AdventureAware & {
     onSurrender: () => any,
@@ -143,54 +146,67 @@ const Announcement = ({announcment, interaction}: ModalProps) => {
     </Modal>
 };
 
-/**
- * @TODO: this render component has an side effect to reset the interactionRequest if it's not valid
- * @param adventure
- * @constructor
- */
-function InteractionSelection({adventure}:AdventureAware) {
+function ActionSelection(props: {
+    actions: AbilityUse[],
+    onDismiss: Runnable,
+    onSelect: Consumer<AbilityUse>
+}) {
 
-    const dismiss = () => adventure.actionManager.interactionRequest = null;
-
-    return useObserver(() => {
-        if (adventure.actionManager.interactionRequest === null) {
-            return null;
-        }
-        const intents = adventure.actionManager.expectedAbilityIntends;
-
-        return <Modal onBackground={dismiss}>
-            <ModalContent>
-                <InteractionSelectionContainer>
-                    {intents.map(
-                        intent => <div key={intent.type.name}><button onClick={intent.apply} className="button">{intent.type.name}</button></div>
-                    )}
-                </InteractionSelectionContainer>
-            </ModalContent>
-        </Modal>
-    })
+    return <Modal onBackground={props.onDismiss}>
+        <ModalContent>
+            <InteractionSelectionContainer>
+                {props.actions.map(
+                    action => <div key={action.type.name}>
+                        <button onClick={() => props.onSelect(action)}
+                                className="button"
+                        >{action.type.name}</button>
+                    </div>
+                )}
+            </InteractionSelectionContainer>
+        </ModalContent>
+    </Modal>
 }
 
 function ActionCompletion({adventure}: AdventureAware) {
     return useObserver(() => {
-        if (adventure.actionManager.interactionRequest === null) {
+        if (!adventure.actionManager.cellIntend) {
             return null;
         }
-        const intents = adventure.actionManager.expectedAbilityIntends;
+        const am = adventure.actionManager;
+        const cleanupIntend = () => am.cellIntend = null;
+        const runAction = action((action: AbilityUse) => {
+            cleanupIntend();
+            action.apply();
+        });
 
-        if (intents.length === 0) {
-            return <InteractionCleanup adventure={adventure} />
+        const suggestedAbilities = adventure.actionManager.suggestedAbilities;
+
+        if (false && suggestedAbilities.length === 1) {
+            const ability = suggestedAbilities[0];
+            if (confirm("do " + ability.type.name)) {
+                ability.apply();
+            }
+            return null;
         }
 
-        return <InteractionSelection adventure={adventure}/>
+        if (suggestedAbilities.length === 0) {
+            return <IntentionCleanup adventure={adventure} message="no action available"/>
+        }
+
+        return <ActionSelection
+            actions={suggestedAbilities}
+            onDismiss={cleanupIntend}
+            onSelect={runAction}
+        />
     });
 }
 
-function InteractionCleanup({message, adventure}: AdventureAware & {message?: string}) {
+function IntentionCleanup({message, adventure}: AdventureAware & {message?: string}) {
     useEffect(() => {
         if (message) {
             alert(message);
         }
-        adventure.actionManager.interactionRequest = null;
+        adventure.actionManager.cellIntend = null;
     });
     return null;
 }
