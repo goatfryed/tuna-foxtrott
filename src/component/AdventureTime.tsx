@@ -68,14 +68,17 @@ export function AdventureView({
 
 function ActionBarButton(props: { ability: IngameAbility}) {
     const adventure = useAdventure();
-    const onClick = () => adventure.actionManager.abilityIntend = props.ability;
-
     const {
-        isActive
+        isSelected
     } = useObserver(() => ({
-        isActive: adventure.actionManager.abilityIntend == props.ability
+        isSelected: adventure.actionManager.abilityIntend === props.ability
     }));
-    const className = classNames("button", {"is-primary":isActive});
+    const onClick = isSelected ?
+        () => adventure.actionManager.abilityIntend = null
+        : () => adventure.actionManager.abilityIntend = props.ability;
+
+
+    const className = classNames("button", {"is-primary":isSelected});
 
     return <button className={className} onClick={onClick}>{props.ability.type.name}</button>;
 }
