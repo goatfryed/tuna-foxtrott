@@ -138,7 +138,7 @@ export class Adventure {
             return;
         }
         if ("attackData" in action) {
-            action.attackData.target.dealHealthDamage(action.attackData.staminaDmg);
+            action.attackData.target.updateStamina(- action.attackData.staminaDmg);
             action.attackData.target.dealHealthDamage(action.attackData.healthDmg);
             action.actor.updateStamina(-action.attackData.staminaCost);
             action.actor.mainActionUsed = true;
