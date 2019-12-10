@@ -181,14 +181,6 @@ function ActionCompletion({adventure}: AdventureAware) {
 
         const suggestedAbilities = adventure.actionManager.suggestedAbilities;
 
-        if (false && suggestedAbilities.length === 1) {
-            const ability = suggestedAbilities[0];
-            if (confirm("do " + ability.type.name)) {
-                ability.apply();
-            }
-            return null;
-        }
-
         if (suggestedAbilities.length === 0) {
             return <IntentionCleanup adventure={adventure} message="no action available"/>
         }
