@@ -4,6 +4,7 @@ import {IngameUnit, isPlaced, PlacedUnit} from "../model/IngameUnit";
 import {computePath, Path} from "../service/pathfinder";
 import {Bot} from "../model";
 import {reaction} from "mobx";
+import {StandardMoveType} from "../actions/StandardMovement";
 
 export function playAggressive(
     adventure: Adventure,
@@ -33,7 +34,14 @@ export function playAggressive(
             cost: subSteps.reduce((prev, current) => prev + current.cost, 0)
         };
 
-        adventure.actionManager.doMoveAction(unit, subPath)();
+        adventure.apply({
+           type: StandardMoveType,
+           actor: unit,
+           moveData: {
+               target: nextLocation.cell,
+               path: subPath,
+           }
+        });
     }
 
     function mayAttack(unit: PlacedUnit, target: PlacedUnit) {

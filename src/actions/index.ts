@@ -1,7 +1,8 @@
 import {Cell} from "../model/board";
 import {Adventure} from "../model/Adventure";
 import {NotNull} from "../helpers";
-import {PlacedUnit} from "../model/IngameUnit";
+import {IngameUnit, PlacedUnit} from "../model/IngameUnit";
+import {Path} from "../service/pathfinder";
 
 export * from './ActionManager';
 
@@ -12,14 +13,36 @@ export interface AbilityType {
     isStandard?: boolean,
 }
 
-export interface AbilityUse {
+export interface Action {
     type: AbilityType,
+}
+interface MigratingAction extends Action {
     apply(): void,
 }
 
+interface MoveData {
+    target: Cell,
+    path: Path,
+}
+export interface MoveAction extends Action {
+    actor: IngameUnit,
+    moveData: MoveData,
+}
+interface AttackData {
+    target: IngameUnit,
+    staminaCost: number,
+    healthDmg: number,
+    staminaDmg: number,
+}
+export interface AttackAction extends Action {
+    actor: IngameUnit,
+    attackData: AttackData,
+}
+export type DomainAction = MoveAction | AttackAction | MigratingAction;
+
 export interface IngameAbility {
     type: AbilityType,
-    apply(cell: Cell): AbilityUse | null
+    apply(cell: Cell): DomainAction | null
 }
 
 export interface BoundAbility {
@@ -37,30 +60,6 @@ export interface AbilityDeclaration<T extends PlacedUnit = PlacedUnit> {
 }
 
 export type Attackable = NotNull<Cell, "unit">
-
-export interface CellInteractionRequest {
-    cell: Cell,
-}
-
-export interface AbilityRequest {
-    ability: IngameAbility,
-}
-
-export type InteractionRequest = AbilityRequest | CellInteractionRequest;
-type InteractionIntend = AbilityRequest & CellInteractionRequest;
-
-export function isCompleteIntend(request: InteractionRequest): request is InteractionIntend {
-    return isCellInteractionRequest(request)
-        && isAbilityRequest(request)
-    ;
-}
-
-export function isCellInteractionRequest(request: InteractionRequest): request is CellInteractionRequest {
-    return "cell" in request;
-}
-export function isAbilityRequest(request: InteractionRequest): request is AbilityRequest {
-    return "ability" in request;
-}
 
 export function contextAgnostic(ability: IngameAbility) {
     return ({

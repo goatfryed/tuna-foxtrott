@@ -3,8 +3,7 @@ import {action, computed, observable} from "mobx";
 import {definedValue, NotNull} from "../helpers";
 import {Cell} from "../model/board";
 import {IngameUnit} from "../model/IngameUnit";
-import {Path} from "../service/pathfinder";
-import {AbilityContext, AbilityUse, IngameAbility} from "./index";
+import {AbilityContext, DomainAction, IngameAbility} from "./index";
 
 export class ActionManager {
 
@@ -30,7 +29,7 @@ export class ActionManager {
         ;
     }
 
-    get suggestedAbilities(): AbilityUse[] {
+    get suggestedAbilities(): DomainAction[] {
 
         if (!this.cellIntend) return [];
         const cellIntend = this.cellIntend;
@@ -46,7 +45,7 @@ export class ActionManager {
         ;
     }
 
-    getDefaultInteraction(cell: Cell): AbilityUse|null {
+    getDefaultInteraction(cell: Cell): DomainAction|null {
 
         if (this.abilityIntend) {
             return this.abilityIntend.apply(cell);
@@ -72,13 +71,6 @@ export class ActionManager {
             .filter(definedValue)
             [0] || null
         ;
-    }
-
-    doMoveAction(unit: IngameUnit, path: Path) {
-        return action(() => {
-            unit.cell = path.steps[path.steps.length - 1].cell;
-            unit.spentMovePoints(path.cost);
-        });
     }
 
     attackActionOrNull(unit: IngameUnit, target: IngameUnit) {

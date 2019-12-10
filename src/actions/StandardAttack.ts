@@ -1,6 +1,6 @@
 import {PlacedUnit} from "../model/IngameUnit";
 import {Cell} from "../model/board";
-import {AbilityDeclaration, AbilityUse, Attackable, contextAgnostic} from "./index";
+import {AbilityDeclaration, Attackable, AttackAction, contextAgnostic} from "./index";
 
 const StandardAttackType = {
     name: "attack",
@@ -39,7 +39,7 @@ export function isRangedTarget(unit: PlacedUnit, target: Cell, range: number): t
     return isStandardTarget(unit, target) && isInRange(unit, target, range);
 }
 
-function prepareStandardAttack(unit: PlacedUnit, cell: Cell): AbilityUse | null {
+function prepareStandardAttack(unit: PlacedUnit, cell: Cell): AttackAction | null {
     if (!isStandardTarget(unit, cell)) {
         return null;
     }
@@ -52,10 +52,12 @@ function prepareStandardAttack(unit: PlacedUnit, cell: Cell): AbilityUse | null 
 
     return {
         type: StandardAttackType,
-        apply: () => {
-            cell.unit.dealHealthDamage(3);
-            unit.updateStamina(-2);
-            unit.mainActionUsed = true;
+        actor: unit,
+        attackData: {
+            target: cell.unit,
+            staminaCost: 1,
+            healthDmg: 2,
+            staminaDmg: 1,
         }
     }
 }

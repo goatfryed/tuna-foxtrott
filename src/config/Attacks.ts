@@ -1,4 +1,4 @@
-import {AbilityDeclaration, AbilityUse, BoundAbility, contextAgnostic} from "../actions";
+import {AbilityDeclaration, DomainAction, BoundAbility, contextAgnostic} from "../actions";
 import {PlacedUnit} from "../model/IngameUnit";
 import {Cell} from "../model/board";
 import {isMeleeTarget, isRangedTarget} from "../actions/StandardAttack";
@@ -13,7 +13,7 @@ export const HeavyStrike: AbilityDeclaration = {
     type: HeavyStrikeType,
     apply: (unit: PlacedUnit): BoundAbility | null => contextAgnostic({
         type: HeavyStrikeType,
-        apply(cell: Cell): AbilityUse | null {
+        apply(cell: Cell): DomainAction | null {
             if (!isMeleeTarget(unit, cell)) {
                 return null;
             }
@@ -41,7 +41,7 @@ export const DeadlyShot: AbilityDeclaration = {
     type: DeadlyShotType,
     apply: (unit: PlacedUnit): BoundAbility | null => contextAgnostic({
         type: DeadlyShotType,
-        apply(cell: Cell): AbilityUse | null {
+        apply(cell: Cell): DomainAction | null {
             if (!isRangedTarget(unit, cell, DeadlyShotType.range)) {
                 return null;
             }

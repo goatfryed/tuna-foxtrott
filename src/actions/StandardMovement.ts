@@ -1,6 +1,6 @@
 import {PlacedUnit} from "../model/IngameUnit";
 import {Cell} from "../model/board";
-import {AbilityContext, AbilityDeclaration, AbilityUse} from "./index";
+import {AbilityContext, AbilityDeclaration, DomainAction} from "./index";
 import {computePath} from "../service/pathfinder";
 
 export const StandardMoveType = {
@@ -15,12 +15,12 @@ export const StandardMovement: AbilityDeclaration = {
         type: StandardMoveType,
         apply: context => ({
             type: StandardMoveType,
-            apply: (cell: Cell): AbilityUse | null => prepareStandardMove(unit, cell, context)
+            apply: (cell: Cell): DomainAction | null => prepareStandardMove(unit, cell, context)
         })
     })
 };
 
-function prepareStandardMove(unit: PlacedUnit, cell: Cell, context: AbilityContext): AbilityUse | null {
+function prepareStandardMove(unit: PlacedUnit, cell: Cell, context: AbilityContext): DomainAction | null {
     // can reach?
     if (cell.unit !== null) {
         return null;
@@ -32,10 +32,10 @@ function prepareStandardMove(unit: PlacedUnit, cell: Cell, context: AbilityConte
 
     return {
         type: StandardMoveType,
-        apply: () => {
-            // @TODO why is cell assumed const or readonly in PlacedUnit?
-            unit.cell = cell;
-            unit.spentMovePoints(path.cost);
+        actor: unit,
+        moveData: {
+            target: cell,
+            path,
         }
     }
 }

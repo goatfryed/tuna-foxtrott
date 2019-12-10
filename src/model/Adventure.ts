@@ -1,6 +1,6 @@
 import {Bot, Player} from "./index";
-import {action, computed, observable, reaction} from "mobx";
-import {ActionManager} from "../actions";
+import {action, autorun, computed, observable, reaction} from "mobx";
+import {ActionManager, DomainAction} from "../actions";
 import {Board} from "./board";
 import {IngameUnit, isPlaced, PlacedUnit} from "./IngameUnit";
 
@@ -11,7 +11,6 @@ export interface AdventureAware {
 export class Adventure {
 
     @observable name: string = "test";
-    @observable heroes: IngameUnit[] = [];
     @observable actionPhase = false;
 
     readonly players: Player[] = [];
@@ -29,11 +28,15 @@ export class Adventure {
 
     @computed
     get turnOrder(): PlacedUnit[] {
-        return this.players.flatMap(p => p.units)
+        return this.units
             .filter(isPlaced)
             .filter(u => u.isCombatReady)
             .sort( Adventure.sortForTurnOrder)
         ;
+    }
+
+    get units(): IngameUnit[] {
+        return this.players.flatMap(p => p.units)
     }
 
     private static sortForTurnOrder(a: IngameUnit, b: IngameUnit) {
@@ -81,6 +84,14 @@ export class Adventure {
             this.onUnitTurnStart
         );
 
+        autorun(
+            () => {
+                this.units
+                    .filter(u => !u.isAlive)
+                    .forEach(u => u.cell = null)
+            }
+        );
+
         setTimeout(() => this.actionPhase = true);
     }
 
@@ -120,4 +131,20 @@ export class Adventure {
         return player.units.some(u => u.isCombatReady);
     }
 
+    @action
+    apply(action: DomainAction) {
+        if ("apply" in action) {
+            action.apply();
+            return;
+        }
+        if ("attackData" in action) {
+            action.attackData.target.dealHealthDamage(action.attackData.healthDmg);
+            action.actor.updateStamina(-action.attackData.staminaCost);
+            action.actor.mainActionUsed = true;
+        }
+        if ("moveData" in action) {
+            action.actor.cell = action.moveData.target;
+            action.actor.spentMovePoints(action.moveData.path.cost);
+        }
+    }
 }

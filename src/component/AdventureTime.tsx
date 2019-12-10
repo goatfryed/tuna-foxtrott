@@ -8,7 +8,7 @@ import {Observer} from "mobx-react";
 import {Modal} from "./Modal";
 import styled from "styled-components";
 import {button} from "@storybook/addon-knobs";
-import {AbilityUse, IngameAbility} from "../actions";
+import {DomainAction, IngameAbility} from "../actions";
 import classNames from "classnames";
 import {Runnable} from "../Utility";
 import {action} from "mobx";
@@ -147,9 +147,9 @@ const Announcement = ({announcment, interaction}: ModalProps) => {
 };
 
 function ActionSelection(props: {
-    actions: AbilityUse[],
+    actions: DomainAction[],
     onDismiss: Runnable,
-    onSelect: Consumer<AbilityUse>
+    onSelect: Consumer<DomainAction>
 }) {
 
     return <Modal onBackground={props.onDismiss}>
@@ -174,9 +174,9 @@ function ActionCompletion({adventure}: AdventureAware) {
         }
         const am = adventure.actionManager;
         const cleanupIntend = () => am.cellIntend = null;
-        const runAction = action((action: AbilityUse) => {
+        const runAction = action((action: DomainAction) => {
             cleanupIntend();
-            action.apply();
+            adventure.apply(action);
         });
 
         const suggestedAbilities = adventure.actionManager.suggestedAbilities;

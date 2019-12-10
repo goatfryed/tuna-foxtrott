@@ -7,13 +7,13 @@ import classNames from "classnames";
 import {Cell, OBSTACLE} from "../model/board";
 import {IngameUnit} from "../model/IngameUnit";
 import styled from "styled-components";
-import {AbilityUse} from "../actions";
+import {DomainAction} from "../actions";
 
 interface CellProp {
     cell: Cell,
 }
 
-function useInteractionStyle(cell: Cell, adventure: Adventure, appContext: AppContext, action: AbilityUse|null) {
+function useInteractionStyle(cell: Cell, adventure: Adventure, appContext: AppContext, action: DomainAction|null) {
 
     if (adventure.activeUnit && adventure.activeUnit === cell.unit) {
         return "isSelected";
@@ -69,7 +69,7 @@ export function CellPresenter({cell}: CellProp) {
                     if ((event.nativeEvent as any).__keyboardWorkaround === true) {
                         return;
                     }
-                    defaultAction.apply()
+                    adventure.apply(defaultAction);
                 }
             }
         },
