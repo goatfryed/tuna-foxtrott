@@ -9,7 +9,8 @@
     "build-storybook": "build-storybook",
     "type-check": "tsc --noEmit",
     "test": "jest",
-    "postinstall": "rm -rf node_modules/@types/react-native"
+    "postinstall": "rm -rf node_modules/@types/react-native",
+    "postupdate": "npm run postinstall"
   },
   "keywords": [],
   "author": "Omar <goatfryed> Sood",
