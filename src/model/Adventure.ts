@@ -3,6 +3,7 @@ import {action, autorun, computed, observable, reaction} from "mobx";
 import {ActionManager, DomainAction} from "../actions";
 import {Board} from "./board";
 import {IngameUnit, isPlaced, PlacedUnit} from "./IngameUnit";
+import {Immutable} from "../helpers";
 
 export interface AdventureAware {
     adventure: Adventure
@@ -12,6 +13,8 @@ export class Adventure {
 
     @observable name: string = "test";
     @observable actionPhase = false;
+    @observable.ref actionLog: Immutable<{id: number, action: DomainAction}>[] = [];
+    private nextLogId = 0;
 
     readonly players: Player[] = [];
     readonly board: Board;
@@ -133,6 +136,15 @@ export class Adventure {
 
     @action
     apply(action: DomainAction) {
+        const nextEntry = {
+            id: this.nextLogId++,
+            action,
+        };
+        this.actionLog = [...this.actionLog, nextEntry];
+        Adventure.doApply(nextEntry.action);
+    }
+
+    private static doApply(action: DomainAction) {
         if ("apply" in action) {
             action.apply();
             return;

@@ -1,6 +1,6 @@
 import {AdventureAware} from "../model/Adventure";
 import {useObserver} from "mobx-react-lite";
-import {AdventureProvider, useAdventure, useAppContext} from "../state";
+import {AdventureProvider, useAppContext} from "../state";
 import {Board} from "./Board";
 import React, {useEffect} from "react";
 import {HeroAware, HeroDetail} from "./Hero";
@@ -8,11 +8,12 @@ import {Observer} from "mobx-react";
 import {Modal} from "./Modal";
 import styled from "styled-components";
 import {button} from "@storybook/addon-knobs";
-import {DomainAction, IngameAbility} from "../actions";
-import classNames from "classnames";
+import {DomainAction} from "../actions";
 import {Runnable} from "../Utility";
 import {action} from "mobx";
 import {Consumer} from "../helpers";
+import {ActionLog} from "./ActionLog";
+import {ActionBar, ActionLogSideBar} from "./ActionBar";
 
 type AdventureViewProps = AdventureAware & {
     onSurrender: () => any,
@@ -38,8 +39,7 @@ export function AdventureView({
     const appContext = useAppContext();
 
     return <AdventureProvider adventure={adventure}>
-        <div className="container">
-            <Observer>{() => <>
+        <div className="container"><Observer>{() => <>
                 {adventure.isWonBy(appContext.user) && <VictoryAnnouncment onClose={onVictory}/>}
                 {adventure.isLostBy(appContext.user) && <DefeatAnnouncment onClose={onDefeat}/>}
             </>}</Observer>
@@ -47,12 +47,12 @@ export function AdventureView({
             <div className="columns">
                 <div className="column">
                     <Observer>{() => (<div className="buttons">
-                            {adventure.turnOrder.map(hero => <LocalHeroDetail
-                                key={hero.id}
-                                adventure={adventure}
-                                hero={hero}
-                            />)}
-                        </div>)}
+                        {adventure.turnOrder.map(hero => <LocalHeroDetail
+                            key={hero.id}
+                            adventure={adventure}
+                            hero={hero}
+                        />)}
+                    </div>)}
                     </Observer>
                 </div>
                 <div className="column has-text-right">
@@ -61,41 +61,22 @@ export function AdventureView({
                 </div>
             </div>
             <hr/>
-            <ActionBar />
-            <hr/>
-            <Board isIsometric={isIsometric}/>
+            <div className="columns">
+                <div className="column is-narrow">
+                    <ActionLogSideBar>
+                        <ActionLog />
+                    </ActionLogSideBar>
+                </div>
+                <div className="column">
+                    <Board isIsometric={isIsometric}/>
+                </div>
+                <div className="column is-narrow">
+                    <ActionBar/>
+                </div>
+            </div>
             <hr/>
         </div>
     </AdventureProvider>
-}
-
-function ActionBarButton(props: { ability: IngameAbility}) {
-    const adventure = useAdventure();
-    const {
-        isSelected
-    } = useObserver(() => ({
-        isSelected: adventure.actionManager.abilityIntend === props.ability
-    }));
-    const onClick = isSelected ?
-        () => adventure.actionManager.abilityIntend = null
-        : () => adventure.actionManager.abilityIntend = props.ability;
-
-
-    const className = classNames("button", {"is-primary":isSelected});
-
-    return <button className={className} onClick={onClick}>{props.ability.type.name}</button>;
-}
-
-function ActionBar() {
-    const adventure = useAdventure();
-    return useObserver(() => <>{adventure.actionManager
-        .abilities
-        .filter(ability => !ability.type.isStandard)
-        .map(ability => <ActionBarButton key={ability.type.name}
-                ability={ability}
-            />
-        )}</>
-    );
 }
 
 function LocalHeroDetail({hero, adventure}: HeroAware & AdventureAware) {
