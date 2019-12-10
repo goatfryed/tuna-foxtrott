@@ -55,22 +55,11 @@ export class Adventure {
     }
 
     @action
-    refresh() {
-        this.heroes.forEach(
-            h => {
-                h.mainActionUsed = false;
-                h.restoreMovePoints()
-            }
-        )
-    }
-
-    @action
     endTurn() {
         const currentActive = this.activeUnit;
         if (!currentActive) {
             return;
         }
-        this.refresh();
         currentActive.initiative += currentActive.initiativeDelay;
         this.actionPhase = false;
     }
@@ -95,6 +84,7 @@ export class Adventure {
         setTimeout(() => this.actionPhase = true);
     }
 
+    @action
     private onUnitTurnStart(
         {nextUnit, isPrepPhase}:
         {nextUnit: PlacedUnit, isPrepPhase: boolean}
@@ -106,6 +96,7 @@ export class Adventure {
         nextUnit.restoreMovePoints();
         nextUnit.updateStamina(nextUnit.staminaRegeneration);
         this.actionPhase = true;
+        this._actionManager = new ActionManager(this);
     }
 
     tearDown() {
