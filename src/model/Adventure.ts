@@ -17,7 +17,7 @@ export class Adventure {
     readonly players: Player[] = [];
     readonly board: Board;
 
-    private _actionManager: ActionManager = new ActionManager(this);
+    @observable.ref private _actionManager: ActionManager = new ActionManager(this);
 
     get actionManager() {
         return this._actionManager;
