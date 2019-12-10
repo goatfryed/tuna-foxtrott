@@ -38,11 +38,6 @@ export interface AbilityDeclaration<T extends PlacedUnit = PlacedUnit> {
 
 export type Attackable = NotNull<Cell, "unit">
 
-export interface Action {
-    use: AbilityUse,
-    type: AbilityType;
-}
-
 export interface CellInteractionRequest {
     cell: Cell,
 }

@@ -8,7 +8,7 @@ import {StandardMovement} from "./StandardMovement";
 import {Path} from "../service/pathfinder";
 import {
     AbilityUse,
-    Action, IngameAbility,
+    IngameAbility,
     InteractionRequest,
     isAbilityRequest,
     isCellInteractionRequest,
@@ -65,7 +65,12 @@ export class ActionManager {
         ;
     }
 
-    getDefaultInteraction(cell: Cell): Action|null {
+    getDefaultInteraction(cell: Cell): AbilityUse|null {
+
+        if (this.abilityIntend) {
+            return this.abilityIntend.apply(cell);
+        }
+
         const activeUnit = this.adventure.activeUnit;
 
         const target = cell.unit;
@@ -82,21 +87,11 @@ export class ActionManager {
 
         const context = {adventure: this.adventure};
 
-        for (let ability of standardActions) {
-            const action = ability
-                .apply(activeUnit)
-                ?.apply(context)
-                ?.apply(cell)
-            ;
-            if (action) {
-                return {
-                    type: ability.type,
-                    use: action,
-                }
-            }
-        }
-
-        return null;
+        return standardActions
+            .map(action => action.apply(activeUnit)?.apply(context)?.apply(cell))
+            .filter(definedValue)
+            [0] || null
+        ;
     }
 
     doMoveAction(unit: IngameUnit, path: Path) {
