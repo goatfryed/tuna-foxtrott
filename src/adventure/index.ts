@@ -3,6 +3,7 @@ import {Adventure} from "../model/Adventure";
 import {ThugTownDescription} from "./ThugTown";
 import {Board, createBoard, TerrainDescriptor} from "../model/board";
 import {IngameUnit} from "../model/IngameUnit";
+import {MoshPitDescription} from "./MoshPit";
 
 export interface AdventureDescription {
     id: number,
@@ -12,6 +13,7 @@ export interface AdventureDescription {
 
 export const adventureDescriptions: AdventureDescription[] = [
     ThugTownDescription,
+    MoshPitDescription,
 ].map( (value,id) => ({...value, id}));
 export type Coordinate = [number, number];
 

@@ -38,6 +38,6 @@ export const createMoshPit = adventureFactory(
 );
 
 export const MoshPitDescription: Omit<AdventureDescription, "id"> = {
-    name: "Thug Town",
+    name: "Mosh Pit",
     factory: createMoshPit,
 };
