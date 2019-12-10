@@ -3,6 +3,7 @@ import {AbilityDeclaration} from "../actions";
 export interface UnitBaseValues {
     readonly baseHealth: number;
     readonly baseSpeed: number;
+    readonly baseRange?: number;
     readonly staminaRegeneration: number,
     readonly initiativeDelay: number;
 }
@@ -50,6 +51,7 @@ export class UnitImpl implements Unit {
         return `${this.name}`;
     }
 
+    get baseRange() {return this.definition.baseRange}
     get abilities() {return this.definition.abilities;}
     get baseHealth() {return this.definition.baseHealth};
     get baseSpeed() {return this.definition.baseSpeed};

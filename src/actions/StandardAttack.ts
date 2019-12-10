@@ -40,9 +40,16 @@ export function isRangedTarget(unit: PlacedUnit, target: Cell, range: number): t
 }
 
 function prepareStandardAttack(unit: PlacedUnit, cell: Cell): AbilityUse | null {
-    if (!isMeleeTarget(unit, cell)) {
+    if (!isStandardTarget(unit, cell)) {
         return null;
     }
+    if (unit.baseRange === undefined && !isMelee(unit, cell)) {
+        return null;
+    }
+    if (unit.baseRange !== undefined && !isInRange(unit, cell, unit.baseRange)) {
+        return null;
+    }
+
     return {
         type: StandardAttackType,
         apply: () => {

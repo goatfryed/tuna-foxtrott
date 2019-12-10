@@ -12,8 +12,8 @@ export class IngameUnit implements Unit {
     get baseHealth() {return this.wrapped.baseHealth;}
     get name() {return this.wrapped.name;}
     get initiativeDelay() {return this.wrapped.initiativeDelay;}
-
     get staminaRegeneration() {return this.wrapped.staminaRegeneration;}
+    get baseRange() {return this.wrapped.baseRange;}
 
     get abilities(): BoundAbility[] {
         if (!isPlaced(this)) return [];
