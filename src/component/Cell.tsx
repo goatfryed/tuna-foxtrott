@@ -112,7 +112,7 @@ function CellUnitDetail(props: {unit: IngameUnit}) {
     return useObserver(() => <>
         <HealthBarContainer>
             <HealthBar
-                stamina={props.unit.stamina}
+                currentStamina={props.unit.stamina}
                 currentHealth={props.unit.currentHealth}
                 maxHealth={props.unit.maxHealth}
             />
@@ -146,18 +146,21 @@ const HealthBarDmgSection = styled.div`
 `;
 
 
-function HealthBar(props: {stamina: number, currentHealth: number, maxHealth: number}) {
+function HealthBar(props: {currentStamina: number, currentHealth: number, maxHealth: number}) {
     if (props.currentHealth <= 0) {
         return <HealthBarDmgSection />
     }
 
     const relativeHealth = props.currentHealth / props.maxHealth;
-    const relativeStamina = props.stamina / props.currentHealth;
-    return <HealthBarDmgSection>
-        <HealthBarHealth percentage={relativeHealth}>
-            <HealthBarStamina percentage={relativeStamina}/>
-        </HealthBarHealth>
-    </HealthBarDmgSection>
+    const relativeStamina = props.currentStamina / props.currentHealth;
+    return <>
+        <div>{props.currentStamina}/{props.currentHealth}/{props.maxHealth}</div>
+        <HealthBarDmgSection>
+            <HealthBarHealth percentage={relativeHealth}>
+                <HealthBarStamina percentage={relativeStamina}/>
+            </HealthBarHealth>
+        </HealthBarDmgSection>
+    </>
 }
 
 const CellContainer = styled.div`
