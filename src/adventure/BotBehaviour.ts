@@ -1,10 +1,11 @@
 import {Adventure} from "../model/Adventure";
-import {NotNull} from "../helpers";
+import {definedValue, NotNull} from "../helpers";
 import {IngameUnit, isPlaced, PlacedUnit} from "../model/IngameUnit";
 import {computePath, Path} from "../service/pathfinder";
 import {Bot} from "../model";
 import {reaction} from "mobx";
-import {StandardMoveType} from "../actions/StandardMovement";
+import {StandardMovement} from "../actions/StandardMovement";
+import {StandardAttack} from "../actions/StandardAttack";
 
 export function playAggressive(
     adventure: Adventure,
@@ -15,42 +16,33 @@ export function playAggressive(
     function mayChase(unit: PlacedUnit, target: { path: Path, unit: PlacedUnit }) {
         const currentDistance = unit.cell.getManhattenDistance(target.unit.cell);
 
-        const pathItems = target.path.steps;
-        const nextLocation = pathItems.filter(({distance}) => distance < currentDistance)
+        const boundMove = StandardMovement.apply(unit)?.apply({adventure});
+
+        if (!boundMove) return;
+
+        const moveAction = target.path.steps
+            .filter(({distance}) => distance < currentDistance)
             .filter(({cost}) => cost <= unit.remainingMovePoints)
             .filter(({cell}) => cell.unit === null)
             .sort(({cost: costA}, {cost: costB}) => costA - costB)
             .sort(({distance: distanceA}, {distance: distanceB}) => distanceA - distanceB)
+            .map(value => boundMove.apply(value.cell))
+            .filter(definedValue)
             [0]
         ;
 
-        if (!nextLocation) {
-            return;
+        if (moveAction) {
+            adventure.apply(moveAction);
         }
-
-        const subSteps = pathItems.slice(0, pathItems.indexOf(nextLocation) + 1);
-        const subPath = {
-            steps: subSteps,
-            cost: subSteps.reduce((prev, current) => prev + current.cost, 0)
-        };
-
-        adventure.apply({
-           type: StandardMoveType,
-           actor: unit,
-           moveData: {
-               target: nextLocation.cell,
-               path: subPath,
-           }
-        });
     }
 
     function mayAttack(unit: PlacedUnit, target: PlacedUnit) {
-        console.log(unit, target);
-        if (unit.cell.getManhattenDistance(target.cell) <= 1) {
-            const action = adventure.actionManager.attackActionOrNull(unit, target);
-            if (action !== null) {
-                action();
-            }
+        const boundAbility = StandardAttack.apply(unit)
+            ?.apply({adventure})
+            ?.apply(target.cell)
+        ;
+        if (boundAbility) {
+            adventure.apply(boundAbility);
         }
     }
 
