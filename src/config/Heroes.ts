@@ -7,7 +7,7 @@ import {StandardMovement} from "../actions/StandardMovement";
 export const HeroDefinitions = {
     AXEL: {
         baseHealth: 10,
-        initiativeDelay: 80,
+        initiativeDelay: 85,
         baseSpeed: 3,
         staminaRegeneration: 1,
         abilities: withStandards([
@@ -15,9 +15,10 @@ export const HeroDefinitions = {
         ]) as AbilityDeclaration[]
     },
     BOWER: {
-        baseHealth: 8,
-        initiativeDelay: 100,
+        baseHealth: 7,
+        initiativeDelay: 80,
         baseSpeed: 2,
+        baseRange: 3,
         staminaRegeneration: 1,
         abilities: withStandards([
             DeadlyShot,
@@ -34,7 +35,7 @@ export const HeroDefinitions = {
     },
     CLUBBER: {
         baseHealth: 8,
-        initiativeDelay: 80,
+        initiativeDelay: 85,
         baseSpeed: 4,
         staminaRegeneration: 1,
         abilities: withStandards([
