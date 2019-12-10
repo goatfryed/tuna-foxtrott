@@ -24,7 +24,7 @@ function useInteractionStyle(cell: Cell, adventure: Adventure, appContext: AppCo
         styleClasses.push(cell.unit.player === appContext.user ? "friendly" : "enemy");
     }
     if (action === null) {
-        styleClasses.push("is-static");
+        // styleClasses.push("is-static");
 
     } else if (action.type.isAttack) {
         styleClasses.push("canAttack");
