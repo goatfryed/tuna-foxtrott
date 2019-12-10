@@ -86,15 +86,15 @@ function ActionBarButton(props: { ability: IngameAbility}) {
     return <button className={className} onClick={onClick}>{props.ability.type.name}</button>;
 }
 
-function ActionBar(): React.ReactNodeArray {
+function ActionBar() {
     const adventure = useAdventure();
-    return useObserver(() => adventure.actionManager
+    return useObserver(() => <>{adventure.actionManager
         .abilities
         .filter(ability => !ability.type.isStandard)
         .map(ability => <ActionBarButton key={ability.type.name}
                 ability={ability}
             />
-        )
+        )}</>
     );
 }
 
