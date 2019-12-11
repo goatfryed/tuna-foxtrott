@@ -74,6 +74,21 @@ export class Adventure {
     setup() {
         this.actionPhase = false;
 
+        autorun(
+            () => {
+                this.units
+                    .filter(u => !u.isAlive)
+                    .forEach(u => u.cell = null)
+            }
+        );
+
+        this.units.forEach(
+            u => {
+                u.refresh();
+                u.initiative = u.initiativeDelay;
+            }
+        );
+
         this.players
             .filter((p: Player): p is Bot => p instanceof Bot)
             .forEach(bot => bot.boot(this))
@@ -85,14 +100,6 @@ export class Adventure {
                 isPrepPhase: !this.actionPhase
             }),
             this.onUnitTurnStart
-        );
-
-        autorun(
-            () => {
-                this.units
-                    .filter(u => !u.isAlive)
-                    .forEach(u => u.cell = null)
-            }
         );
 
         setTimeout(() => this.actionPhase = true);

@@ -24,7 +24,7 @@ export class IngameUnit implements Unit {
         ;
     }
 
-    @observable initiative: number = this.initiativeDelay;
+    @observable initiative: number = 0;
     @observable mainActionUsed: boolean = false;
 
     constructor(
@@ -124,6 +124,12 @@ export class IngameUnit implements Unit {
 
     toString() {
         return String(this.wrapped);
+    }
+
+    refresh() {
+        this.stamina = this.maxHealth;
+        this.mainActionUsed = false;
+        this.movePointsSpent = 0;
     }
 }
 
