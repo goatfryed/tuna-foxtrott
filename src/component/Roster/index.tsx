@@ -186,7 +186,34 @@ export function HeroEntry(props: {item: UnitSelectionItem, onSelection: Runnable
     >
         {props.item.unit.name}
         <Line />
-        ❤ {props.item.unit.baseHealth} - 👣 {props.item.unit.baseSpeed} - 🚄 {props.item.unit.initiativeDelay}
+        <StatsContainer>
+            <StatDisplay icon="❤"
+                         current={props.item.unit.currentHealth}
+                         total={props.item.unit.maxHealth}
+            />
+            <StatDisplay icon="👣" current={props.item.unit.baseSpeed} />
+            <StatDisplay icon="🚄" current={props.item.unit.initiativeDelay} />
+        </StatsContainer>
     </HeroTile>
+}
+
+const StatsContainer = styled.div`
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-items: flex-end;
+    align-content: center;
+`;
+
+const StatField = styled.div`
+    width: fit-content;
+    height: fit-content;
+    text-align: center;
+    flex-grow: 1;
+    flex-shrink: 0;
+`;
+
+function StatDisplay(props: {icon: string, current: number, total?:number}) {
+    return <StatField>{props.icon} {props.current}{props.total && ("/"+props.total)}</StatField>
 }
 
