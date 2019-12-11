@@ -1,48 +1,53 @@
 import * as React from "react";
-import {RosterBrowser, RosterManager, HeroEntry} from "./index";
+import {RosterBrowser, HeroEntry} from "./index";
 import {observable} from "mobx";
 import styled from "styled-components";
 import {CornerBorders} from "../Display/CornerBorders";
 import {action} from "@storybook/addon-actions";
-import {AppContextProvider} from "../../state";
-import {AppContext, Player} from "../../model";
 import {axelBase, bowerBase} from "../../fixtures";
+import {UnitSelectionModel} from "../AdventureSelection";
+import {Player} from "../../model";
 
 const Boxed = styled(CornerBorders)`
     margin: 2em;
 `;
 
+// noinspection JSUnusedGlobalSymbols
 export default {
     title: "Roster",
     decorators: [(Story: any) => <Boxed><Story/></Boxed>],
 }
 
-export function manager() {
-    const context = new AppContext(new Player("Dave"));
-    return <AppContextProvider context={context}>
-        <RosterManager navigator={action("navigation")}/>
-    </AppContextProvider>
-}
+const user = new Player("karli");
+const bower = user.addUnit(bowerBase);
+const axel = user.addUnit(axelBase);
 
-const roster = observable([
+const selectionModel: UnitSelectionModel = {
+    [bower.id]: {
+        isSelected: false,
+        unit: bower,
+    },
+    [axel.id]: {
+        isSelected: true,
+        unit: axel,
+    }
+};
+observable([
     axelBase,
     bowerBase,
 ]);
-
 export function browser() {
-    return <RosterBrowser roster={roster}/>
+    return <RosterBrowser
+        onSelectionUpdate={action("onSelectionUpdate")}
+        selectionModel={selectionModel}
+    />
 }
 
+// noinspection JSUnusedGlobalSymbols
 export function hero() {
     return <HeroEntry
-        hero={{
-            id: 0,
-            name: "Dave",
-            staminaRegeneration: 1,
-            baseHealth: 3,
-            baseSpeed: 3,
-            initiativeDelay: 100,
-        }}
+        item={selectionModel[bower.id]}
+        onSelection={action("onSelection")}
     />
 }
 

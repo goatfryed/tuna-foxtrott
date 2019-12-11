@@ -1,14 +1,15 @@
 import * as React from "react";
 import {useLayoutEffect, useRef, useState} from "react";
-import {IObservableArray} from "mobx";
 import {useObserver} from "mobx-react";
 import styled, {css} from "styled-components";
 import {Modal} from "../Modal";
 import useForm from "react-hook-form";
 import {useAppContext} from "../../state";
-import {Unit, UnitDefinition, UnitImpl} from "../../model/UnitImpl";
+import {UnitDefinition, UnitImpl} from "../../model/UnitImpl";
 import {HeroDefinitions} from "../../config/Heroes";
-import {assertNever} from "../../Utility";
+import {assertNever, Runnable} from "../../Utility";
+import {UnitSelectionItem, UnitSelectionModel} from "../AdventureSelection";
+import {Consumer} from "../../helpers";
 
 type UnitBlueprint = {definition: UnitDefinition}
 
@@ -89,7 +90,12 @@ function createFromBlueprint(name: string, blueprint: UnitBlueprint): UnitImpl {
     assertNever(blueprint, "unexpected blueprint case");
 }
 
-export function RosterManager(props: {navigator: (screen: string) => void}) {
+interface UnitSelectionProps {
+    onSelectionUpdate: Consumer<UnitSelectionItem>,
+    selectionModel: UnitSelectionModel,
+}
+
+export function RosterManager(props: UnitSelectionProps) {
     const [showHeroHire, setShowHeroHire] = useState(false);
     const {user} = useAppContext();
 
@@ -107,17 +113,21 @@ export function RosterManager(props: {navigator: (screen: string) => void}) {
             />
         </Modal>
         }
-        <div>🐱‍🚀🐱‍👓🐱‍👤</div>
-        <hr/>
-        <div>
-            <RosterBrowser roster={user.units} />
+        <div className="columns">
+            <div className="column">🐱‍🚀🐱‍👓🐱‍👤</div>
+            <div className="column is-narrow">
+                <button className="button is-success"
+                        onClick={() => setShowHeroHire(true)}
+                >Hire hero</button>
+            </div>
         </div>
         <hr/>
-        <button className={"button " + (user.units.length === 0 ? "is-warning" : "is-primary")}
-                onClick={() => props.navigator("Adventures")}
-                disabled={user.units.length === 0}
-        >Adventures</button>
-        <button className="button is-success" onClick={() => setShowHeroHire(true)}>Hire hero</button>
+        <div>
+            <RosterBrowser
+                onSelectionUpdate={props.onSelectionUpdate}
+                selectionModel={props.selectionModel}
+            />
+        </div>
     </div>)
 }
 
@@ -129,9 +139,12 @@ const Container = styled.div`
     align-items: center;
 `;
 
-export function RosterBrowser(props: { roster: IObservableArray<Unit> }) {
+export function RosterBrowser(props: UnitSelectionProps) {
     return useObserver(() => <Container>
-        {props.roster.map( u => <HeroEntry hero={u} />)}
+        {Object.values(props.selectionModel).map( item => <HeroEntry
+            item={item}
+            onSelection={() => props.onSelectionUpdate(item)}
+        />)}
     </Container>);
 }
 
@@ -141,16 +154,24 @@ const darkHover = css`
     }
 `;
 
-const HeroTile = styled.div`
+const unselected = css`
+    background-color: rgb(121,200,126);
+    border-color: rgb(117,175,122);
+`;
+const selected = css`
+    background-color: rgb(45, 206, 203);
+    border-color: rgb(45,175,172);
+`;
+
+const HeroTile = styled.div<{isSelected: boolean}>`
     margin: 0.5em;
     padding: 0.5em;
     max-width: 24ex;
     flex-grow: 1;
-    background-color: rgb(121,200,126);
-    border-color: rgb(117,175,122);
     border-width: 0 3px 3px 0;
     border-style: solid;
     border-radius: 0.3em;
+    ${props => props.isSelected ? selected : unselected};
     ${darkHover}
 `;
 
@@ -158,11 +179,14 @@ const Line = styled.hr`
     margin: 0 0 0.5em 0;
 `;
 
-export function HeroEntry(props: {hero: Omit<Unit,"abilities">}) {
-    return <HeroTile>
-        {props.hero.name}
+export function HeroEntry(props: {item: UnitSelectionItem, onSelection: Runnable}) {
+    return <HeroTile
+        onClick={props.onSelection}
+        isSelected={props.item.isSelected}
+    >
+        {props.item.unit.name}
         <Line />
-        ❤ {props.hero.baseHealth} - 👣 {props.hero.baseSpeed} - 🚄 {props.hero.initiativeDelay}
+        ❤ {props.item.unit.baseHealth} - 👣 {props.item.unit.baseSpeed} - 🚄 {props.item.unit.initiativeDelay}
     </HeroTile>
 }
 

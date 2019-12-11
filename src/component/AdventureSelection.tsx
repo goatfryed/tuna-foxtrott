@@ -1,6 +1,5 @@
-import {Adventure} from "../model/Adventure";
 import {useAppContext} from "../state";
-import React, {Reducer, useCallback, useEffect, useMemo, useReducer, useState} from "react";
+import React, {Reducer, useCallback, useEffect, useMemo, useReducer} from "react";
 import {HeroDetail} from "./Hero";
 import {AdventureDescription, adventureDescriptions as defaultAdventures} from "../adventure";
 import {reaction} from "mobx";
@@ -19,8 +18,7 @@ function LocalHeroDetail(
 
     return <HeroDetail hero={heroItem.unit} onClick={handleClick} style={style}/>
 }
-
-const HeroList = React.memo(
+React.memo(
     (props: {onItemClick: (item: UnitSelectionItem) => void, model: UnitSelectionModel}) => {
         const {model} = props;
 
@@ -40,17 +38,17 @@ const HeroList = React.memo(
 );
 
 interface AdventureSelectionProps {
-    onAdventureSelected: (adventure: Adventure) => void,
+    onAdventureSelected: (adventure: AdventureDescription|undefined) => void,
+    selectedAdventure?: AdventureDescription,
     adventureDescriptions?: AdventureDescription[],
-    navigator: (screen: string) => void
 }
 
-interface UnitSelectionItem {
+export interface UnitSelectionItem {
     unit: IngameUnit,
     isSelected: boolean,
 }
 
-type UnitSelectionModel = {[key: number]: UnitSelectionItem}
+export type UnitSelectionModel = {[key: number]: UnitSelectionItem}
 
 interface RefreshAction {
     type: "REFRESH",
@@ -68,7 +66,7 @@ function createUnitSelectionItem(unit: IngameUnit) {
     }
 }
 
-function useUnitSelectionModel() {
+export function useUnitSelectionModel() {
     const appStore = useAppContext();
 
     const mapUnitsToSelectionModel = (units: IngameUnit[]) => {
@@ -125,66 +123,22 @@ function useUnitSelectionModel() {
 
 export function AdventureSelection(
     {
-        navigator,
         onAdventureSelected,
+        selectedAdventure,
         adventureDescriptions = defaultAdventures
     }: AdventureSelectionProps
 ) {
 
-    const appStore = useAppContext();
-
-    const {
-        unitSelectionModel,
-        toggleItem
-    } = useUnitSelectionModel();
-
-    const [selectedAdventure, selectAdventure] = useState<AdventureDescription>();
-
-    const selectedUnits = useMemo(() => Object.values(unitSelectionModel)
-        .filter(({isSelected}) => isSelected)
-        .map(({unit}) => unit),
-    [unitSelectionModel]
-    );
-
-    const user = appStore.user;
-    const startAdventure = useMemo(
-        () => {
-            if (!selectedAdventure || selectedUnits.length === 0) {
-                return;
-            }
-            return () => {
-                onAdventureSelected(selectedAdventure.factory(user, selectedUnits))
-            }
-        },
-        [selectedUnits, selectedAdventure, user]
-    );
-
-
     return <>
-        <div className="columns">
-            <div className="column is-narrow">
-                <button className="button" onClick={() => navigator("Roster")}>
-                    Manage Roster
-                </button>
-            </div>
-            <div className="column">
-                <HeroList model={unitSelectionModel} onItemClick={toggleItem}/>
-            </div>
-        </div>
-        <hr/>
         <div>
             {adventureDescriptions.map(
                 description => <button key={description.id}
                     className={"button" + (selectedAdventure === description ? " is-primary":"")}
-                    onClick={() => selectAdventure(curr => curr === description ? undefined : description)}
+                    onClick={() => onAdventureSelected(selectedAdventure === description ? undefined : description)}
                 >
                     {description.name}
                 </button>
             )}
-        </div>
-        <hr/>
-        <div>
-            <button className="button" disabled={!startAdventure} onClick={startAdventure}>Start adventure</button>
         </div>
     </>;
 }

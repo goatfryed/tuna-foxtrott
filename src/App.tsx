@@ -1,22 +1,52 @@
-import React, {useCallback, useState} from "react";
+import React, {useCallback, useMemo, useState} from "react";
 import {Adventure} from "./model/Adventure";
-import {AdventureSelection} from "./component/AdventureSelection";
+import {AdventureSelection, useUnitSelectionModel} from "./component/AdventureSelection";
 import {AdventureView} from "./component/AdventureTime";
 import {useAppContext} from "./state";
 import {RosterManager} from "./component/Roster";
+import {AdventureDescription} from "./adventure";
 
 export function Home(props: {onAdventureSelected: (a: Adventure) => void}) {
     const appContext = useAppContext();
-    const defaultScreen = appContext.user.units.length === 0 ? "Roster" : "Adventures";
-    const [screen, setScreen] = useState<"Adventures"|"Roster"|string>(defaultScreen);
 
-    if (screen === "Roster") {
-        return <RosterManager navigator={setScreen}/>
-    }
-    return <AdventureSelection
-        navigator={setScreen}
-        onAdventureSelected={props.onAdventureSelected}
-    />
+    const {
+        unitSelectionModel,
+        toggleItem
+    } = useUnitSelectionModel();
+
+    const [selectedAdventure, selectAdventure] = useState<AdventureDescription>();
+
+    const selectedUnits = useMemo(() => Object.values(unitSelectionModel)
+            .filter(({isSelected}) => isSelected)
+            .map(({unit}) => unit),
+        [unitSelectionModel]
+    );
+
+    const user = appContext.user;
+    const startAdventure = useMemo(
+        () => {
+            if (!selectedAdventure || selectedUnits.length === 0) {
+                return;
+            }
+            return () => {
+                props.onAdventureSelected(selectedAdventure.factory(user, selectedUnits))
+            }
+        },
+        [selectedUnits, selectedAdventure, user]
+    );
+
+    return <>
+        <RosterManager onSelectionUpdate={toggleItem} selectionModel={unitSelectionModel} />
+        <hr />
+        <AdventureSelection
+            onAdventureSelected={selectAdventure}
+            selectedAdventure={selectedAdventure}
+        />
+        <hr/>
+        <div>
+            <button className="button" disabled={!startAdventure} onClick={startAdventure}>Start adventure</button>
+        </div>
+    </>
 }
 
 export function App() {
