@@ -1,5 +1,5 @@
 import {CellView} from "./Cell";
-import {Player} from "../model";
+import {IngamePlayer} from "../model";
 import React from "react";
 
 import "../app.scss";
@@ -17,7 +17,7 @@ export function disabled() {
 
 export function selected() {
     const cell = new Cell(6,9, ground);
-    const player = new Player("Karli");
+    const player = new IngamePlayer("Karli");
     cell.unit = player.addUnit(bowerBase);
     cell.unit.dealHealthDamage( 2);
     cell.unit.updateStamina(-3);
@@ -32,7 +32,7 @@ export function selected() {
 
 const dummyAdventure = (()=>{
     const adventure = new Adventure(createBoard(1,1));
-    const karli = new Player("karli");
+    const karli = new IngamePlayer("karli");
     adventure.players.push(karli);
     adventure.board.getCell(0,0).unit = karli.addUnit(bowerBase);
     adventure.setup();

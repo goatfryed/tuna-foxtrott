@@ -101,7 +101,7 @@ export function RosterManager(props: UnitSelectionProps) {
 
     function handleHire(name: string, blueprint: UnitBlueprint) {
 
-        user.addUnit(createFromBlueprint(name, blueprint));
+        user.units.push(createFromBlueprint(name, blueprint));
         setShowHeroHire(false);
     }
 
@@ -188,8 +188,7 @@ export function HeroEntry(props: {item: UnitSelectionItem, onSelection: Runnable
         <Line />
         <StatsContainer>
             <StatDisplay icon="❤"
-                         current={props.item.unit.currentHealth}
-                         total={props.item.unit.maxHealth}
+                         current={props.item.unit.baseHealth}
             />
             <StatDisplay icon="👣" current={props.item.unit.baseSpeed} />
             <StatDisplay icon="🚄" current={props.item.unit.initiativeDelay} />

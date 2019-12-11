@@ -6,7 +6,6 @@ import {CornerBorders} from "../Display/CornerBorders";
 import {action} from "@storybook/addon-actions";
 import {axelBase, bowerBase} from "../../fixtures";
 import {UnitSelectionModel} from "../AdventureSelection";
-import {Player} from "../../model";
 
 const Boxed = styled(CornerBorders)`
     margin: 2em;
@@ -18,18 +17,14 @@ export default {
     decorators: [(Story: any) => <Boxed><Story/></Boxed>],
 }
 
-const user = new Player("karli");
-const bower = user.addUnit(bowerBase);
-const axel = user.addUnit(axelBase);
-
 const selectionModel: UnitSelectionModel = {
-    [bower.id]: {
+    [bowerBase.id]: {
         isSelected: false,
-        unit: bower,
+        unit: bowerBase,
     },
-    [axel.id]: {
+    [axelBase.id]: {
         isSelected: true,
-        unit: axel,
+        unit: axelBase,
     }
 };
 observable([
@@ -46,7 +41,7 @@ export function browser() {
 // noinspection JSUnusedGlobalSymbols
 export function hero() {
     return <HeroEntry
-        item={selectionModel[bower.id]}
+        item={selectionModel[bowerBase.id]}
         onSelection={action("onSelection")}
     />
 }

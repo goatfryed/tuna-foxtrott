@@ -1,10 +1,10 @@
 import React, {PropsWithChildren} from "react";
-import {AppContext, Player} from "./model";
+import {AppContext, User} from "./model";
 import {runInAction} from "mobx";
 import {Adventure, AdventureAware} from "./model/Adventure";
 
 const defaultAppContext = runInAction(() => {
-    const user = new Player("user");
+    const user = new User("_anon");
     return new AppContext(user);
 });
 

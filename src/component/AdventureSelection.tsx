@@ -1,41 +1,8 @@
 import {useAppContext} from "../state";
-import React, {Reducer, useCallback, useEffect, useMemo, useReducer} from "react";
-import {HeroDetail} from "./Hero";
+import React, {Reducer, useCallback, useEffect, useReducer} from "react";
 import {AdventureDescription, adventureDescriptions as defaultAdventures} from "../adventure";
 import {reaction} from "mobx";
-import {IngameUnit} from "../model/IngameUnit";
-
-function LocalHeroDetail(
-    {heroItem, onClick}:
-    {heroItem: UnitSelectionItem, onClick: (item: UnitSelectionItem) => void}
- ) {
-    const style = heroItem.isSelected ? "is-success" : "is-info";
-
-    const handleClick = useCallback(
-        () => onClick(heroItem),
-        [heroItem]
-    );
-
-    return <HeroDetail hero={heroItem.unit} onClick={handleClick} style={style}/>
-}
-React.memo(
-    (props: {onItemClick: (item: UnitSelectionItem) => void, model: UnitSelectionModel}) => {
-        const {model} = props;
-
-        const items = useMemo(() => Object.values(model), [model]);
-
-        if (items.length === 0) {
-            return <div>Create heroes to get started</div>
-        }
-
-        return <div className="unit-list">
-            {items.map(item => <LocalHeroDetail
-                key={item.unit.id} heroItem={item}
-                onClick={props.onItemClick}
-            />)}
-        </div>
-    }
-);
+import {UnitImpl} from "../model/UnitImpl";
 
 interface AdventureSelectionProps {
     onAdventureSelected: (adventure: AdventureDescription|undefined) => void,
@@ -44,7 +11,7 @@ interface AdventureSelectionProps {
 }
 
 export interface UnitSelectionItem {
-    unit: IngameUnit,
+    unit: UnitImpl,
     isSelected: boolean,
 }
 
@@ -52,14 +19,14 @@ export type UnitSelectionModel = {[key: number]: UnitSelectionItem}
 
 interface RefreshAction {
     type: "REFRESH",
-    units: IngameUnit[]
+    units: UnitImpl[]
 }
 interface ToggleAction {
     type: "TOGGLE",
     item: UnitSelectionItem,
 }
 
-function createUnitSelectionItem(unit: IngameUnit) {
+function createUnitSelectionItem(unit: UnitImpl) {
     return {
         unit,
         isSelected: false
@@ -69,7 +36,7 @@ function createUnitSelectionItem(unit: IngameUnit) {
 export function useUnitSelectionModel() {
     const appStore = useAppContext();
 
-    const mapUnitsToSelectionModel = (units: IngameUnit[]) => {
+    const mapUnitsToSelectionModel = (units: UnitImpl[]) => {
         return units
             .map(createUnitSelectionItem)
             .reduce((map, item) => {
@@ -79,7 +46,7 @@ export function useUnitSelectionModel() {
             );
     };
 
-    const [unitSelectionModel, dispatch] = useReducer<Reducer<UnitSelectionModel, RefreshAction|ToggleAction>, IngameUnit[]>(
+    const [unitSelectionModel, dispatch] = useReducer<Reducer<UnitSelectionModel, RefreshAction|ToggleAction>, UnitImpl[]>(
         (model, action) => {
             if (action.type === "TOGGLE") {
                 return {...model, [action.item.unit.id]: {...action.item, isSelected: !action.item.isSelected}}

@@ -14,6 +14,7 @@ import {action} from "mobx";
 import {Consumer} from "../helpers";
 import {ActionLog} from "./ActionLog";
 import {ActionBar, ActionLogSideBar} from "./ActionBar";
+import {isUserPlayer} from "../model";
 
 type AdventureViewProps = AdventureAware & {
     onSurrender: () => any,
@@ -85,7 +86,7 @@ function LocalHeroDetail({hero, adventure}: HeroAware & AdventureAware) {
         heroIsUserControlled
     } = useObserver(() => ({
             heroIsActive: adventure.activeUnit === hero,
-            heroIsUserControlled: hero.player.isUser,
+            heroIsUserControlled: isUserPlayer(hero.player),
         })
     );
 

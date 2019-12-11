@@ -1,5 +1,5 @@
 import {action, computed, observable} from "mobx";
-import {Player} from "./index";
+import {IngamePlayer} from "./index";
 import {Cell} from "./board";
 import {Unit, UnitImpl} from "./UnitImpl";
 import {BoundAbility} from "../actions";
@@ -29,9 +29,9 @@ export class IngameUnit implements Unit {
 
     constructor(
         readonly wrapped: UnitImpl,
-        readonly player: Player
+        readonly player: IngamePlayer
     ) {
-        this.stamina = this.maxHealth;
+
     }
 
     @observable private dmgTaken: number = 0;

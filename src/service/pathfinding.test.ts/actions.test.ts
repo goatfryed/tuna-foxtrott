@@ -1,4 +1,4 @@
-import {Player} from "../../model";
+import {IngamePlayer} from "../../model";
 import {NotNull} from "../../helpers";
 import {Board, createBoard, OBSTACLE} from "../../model/board";
 import {IngameUnit} from "../../model/IngameUnit";
@@ -13,7 +13,7 @@ describe("Pathfinding", () => {
      * O O O X O
      * O O O X O
      */
-    const karli = new Player("bob");
+    const karli = new IngamePlayer("bob");
 
     function getBoard() {
         return createBoard(5, 5,

@@ -1,4 +1,5 @@
 import {useMemo} from "react";
+import {observable} from "mobx";
 
 export function make<T>(val: T) {
     return () => val;
@@ -25,3 +26,5 @@ export function definedValue<T>(val: T): val is Exclude<T, undefined|null> {
 }
 
 export type Consumer<T> = (arg: T) => void;
+
+export const shallowObservableArray = <T>(initial?: T[]) => observable.array(initial, {deep: false});

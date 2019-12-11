@@ -1,16 +1,19 @@
-import {action, IObservableArray, observable} from "mobx";
+import {action} from "mobx";
 import {Adventure} from "./Adventure";
-import {UnitImpl, UnitDefinition} from "./UnitImpl";
+import {UnitBaseValues, UnitImpl} from "./UnitImpl";
 import {IngameUnit} from "./IngameUnit";
+import {shallowObservableArray} from "../helpers";
 
-export class Player {
+export class UnitOwner<T extends UnitBaseValues> {
+    readonly units = shallowObservableArray<T>();
 
-    readonly units: IObservableArray<IngameUnit> = observable([]);
+    constructor(public name: string) {
+    }
+}
 
-    isUser: boolean = false;
+export class User extends UnitOwner<UnitImpl> {}
 
-    constructor(public name: string) {}
-
+export class IngamePlayer extends UnitOwner<IngameUnit>{
     @action addUnit(unit: UnitImpl) {
         let playerUnit = new IngameUnit(unit, this);
         this.units.push(playerUnit);
@@ -18,7 +21,17 @@ export class Player {
     }
 }
 
-export abstract class Bot extends Player {
+export class UserPlayer extends IngamePlayer {
+    constructor(readonly user: User) {
+        super(user.name);
+    }
+}
+
+export function isUserPlayer(player: IngamePlayer): player is UserPlayer {
+    return "user" in player;
+}
+
+export abstract class Bot extends IngamePlayer {
 
     protected shutdownHandler: Array<() => void> = [];
 
@@ -30,11 +43,8 @@ export abstract class Bot extends Player {
 }
 
 export class AppContext {
+    constructor(readonly user: User) {
 
-    readonly roster: IObservableArray<UnitDefinition> = observable([]);
-
-    constructor(readonly user: Player) {
-        user.isUser = true;
     }
 }
 

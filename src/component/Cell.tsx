@@ -1,4 +1,4 @@
-import {AppContext} from "../model";
+import {AppContext, UserPlayer} from "../model";
 import {useAdventure, useAppContext} from "../state";
 import {useObserver} from "mobx-react-lite";
 import React, {useMemo} from "react";
@@ -21,7 +21,7 @@ function useInteractionStyle(cell: Cell, adventure: Adventure, appContext: AppCo
 
     const styleClasses: string[] = [];
     if (cell.unit) {
-        styleClasses.push(cell.unit.player === appContext.user ? "friendly" : "enemy");
+        styleClasses.push((cell.unit.player as UserPlayer).user === appContext.user ? "friendly" : "enemy");
     }
     if (action === null) {
         // styleClasses.push("is-static");

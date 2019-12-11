@@ -1,10 +1,11 @@
-import {AppContext, Player} from "../model";
+import {AppContext, User, UserPlayer} from "../model";
 import {UnitImpl} from "../model/UnitImpl";
 import {HeroDefinitions} from "../config/Heroes";
 
-export const defaultUser = new Player("karli");
+export const exampleUser = new User("karli");
+export const exampleUserPlayer = new UserPlayer(exampleUser);
 
-export const defaultContext = new AppContext(defaultUser);
+export const exampleContext = new AppContext(exampleUser);
 
 export const axelBase = new UnitImpl("axel", HeroDefinitions.AXEL);
 

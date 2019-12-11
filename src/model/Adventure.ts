@@ -1,4 +1,4 @@
-import {Bot, Player} from "./index";
+import {Bot, IngamePlayer, isUserPlayer, User, UserPlayer} from "./index";
 import {action, autorun, computed, observable, reaction} from "mobx";
 import {ActionManager, DomainAction} from "../actions";
 import {Board} from "./board";
@@ -16,7 +16,7 @@ export class Adventure {
     @observable.ref actionLog: Immutable<{id: number, action: DomainAction}>[] = [];
     private nextLogId = 0;
 
-    readonly players: Player[] = [];
+    readonly players: IngamePlayer[] = [];
     readonly board: Board;
 
     @observable.ref private _actionManager: ActionManager = new ActionManager(this);
@@ -49,8 +49,8 @@ export class Adventure {
             return iniOrder;
         }
         // player should always come first
-        if (a.player.isUser !== b.player.isUser) {
-            return a.player.isUser ? -1 : +1;
+        if (isUserPlayer(a.player) !== isUserPlayer(b.player)) {
+            return isUserPlayer(b.player) ? -1 : +1;
         }
         return a.id - b.id;
     }
@@ -90,7 +90,7 @@ export class Adventure {
         );
 
         this.players
-            .filter((p: Player): p is Bot => p instanceof Bot)
+            .filter((p: IngamePlayer): p is Bot => p instanceof Bot)
             .forEach(bot => bot.boot(this))
         ;
 
@@ -122,22 +122,31 @@ export class Adventure {
 
     tearDown() {
         this.players
-            .filter((p: Player): p is Bot => p instanceof Bot)
+            .filter((p: IngamePlayer): p is Bot => p instanceof Bot)
             .forEach(bot => bot.shutdown())
         ;
     }
 
-    isWonBy(user: Player) {
+    findUserPlayer(user: User): UserPlayer {
+        return this.players
+            .filter(isUserPlayer)
+            .filter(p => p.user === user)
+            [0]
+        ;
+    }
+
+    isWonBy(user: User) {
+        const userPlayer = this.findUserPlayer(user);
         return !this.players
             .filter(Adventure.playerIsAlive)
-            .some(p => p !== user);
+            .some(p => p !== userPlayer);
     }
 
-    isLostBy(player: Player) {
-        return !Adventure.playerIsAlive(player);
+    isLostBy(user: User) {
+        return !Adventure.playerIsAlive(this.findUserPlayer(user));
     }
 
-    private static playerIsAlive(player: Player) {
+    private static playerIsAlive(player: IngamePlayer) {
         return player.units.some(u => u.isCombatReady);
     }
 
