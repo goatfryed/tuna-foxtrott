@@ -24,6 +24,13 @@ type AdventureViewProps = AdventureAware & {
     onDefeat: () => any,
 };
 
+const FlexRowCentered = styled.div`
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+`;
+
 export function AdventureView({
     adventure,
     isIsometric,
@@ -48,21 +55,17 @@ export function AdventureView({
             <ActionCompletion adventure={adventure}/>
             <div className="columns">
                 <div className="column">
-                    <Observer>{() => (<div className="buttons">
+                    <Observer>{() => (<FlexRowCentered>
                         {adventure.turnOrder.map(hero => <LocalHeroDetail
                             key={hero.id}
                             adventure={adventure}
                             hero={hero}
                         />)}
-                    </div>)}
+                    </FlexRowCentered>)}
                     </Observer>
                 </div>
-                <div className="column has-text-right">
-                    <button className="button is-warning" onClick={() => adventure.endTurn()}>End turn</button>
-                    <button className="button is-danger" onClick={onSurrender}>Surrender</button>
-                </div>
             </div>
-            <hr/>
+            <hr style={{marginTop: 0}}/>
             <div className="columns">
                 <div className="column is-narrow">
                     <ActionLogSideBar>
@@ -73,6 +76,10 @@ export function AdventureView({
                     <Board isIsometric={isIsometric}/>
                 </div>
                 <div className="column is-narrow">
+                    <div className="buttons" style={{marginBottom: 0}}>
+                        <button className="button is-warning" onClick={() => adventure.endTurn()}>End turn</button>
+                        <button className="button is-danger" onClick={onSurrender}>Surrender</button>
+                    </div>
                     <CellDetailContainer>
                         <CellDetail />
                     </CellDetailContainer>
