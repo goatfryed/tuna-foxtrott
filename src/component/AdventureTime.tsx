@@ -1,6 +1,6 @@
 import {AdventureAware} from "../model/Adventure";
 import {useObserver} from "mobx-react-lite";
-import {AdventureProvider, useAppContext} from "../state";
+import {AdventureProvider, useAdventure, useAppContext} from "../state";
 import {Board} from "./Board";
 import React, {useEffect} from "react";
 import {HeroAware, HeroDetail} from "./Hero";
@@ -15,6 +15,7 @@ import {Consumer} from "../helpers";
 import {ActionLog} from "./ActionLog";
 import {ActionBar, ActionLogSideBar} from "./ActionBar";
 import {isUserPlayer} from "../model";
+import {HeroTilePresenter} from "./Roster";
 
 type AdventureViewProps = AdventureAware & {
     onSurrender: () => any,
@@ -72,6 +73,9 @@ export function AdventureView({
                     <Board isIsometric={isIsometric}/>
                 </div>
                 <div className="column is-narrow">
+                    <CellDetailContainer>
+                        <CellDetail />
+                    </CellDetailContainer>
                     <ActionBar/>
                 </div>
             </div>
@@ -198,3 +202,23 @@ const ModalContent = styled.div`
 const InteractionSelectionContainer = styled.div`
     width: fit-content;
 `;
+
+const CellDetailContainer = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 12em;
+  height: 12ex;
+`;
+
+function CellDetail() {
+    const adventure = useAdventure();
+    const displayUnit = useObserver(() => adventure.actionManager.hoveredCell?.unit || adventure.activeUnit);
+
+    if (!displayUnit) return null;
+
+    return <HeroTilePresenter
+        unit={displayUnit}
+        isPrimary={adventure.activeUnit === displayUnit}
+    />
+}

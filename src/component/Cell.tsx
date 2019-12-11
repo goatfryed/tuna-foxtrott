@@ -184,9 +184,11 @@ export function CellView({
 }: CellViewProps) {
 
     const terrainStyle = useTerrainStyle(cell);
+    const actionManager = useAdventure().actionManager;
 
     return useObserver(() => <CellContainer>
         <div title={String(cell)}
+            onMouseEnter={() => actionManager.hoveredCell = cell}
             className="cell">
                 <button
                     className={"interaction "+ style }

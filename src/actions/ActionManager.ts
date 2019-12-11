@@ -17,6 +17,7 @@ export class ActionManager {
 
     @observable.ref cellIntend: Cell|null = null;
     @observable.ref abilityIntend: IngameAbility|null = null;
+    @observable.ref hoveredCell: Cell|null = null;
 
     @computed
     get abilities(): IngameAbility[] {

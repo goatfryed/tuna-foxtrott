@@ -5,7 +5,7 @@ import styled, {css} from "styled-components";
 import {Modal} from "../Modal";
 import useForm from "react-hook-form";
 import {useAppContext} from "../../state";
-import {UnitDefinition, UnitImpl} from "../../model/UnitImpl";
+import {Unit, UnitDefinition, UnitImpl} from "../../model/UnitImpl";
 import {HeroDefinitions} from "../../config/Heroes";
 import {assertNever, Runnable} from "../../Utility";
 import {UnitSelectionItem, UnitSelectionModel} from "../AdventureSelection";
@@ -163,7 +163,7 @@ const selected = css`
     border-color: rgb(45,175,172);
 `;
 
-const HeroTile = styled.div<{isSelected: boolean}>`
+const HeroTile = styled.div<{isPrimary: boolean}>`
     margin: 0.5em;
     padding: 0.5em;
     max-width: 24ex;
@@ -171,7 +171,7 @@ const HeroTile = styled.div<{isSelected: boolean}>`
     border-width: 0 3px 3px 0;
     border-style: solid;
     border-radius: 0.3em;
-    ${props => props.isSelected ? selected : unselected};
+    ${props => props.isPrimary ? selected : unselected};
     ${darkHover}
 `;
 
@@ -180,21 +180,29 @@ const Line = styled.hr`
 `;
 
 export function HeroEntry(props: {item: UnitSelectionItem, onSelection: Runnable}) {
-    return <HeroTile
+    return <HeroTilePresenter
         onClick={props.onSelection}
-        isSelected={props.item.isSelected}
+        isPrimary={props.item.isSelected}
+        unit={props.item.unit}
+    />
+}
+
+export const HeroTilePresenter = React.memo( function(props: {onClick?: Runnable, isPrimary?: boolean, unit: Unit}) {
+    return <HeroTile
+        onClick={props.onClick}
+        isPrimary={props.isPrimary ?? false}
     >
-        {props.item.unit.name}
+        {props.unit.name}
         <Line />
         <StatsContainer>
             <StatDisplay icon="❤"
-                         current={props.item.unit.baseHealth}
+                         current={props.unit.baseHealth}
             />
-            <StatDisplay icon="👣" current={props.item.unit.baseSpeed} />
-            <StatDisplay icon="🚄" current={props.item.unit.initiativeDelay} />
+            <StatDisplay icon="👣" current={props.unit.baseSpeed} />
+            <StatDisplay icon="🚄" current={props.unit.initiativeDelay} />
         </StatsContainer>
     </HeroTile>
-}
+});
 
 const StatsContainer = styled.div`
     display: flex;
