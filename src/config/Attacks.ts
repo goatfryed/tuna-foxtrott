@@ -28,32 +28,31 @@ export const HeavyStrike = composeAbility<AttackAction>(
 });
 
 const DeadlyShotType = {
-    type: "MIGRATE",
+    type: "ATTACK",
     name: "Deadly shot",
+    staminaDmg: 0,
+    healthDmg: 999,
+    staminaCost: 4,
     range: 4,
-    executeRange: 8,
+    maxHPpercent: 0.5,
 } as const;
 
-export const DeadlyShot = composeAbility(
+export const DeadlyShot = composeAbility<AttackAction>(
     DeadlyShotType,
     unit => () => cell => {
     if (!isRangedTarget(unit, cell, DeadlyShotType.range)) {
         return null;
     }
 
-    if (cell.unit.stamina > DeadlyShotType.executeRange) {
+    if (cell.unit.currentHealth / cell.unit.maxHealth > DeadlyShotType.maxHPpercent) {
         return null;
     }
 
     return {
         type: DeadlyShotType.type,
         descriptor: DeadlyShotType,
-        actor: unit,
-        apply(): void {
-            cell.unit.dealHealthDamage(cell.unit.currentHealth);
-            unit.updateStamina(-3);
-            unit.mainActionUsed = true;
-        }
+        actor: cell.unit,
+        target: unit,
     }
 });
 
