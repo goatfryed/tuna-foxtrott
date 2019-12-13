@@ -1,6 +1,6 @@
 import {UnitDefinition} from "../model/UnitImpl";
 import {DeadlyShot, HeavyStrike} from "./Attacks";
-import {AbilityDeclaration} from "../actions";
+import {DomainAbility} from "../actions";
 import {StandardAttack} from "../actions/StandardAttack";
 import {StandardMovement} from "../actions/StandardMovement";
 
@@ -12,7 +12,7 @@ export const HeroDefinitions = {
         staminaRegeneration: 1,
         abilities: withStandards([
             HeavyStrike,
-        ]) as AbilityDeclaration[]
+        ]) as DomainAbility[]
     },
     BOWER: {
         baseHealth: 7,
@@ -22,7 +22,7 @@ export const HeroDefinitions = {
         staminaRegeneration: 1,
         abilities: withStandards([
             DeadlyShot,
-        ]) as AbilityDeclaration[]
+        ]) as DomainAbility[]
     },
     MACEL: {
         baseHealth: 12,
@@ -31,7 +31,7 @@ export const HeroDefinitions = {
         staminaRegeneration: 1,
         abilities: withStandards([
             HeavyStrike,
-        ]) as AbilityDeclaration[]
+        ]) as DomainAbility[]
     },
     CLUBBER: {
         baseHealth: 8,
@@ -40,11 +40,11 @@ export const HeroDefinitions = {
         staminaRegeneration: 1,
         abilities: withStandards([
             HeavyStrike,
-        ]) as AbilityDeclaration[]
+        ]) as DomainAbility[]
     },
 } as const;
 
-function withStandards(abilities: AbilityDeclaration[]): AbilityDeclaration[] {
+function withStandards(abilities: DomainAbility[]): DomainAbility[] {
     return [
         StandardMovement,
         StandardAttack,

@@ -13,7 +13,7 @@ import {Runnable} from "../Utility";
 import {action} from "mobx";
 import {Consumer} from "../helpers";
 import {ActionLog} from "./ActionLog";
-import {ActionBar, ActionLogSideBar} from "./ActionBar";
+import {ActionBar, ActionButton, ActionLogSideBar} from "./ActionBar";
 import {isUserPlayer} from "../model";
 import {HeroTilePresenter} from "./Roster";
 
@@ -149,10 +149,8 @@ function ActionSelection(props: {
         <ModalContent>
             <InteractionSelectionContainer>
                 {props.actions.map(
-                    action => <div key={action.type.name}>
-                        <button onClick={() => props.onSelect(action)}
-                                className="button"
-                        >{action.type.name}</button>
+                    action => <div key={action.descriptor.name}>
+                        <ActionButton action={action} onClick={() => props.onSelect(action)} />
                     </div>
                 )}
             </InteractionSelectionContainer>

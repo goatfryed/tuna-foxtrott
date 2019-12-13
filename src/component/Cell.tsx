@@ -26,10 +26,10 @@ function useInteractionStyle(cell: Cell, adventure: Adventure, appContext: AppCo
     if (action === null) {
         // styleClasses.push("is-static");
 
-    } else if (action.type.isAttack) {
+    } else if (action.type === "ATTACK" || action.type === "MIGRATE") {
         styleClasses.push("canAttack");
 
-    } else if (action.type.isMove) {
+    } else if (action.type === "MOVE") {
         styleClasses.push("canMove");
     }
 

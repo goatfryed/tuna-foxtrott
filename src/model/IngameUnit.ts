@@ -2,7 +2,7 @@ import {action, computed, observable} from "mobx";
 import {IngamePlayer} from "./index";
 import {Cell} from "./board";
 import {Unit, UnitImpl} from "./UnitImpl";
-import {BoundAbility} from "../actions";
+import {BoundAbility, DomainAction} from "../actions";
 
 export class IngameUnit implements Unit {
 
@@ -15,12 +15,12 @@ export class IngameUnit implements Unit {
     get staminaRegeneration() {return this.wrapped.staminaRegeneration;}
     get baseRange() {return this.wrapped.baseRange;}
 
-    get abilities(): BoundAbility[] {
+    get abilities(): BoundAbility<DomainAction>[] {
         if (!isPlaced(this)) return [];
 
         return this.wrapped.abilities
             .map(ability => ability.apply(this as PlacedUnit))
-            .filter((value): value is BoundAbility => value !== null)
+            .filter((value): value is BoundAbility<DomainAction> => value !== null)
         ;
     }
 

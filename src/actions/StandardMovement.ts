@@ -1,41 +1,35 @@
 import {PlacedUnit} from "../model/IngameUnit";
 import {Cell} from "../model/board";
-import {AbilityContext, AbilityDeclaration, DomainAction} from "./index";
+import {AbilityDeclaration, composeAbility, MoveAction} from "./index";
 import {computePath} from "../service/pathfinder";
+import {Adventure} from "../model/Adventure";
 
 export const StandardMoveType = {
     name: "move",
-    isMove: true,
+    type: "MOVE",
     isStandard: true,
 } as const;
 
-export const StandardMovement: AbilityDeclaration = {
-    type: StandardMoveType,
-    apply: (unit: PlacedUnit) => ({
-        type: StandardMoveType,
-        apply: context => ({
-            type: StandardMoveType,
-            apply: (cell: Cell): DomainAction | null => prepareStandardMove(unit, cell, context)
-        })
-    })
-};
+export const StandardMovement: AbilityDeclaration<MoveAction> = composeAbility(
+    StandardMoveType,
+    unit => adventure => cell => prepareStandardMove(unit, cell, adventure)
+);
 
-function prepareStandardMove(unit: PlacedUnit, cell: Cell, context: AbilityContext): DomainAction | null {
+function prepareStandardMove(unit: PlacedUnit, cell: Cell, adventure: Adventure) {
     // can reach?
     if (cell.unit !== null) {
         return null;
     }
-    const path = computePath(context.adventure.board, unit, cell);
+    const path = computePath(adventure.board, unit, cell);
     if (path === null || path.cost > unit.remainingMovePoints) {
         return null;
     }
 
     return {
-        type: StandardMoveType,
+        type: StandardMoveType.type,
+        descriptor: StandardMoveType,
         actor: unit,
-        moveData: {
-            target: cell,
-            path,
-        }
+        target: cell,
+        path,
     }
 }

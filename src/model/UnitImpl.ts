@@ -1,4 +1,4 @@
-import {AbilityDeclaration} from "../actions";
+import {DomainAbility} from "../actions";
 
 export interface UnitBaseValues {
     readonly baseHealth: number;
@@ -9,7 +9,7 @@ export interface UnitBaseValues {
 }
 
 export interface UnitDefinition extends UnitBaseValues {
-    readonly abilities: AbilityDeclaration[];
+    readonly abilities: DomainAbility[];
 }
 
 export interface Unit extends UnitBaseValues {
@@ -22,7 +22,7 @@ const unitDefaults: UnitDefinition = {
     staminaRegeneration: 1,
     baseSpeed: 3,
     initiativeDelay: 100,
-    abilities: [] as AbilityDeclaration[],
+    abilities: [] as DomainAbility[],
 };
 
 export function createUnitDefinition(

@@ -1,64 +1,59 @@
-import {AbilityDeclaration, DomainAction, BoundAbility, contextAgnostic} from "../actions";
-import {PlacedUnit} from "../model/IngameUnit";
-import {Cell} from "../model/board";
+import {
+    composeAbility
+} from "../actions";
 import {isMeleeTarget, isRangedTarget} from "../actions/StandardAttack";
 
 const HeavyStrikeType = {
+    type: "MIGRATE",
     name: "Heavy strike",
-    isAttack: true,
-    isMove: false,
 } as const;
 
-export const HeavyStrike: AbilityDeclaration = {
-    type: HeavyStrikeType,
-    apply: (unit: PlacedUnit): BoundAbility | null => contextAgnostic({
-        type: HeavyStrikeType,
-        apply(cell: Cell): DomainAction | null {
-            if (!isMeleeTarget(unit, cell)) {
-                return null;
-            }
-
-            return {
-                type: HeavyStrikeType,
-                apply(): void {
-                    cell.unit.dealHealthDamage(5);
-                    unit.updateStamina(-4);
-                    unit.mainActionUsed = true;
-                }
-            }
+export const HeavyStrike = composeAbility(
+    HeavyStrikeType,
+    unit => () => cell => {
+    if (!isMeleeTarget(unit, cell)) {
+        return null;
+    }
+    return {
+        type: HeavyStrikeType.type,
+        descriptor: HeavyStrikeType,
+        actor: unit,
+        apply(): void {
+            cell.unit.dealHealthDamage(5);
+            unit.updateStamina(-4);
+            unit.mainActionUsed = true;
         }
-    })
-} as const;
+    }
+});
 
 const DeadlyShotType = {
+    type: "MIGRATE",
     name: "Deadly shot",
     range: 4,
     executeRange: 8,
-    isAttack: true,
-};
+} as const;
 
-export const DeadlyShot: AbilityDeclaration = {
-    type: DeadlyShotType,
-    apply: (unit: PlacedUnit): BoundAbility | null => contextAgnostic({
-        type: DeadlyShotType,
-        apply(cell: Cell): DomainAction | null {
-            if (!isRangedTarget(unit, cell, DeadlyShotType.range)) {
-                return null;
-            }
+export const DeadlyShot = composeAbility(
+    DeadlyShotType,
+    unit => () => cell => {
+    if (!isRangedTarget(unit, cell, DeadlyShotType.range)) {
+        return null;
+    }
 
-            if (cell.unit.stamina > DeadlyShotType.executeRange) {
-                return null;
-            }
+    if (cell.unit.stamina > DeadlyShotType.executeRange) {
+        return null;
+    }
 
-            return {
-                type: DeadlyShotType,
-                apply(): void {
-                    cell.unit.dealHealthDamage(cell.unit.currentHealth);
-                    unit.updateStamina(-3);
-                    unit.mainActionUsed = true;
-                }
-            }
+    return {
+        type: DeadlyShotType.type,
+        descriptor: DeadlyShotType,
+        actor: unit,
+        apply(): void {
+            cell.unit.dealHealthDamage(cell.unit.currentHealth);
+            unit.updateStamina(-3);
+            unit.mainActionUsed = true;
         }
-    })
+    }
+});
 
-};
+

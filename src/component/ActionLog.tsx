@@ -22,6 +22,6 @@ const ActionLogItemContainer = styled.div`
 
 function ActionLogItem(props: { action: Immutable<DomainAction> }) {
     return <ActionLogItemContainer>
-        {"actor" in props.action ? props.action.actor.name : "Unknown"}: {props.action.type.name}
+        {"actor" in props.action ? props.action.actor.name : "Unknown"}: {props.action.descriptor.name}
     </ActionLogItemContainer>
 }

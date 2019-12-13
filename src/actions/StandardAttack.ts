@@ -1,20 +1,20 @@
 import {PlacedUnit} from "../model/IngameUnit";
 import {Cell} from "../model/board";
-import {AbilityDeclaration, Attackable, AttackAction, contextAgnostic} from "./index";
+import {Attackable, AttackAction, AttackType, composeAbility} from "./index";
 
-const StandardAttackType = {
+const StandardAttackType: AttackType = {
     name: "attack",
-    isAttack: true,
+    type: "ATTACK",
     isStandard: true,
+    staminaCost: 1,
+    healthDmg: 2,
+    staminaDmg: 1,
 } as const;
 
-export const StandardAttack: AbilityDeclaration = {
-    type: StandardAttackType,
-    apply: unit => contextAgnostic({
-        type: StandardAttackType,
-        apply: cell => prepareStandardAttack(unit, cell)
-    })
-};
+export const StandardAttack = composeAbility(
+    StandardAttackType,
+    unit => () => cell => prepareStandardAttack(unit, cell)
+);
 
 export function isStandardTarget(unit: PlacedUnit, target: Cell): target is Attackable {
     return target.unit !== null
@@ -51,14 +51,13 @@ function prepareStandardAttack(unit: PlacedUnit, cell: Cell): AttackAction | nul
     }
 
     return {
-        type: StandardAttackType,
+        type: StandardAttackType.type,
+        descriptor: StandardAttackType,
         actor: unit,
-        attackData: {
-            target: cell.unit,
-            staminaCost: 1,
-            healthDmg: 2,
-            staminaDmg: 1,
-        }
+        target: cell.unit,
+        staminaCost: 1,
+        healthDmg: 2,
+        staminaDmg: 1,
     }
 }
 

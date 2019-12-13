@@ -1,9 +1,11 @@
 import {Bot, IngamePlayer, isUserPlayer, User, UserPlayer} from "./index";
 import {action, autorun, computed, observable, reaction} from "mobx";
-import {ActionManager, DomainAction} from "../actions";
+import {DomainAction} from "../actions";
 import {Board} from "./board";
 import {IngameUnit, isPlaced, PlacedUnit} from "./IngameUnit";
 import {Immutable} from "../helpers";
+import {ActionManager} from "../actions/ActionManager";
+import {assertNever} from "../Utility";
 
 export interface AdventureAware {
     adventure: Adventure
@@ -161,19 +163,24 @@ export class Adventure {
     }
 
     private static doApply(action: DomainAction) {
-        if ("apply" in action) {
-            action.apply();
-            return;
-        }
-        if ("attackData" in action) {
-            action.attackData.target.updateStamina(- action.attackData.staminaDmg);
-            action.attackData.target.dealHealthDamage(action.attackData.healthDmg);
-            action.actor.updateStamina(-action.attackData.staminaCost);
-            action.actor.mainActionUsed = true;
-        }
-        if ("moveData" in action) {
-            action.actor.cell = action.moveData.target;
-            action.actor.spentMovePoints(action.moveData.path.cost);
+        switch (action.type) {
+            case "ATTACK": {
+                action.target.updateStamina(- action.staminaDmg);
+                action.target.dealHealthDamage(action.healthDmg);
+                action.actor.updateStamina(-action.staminaCost);
+                action.actor.mainActionUsed = true;
+                return;
+            }
+            case "MOVE": {
+                action.actor.cell = action.target;
+                action.actor.spentMovePoints(action.path.cost);
+                return;
+            }
+            case "MIGRATE": {
+                action.apply();
+                return;
+            }
+            default: assertNever(action);
         }
     }
 }

@@ -10,7 +10,7 @@ export function assertUnreachable(x: never, msg?: string) {
 }
 
 export type Immutable<T> = {
-    readonly [P in keyof T]: Immutable<T[P]>
+    readonly [P in keyof T]: T[P] extends {} ? Immutable<T[P]> : T[P];
 }
 
 export type NotNull<T, S extends keyof T> = T & {

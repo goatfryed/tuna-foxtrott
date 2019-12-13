@@ -16,7 +16,7 @@ export function playAggressive(
     function mayChase(unit: PlacedUnit, target: { path: Path, unit: PlacedUnit }) {
         const currentDistance = unit.cell.getManhattenDistance(target.unit.cell);
 
-        const boundMove = StandardMovement.apply(unit)?.apply({adventure});
+        const boundMove = StandardMovement.apply(unit)?.apply(adventure);
 
         if (!boundMove) return;
 
@@ -38,7 +38,7 @@ export function playAggressive(
 
     function mayAttack(unit: PlacedUnit, target: PlacedUnit) {
         const boundAbility = StandardAttack.apply(unit)
-            ?.apply({adventure})
+            ?.apply(adventure)
             ?.apply(target.cell)
         ;
         if (boundAbility) {

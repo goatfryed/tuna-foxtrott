@@ -1,12 +1,12 @@
 import styled from "styled-components";
 import {useAdventure} from "../state";
 import {useObserver} from "mobx-react-lite";
-import React from "react";
-import {IngameAbility} from "../actions";
-import classNames from "classnames";
+import React, {ReactNode} from "react";
+import {DomainAction, IngameAbility} from "../actions";
 import {button} from "@storybook/addon-knobs";
+import {Runnable} from "../Utility";
 
-function ActionBarButton(props: { ability: IngameAbility }) {
+function ActionBarButton(props: { ability: IngameAbility<DomainAction> }) {
     const adventure = useAdventure();
     const {
         isSelected
@@ -18,9 +18,24 @@ function ActionBarButton(props: { ability: IngameAbility }) {
         : () => adventure.actionManager.abilityIntend = props.ability;
 
 
-    const className = classNames("button", {"is-primary": isSelected});
+    const style = isSelected ? "is-primary" : undefined;
 
-    return <button className={className} onClick={onClick}>{props.ability.type.name}</button>;
+    return <ActionButton onClick={onClick} action={props.ability} style={style} />;
+}
+
+export function ActionButton(props: {action: IngameAbility<DomainAction>, onClick?: Runnable, style?: string}) {
+    let className = "button";
+    if (props.style) className = className + " " + props.style;
+
+    let detail: ReactNode = null;
+    if (props.action.type === "ATTACK") {
+        detail = " - Cost: " + props.action.descriptor.staminaCost;
+    }
+
+    return <button
+        className={className}
+        onClick={props.onClick}
+    >{props.action.descriptor.name}{detail}</button>
 }
 
 const ActionSideBarRight = styled.div`
@@ -42,8 +57,8 @@ export function ActionBar() {
     const adventure = useAdventure();
     return useObserver(() => <ActionSideBarRight>{adventure.actionManager
         .abilities
-        .filter(ability => !ability.type.isStandard)
-        .map(ability => <ActionBarButton key={ability.type.name}
+        .filter(ability => !ability.descriptor.isStandard)
+        .map(ability => <ActionBarButton key={ability.descriptor.name}
                                          ability={ability}
             />
         )}</ActionSideBarRight>

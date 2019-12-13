@@ -3,29 +3,22 @@ import {action, computed, observable} from "mobx";
 import {definedValue, NotNull} from "../helpers";
 import {Cell} from "../model/board";
 import {IngameUnit} from "../model/IngameUnit";
-import {AbilityContext, DomainAction, IngameAbility} from "./index";
+import {DomainAction, IngameAbility} from "./index";
 
 export class ActionManager {
-
-    readonly context: AbilityContext;
-
-    constructor(protected adventure: Adventure) {
-        this.context = {
-            adventure,
-        }
-    }
+    constructor(protected adventure: Adventure) {}
 
     @observable.ref cellIntend: Cell|null = null;
-    @observable.ref abilityIntend: IngameAbility|null = null;
+    @observable.ref abilityIntend: IngameAbility<DomainAction>|null = null;
     @observable.ref hoveredCell: Cell|null = null;
 
     @computed
-    get abilities(): IngameAbility[] {
+    get abilities(): IngameAbility<DomainAction>[] {
         const unit = this.adventure.activeUnit;
         if (!unit?.abilities) return [];
 
         return unit.abilities
-            .map(ability => ability.apply({adventure: this.adventure}))
+            .map(ability => ability.apply(this.adventure))
             .filter(definedValue)
         ;
     }
@@ -38,7 +31,7 @@ export class ActionManager {
         return (this.abilityIntend !== null ?
                 [this.abilityIntend]
                 : (this.adventure.activeUnit?.abilities ?? [])
-                    .map(ability => ability.apply(this.context))
+                    .map(ability => ability.apply(this.adventure))
                     .filter(definedValue)
             )
             .map(ability => ability.apply(cellIntend))
@@ -67,8 +60,10 @@ export class ActionManager {
         }
 
         return activeUnit.abilities
-            .filter(ability => ability.type.isStandard)
-            .map(action => action.apply(this.context)?.apply(cell))
+            .filter(ability => ability.descriptor.isStandard)
+            .map(action => action.apply(this.adventure))
+            .filter(definedValue)
+            .map(action => action.apply(cell))
             .filter(definedValue)
             [0] || null
         ;
