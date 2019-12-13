@@ -54,9 +54,6 @@ export interface AttackType extends ActionType<"ATTACK"> {
 
 export interface AttackAction extends Action<AttackType> {
     target: IngameUnit,
-    staminaCost: number,
-    healthDmg: number,
-    staminaDmg: number,
 }
 
 export type Attackable = NotNull<Cell, "unit">

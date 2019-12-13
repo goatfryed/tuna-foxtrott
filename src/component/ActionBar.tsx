@@ -2,7 +2,7 @@ import styled from "styled-components";
 import {useAdventure} from "../state";
 import {useObserver} from "mobx-react-lite";
 import React, {ReactNode} from "react";
-import {DomainAction, IngameAbility} from "../actions";
+import {DomainAction, ExtractActionType, IngameAbility} from "../actions";
 import {button} from "@storybook/addon-knobs";
 import {Runnable} from "../Utility";
 
@@ -20,22 +20,22 @@ function ActionBarButton(props: { ability: IngameAbility<DomainAction> }) {
 
     const style = isSelected ? "is-primary" : undefined;
 
-    return <ActionButton onClick={onClick} action={props.ability} style={style} />;
+    return <ActionButton onClick={onClick} action={props.ability.descriptor} style={style} />;
 }
 
-export function ActionButton(props: {action: IngameAbility<DomainAction>, onClick?: Runnable, style?: string}) {
+export function ActionButton(props: {action: ExtractActionType<DomainAction>, onClick?: Runnable, style?: string}) {
     let className = "button";
     if (props.style) className = className + " " + props.style;
 
     let detail: ReactNode = null;
     if (props.action.type === "ATTACK") {
-        detail = " - Cost: " + props.action.descriptor.staminaCost;
+        detail = " - Cost: " + props.action.staminaCost;
     }
 
     return <button
         className={className}
         onClick={props.onClick}
-    >{props.action.descriptor.name}{detail}</button>
+    >{props.action.name}{detail}</button>
 }
 
 const ActionSideBarRight = styled.div`

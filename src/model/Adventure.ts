@@ -165,9 +165,9 @@ export class Adventure {
     private static doApply(action: DomainAction) {
         switch (action.type) {
             case "ATTACK": {
-                action.target.updateStamina(- action.staminaDmg);
-                action.target.dealHealthDamage(action.healthDmg);
-                action.actor.updateStamina(-action.staminaCost);
+                action.target.updateStamina(- action.descriptor.staminaDmg);
+                action.target.dealHealthDamage(action.descriptor.healthDmg);
+                action.actor.updateStamina(-action.descriptor.staminaCost);
                 action.actor.mainActionUsed = true;
                 return;
             }

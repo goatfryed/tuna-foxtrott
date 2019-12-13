@@ -8,7 +8,7 @@ const StandardAttackType: AttackType = {
     isStandard: true,
     staminaCost: 1,
     healthDmg: 2,
-    staminaDmg: 1,
+    staminaDmg: 0,
 } as const;
 
 export const StandardAttack = composeAbility(
@@ -55,9 +55,6 @@ function prepareStandardAttack(unit: PlacedUnit, cell: Cell): AttackAction | nul
         descriptor: StandardAttackType,
         actor: unit,
         target: cell.unit,
-        staminaCost: 1,
-        healthDmg: 2,
-        staminaDmg: 1,
     }
 }
 

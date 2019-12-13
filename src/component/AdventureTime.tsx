@@ -150,7 +150,7 @@ function ActionSelection(props: {
             <InteractionSelectionContainer>
                 {props.actions.map(
                     action => <div key={action.descriptor.name}>
-                        <ActionButton action={action} onClick={() => props.onSelect(action)} />
+                        <ActionButton action={action.descriptor} onClick={() => props.onSelect(action)} />
                     </div>
                 )}
             </InteractionSelectionContainer>

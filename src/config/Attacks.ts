@@ -1,14 +1,19 @@
 import {
+    AttackAction,
+    AttackType,
     composeAbility
 } from "../actions";
 import {isMeleeTarget, isRangedTarget} from "../actions/StandardAttack";
 
-const HeavyStrikeType = {
-    type: "MIGRATE",
+const HeavyStrikeType: AttackType = {
+    type: "ATTACK",
     name: "Heavy strike",
+    staminaCost: 4,
+    healthDmg: 5,
+    staminaDmg: 2,
 } as const;
 
-export const HeavyStrike = composeAbility(
+export const HeavyStrike = composeAbility<AttackAction>(
     HeavyStrikeType,
     unit => () => cell => {
     if (!isMeleeTarget(unit, cell)) {
@@ -18,11 +23,7 @@ export const HeavyStrike = composeAbility(
         type: HeavyStrikeType.type,
         descriptor: HeavyStrikeType,
         actor: unit,
-        apply(): void {
-            cell.unit.dealHealthDamage(5);
-            unit.updateStamina(-4);
-            unit.mainActionUsed = true;
-        }
+        target: cell.unit,
     }
 });
 
