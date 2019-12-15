@@ -1,8 +1,8 @@
 import {AdventureAware, GameSummary} from "../model/Adventure";
 import {useObserver} from "mobx-react-lite";
-import {AdventureProvider, useAdventure} from "../state";
+import {AdventureManagerProvider, AdventureProvider, useAdventure, useAppContext} from "../state";
 import {Board} from "./Board";
-import React, {useEffect} from "react";
+import React, {useEffect, useState} from "react";
 import {HeroAware, HeroDetail} from "./Hero";
 import {Observer} from "mobx-react";
 import {Modal} from "./Modal";
@@ -17,6 +17,7 @@ import {ActionBar, ActionButton, ActionLogSideBar} from "./ActionBar";
 import {isUserPlayer} from "../model";
 import {HeroTilePresenter} from "./Roster";
 import moment from "moment";
+import {AdventureManager} from "../service/adventure/AdventureManager";
 
 type AdventureViewProps = AdventureAware & {
     onSurrender: () => any,
@@ -39,59 +40,67 @@ export function AdventureView({
     onVictory,
     onDefeat,
 }: AdventureViewProps) {
+    const [manager, setManager] = useState<AdventureManager>();
+    const context = useAppContext();
+
     useEffect(
         () => {
-            adventure.setup();
-            return () => adventure.tearDown()
+            const manager = new AdventureManager(adventure, context.user);
+            setManager(manager);
+            manager.start();
+            return () => manager.tearDown();
         },
         [adventure]
     );
 
+    if (!manager) return <div>Setting up...</div>;
+
     let summary;
-    return <AdventureProvider adventure={adventure}>
-        <div className="container"><Observer>{() => <>
-                {(summary = adventure.getSummary()) && (summary.won ?
-                    <VictoryAnnouncment summary={summary} onClose={onVictory}/>
-                    : <DefeatAnnouncment summary={summary} onClose={onDefeat}/>
-                )}
-            </>}</Observer>
-            <ActionCompletion adventure={adventure}/>
-            <div className="columns">
-                <div className="column">
-                    <Observer>{() => (<FlexRowCentered>
-                        {adventure.turnOrder.map(hero => <LocalHeroDetail
-                            key={hero.id}
-                            adventure={adventure}
-                            hero={hero}
-                        />)}
-                    </FlexRowCentered>)}
-                    </Observer>
-                </div>
-            </div>
-            <hr style={{marginTop: 0}}/>
-            <div className="columns">
-                <div className="column is-narrow">
-                    <ActionLogSideBar>
-                        <ActionLog />
-                    </ActionLogSideBar>
-                </div>
-                <div className="column">
-                    <Board isIsometric={isIsometric}/>
-                </div>
-                <div className="column is-narrow">
-                    <div className="buttons" style={{marginBottom: 0}}>
-                        <button className="button is-warning" onClick={() => adventure.endTurn()}>End turn</button>
-                        <button className="button is-danger" onClick={onSurrender}>Surrender</button>
+    return <AdventureManagerProvider value={manager}><AdventureProvider adventure={adventure}>
+            <div className="container"><Observer>{() => <>
+                    {(summary = manager.getSummary()) && (summary.won ?
+                        <VictoryAnnouncment summary={summary} onClose={onVictory}/>
+                        : <DefeatAnnouncment summary={summary} onClose={onDefeat}/>
+                    )}
+                </>}</Observer>
+                <ActionCompletion adventure={adventure}/>
+                <div className="columns">
+                    <div className="column">
+                        <Observer>{() => (<FlexRowCentered>
+                            {adventure.turnOrder.map(hero => <LocalHeroDetail
+                                key={hero.id}
+                                adventure={adventure}
+                                hero={hero}
+                            />)}
+                        </FlexRowCentered>)}
+                        </Observer>
                     </div>
-                    <CellDetailContainer>
-                        <CellDetail />
-                    </CellDetailContainer>
-                    <ActionBar/>
                 </div>
+                <hr style={{marginTop: 0}}/>
+                <div className="columns">
+                    <div className="column is-narrow">
+                        <ActionLogSideBar>
+                            <ActionLog />
+                        </ActionLogSideBar>
+                    </div>
+                    <div className="column">
+                        <Board isIsometric={isIsometric}/>
+                    </div>
+                    <div className="column is-narrow">
+                        <div className="buttons" style={{marginBottom: 0}}>
+                            <button className="button is-warning" onClick={() => adventure.endTurn()}>End turn</button>
+                            <button className="button is-danger" onClick={onSurrender}>Surrender</button>
+                        </div>
+                        <CellDetailContainer>
+                            <CellDetail />
+                        </CellDetailContainer>
+                        <ActionBar/>
+                    </div>
+                </div>
+                <hr/>
             </div>
-            <hr/>
-        </div>
-    </AdventureProvider>
+        </AdventureProvider>
+    </AdventureManagerProvider>
 }
 
 function LocalHeroDetail({hero, adventure}: HeroAware & AdventureAware) {

@@ -1,5 +1,5 @@
 import {Bot, IngamePlayer, isUserPlayer, UserPlayer} from "./index";
-import {action, autorun, computed, observable, reaction, when} from "mobx";
+import {action, autorun, computed, observable, reaction} from "mobx";
 import {DomainAction} from "../actions";
 import {Board} from "./board";
 import {IngameUnit, isPlaced, PlacedUnit} from "./IngameUnit";
@@ -12,10 +12,6 @@ export interface AdventureAware {
 }
 
 export class Adventure {
-
-    started: Date|undefined = undefined;
-    @observable.ref finished: Date|undefined = undefined;
-    isFinished() {return !!this.finished};
 
     @observable name: string = "test";
     @observable actionPhase = false;
@@ -79,7 +75,6 @@ export class Adventure {
 
     @action
     setup() {
-        this.started = new Date();
         this.actionPhase = false;
 
         autorun(
@@ -101,13 +96,6 @@ export class Adventure {
             .filter((p: IngamePlayer): p is Bot => p instanceof Bot)
             .forEach(bot => bot.boot(this))
         ;
-
-        when(
-            () => this.isLost() || this.isWon(),
-            () => {
-                this.finished = new Date();
-            }
-        );
 
         reaction(
             () => ({
@@ -184,18 +172,6 @@ export class Adventure {
                 return;
             }
             default: assertNever(action);
-        }
-    }
-
-    getSummary(): Readonly<GameSummary>|undefined {
-        if (!this.finished || !this.started) {
-            return undefined;
-        }
-
-        return {
-            started: this.started,
-            finished: this.finished,
-            won: this.isWon()
         }
     }
 }

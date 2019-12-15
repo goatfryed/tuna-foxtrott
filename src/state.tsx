@@ -2,6 +2,7 @@ import React, {PropsWithChildren} from "react";
 import {AppContext, User} from "./model";
 import {runInAction} from "mobx";
 import {Adventure, AdventureAware} from "./model/Adventure";
+import {AdventureManager} from "./service/adventure/AdventureManager";
 
 const defaultAppContext = runInAction(() => {
     const user = new User("_anon");
@@ -22,12 +23,35 @@ export const AppContextProvider: React.FC<{context?: AppContext}> = ({children, 
     return <appContext.Provider value={context}>{children}</appContext.Provider>
 };
 
-export const adventureContext = React.createContext<Adventure|null>(null);
+const AdventureModel = React.createContext<Adventure|undefined>(undefined);
+const AdventureManagerContext = React.createContext<AdventureManager|undefined>(undefined);
+
+export const AdventureManagerProvider = AdventureManagerContext.Provider;
+export function AdventureContextProvider(
+    {
+        manager,
+        children,
+    }: PropsWithChildren<{ manager: AdventureManager }>) {
+    return <AdventureManagerProvider value={manager}>
+        <AdventureProvider adventure={manager.adventure}>
+            {children}
+        </AdventureProvider>
+    </AdventureManagerProvider>
+}
+
+export function useAdventurManager(): AdventureManager {
+    const manager = React.useContext(AdventureManagerContext);
+    if (!manager) {
+        throw new Error("useAdventureContext must be used within an AdventureManagerProvider");
+    }
+    return manager;
+}
+
 export function AdventureProvider({children, adventure}: PropsWithChildren<AdventureAware>) {
-    return <adventureContext.Provider value={adventure}>{children}</adventureContext.Provider>;
+    return <AdventureModel.Provider value={adventure}>{children}</AdventureModel.Provider>;
 }
 export function useAdventure() {
-    const adventure = React.useContext(adventureContext);
+    const adventure = React.useContext(AdventureModel);
     if (!adventure) {
         throw new Error('useAdventure must be used within an AdventureProvider');
     }
