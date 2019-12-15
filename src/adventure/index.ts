@@ -29,11 +29,10 @@ export function adventureFactory(
 
         const userPlayer = new UserPlayer(user);
         adventuringUnits.forEach(u => userPlayer.addUnit(u));
-
-        const adventure = new Adventure(board);
-        adventure.players.push(userPlayer);
-        setup(adventure);
         placeUnits(board, startLocations, userPlayer.units);
+
+        const adventure = new Adventure(userPlayer, board);
+        setup(adventure);
         return adventure;
     }
 }

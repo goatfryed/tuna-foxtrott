@@ -66,8 +66,8 @@ export function playAggressive(
             ;
     }
 
-    return (activeUnit: IngameUnit | null) => {
-        if (activeUnit === null || !unitFilter(activeUnit)) {
+    return (activeUnit: IngameUnit | undefined) => {
+        if (activeUnit === undefined || !unitFilter(activeUnit)) {
             return;
         }
 

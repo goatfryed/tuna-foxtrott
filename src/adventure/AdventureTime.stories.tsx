@@ -1,15 +1,15 @@
 import {AdventureView} from "../component/AdventureTime";
 import React from "react";
 import {AppContextProvider} from "../state";
-import {User} from "../model";
 import {createThugTown} from "./ThugTown";
 import {action} from "@storybook/addon-actions";
 import {boolean, select, withKnobs} from "@storybook/addon-knobs";
 import {useMemo} from "@storybook/addons";
 import {createBoard, OBSTACLE} from "../model/board";
 import {Adventure} from "../model/Adventure";
-import {axelBase, bowerBase, clubberBase, exampleContext, macelBase} from "../fixtures";
+import {axelBase, bowerBase, clubberBase, exampleContext, exampleUserPlayer, macelBase} from "../fixtures";
 import {createMoshPit} from "./MoshPit";
+import moment from "moment";
 
 // noinspection JSUnusedGlobalSymbols
 export default {
@@ -38,16 +38,23 @@ export function gameOver() {
     );
 
     class GameOverAdventure extends Adventure {
+
+        setup() {
+            super.setup();
+
+            this.started = moment().subtract(121,"seconds").toDate()
+        }
+
         constructor() {
-            super(board);
+            super(exampleUserPlayer,board);
         }
 
 
-        isWonBy(user: User): boolean {
+        isWon(): boolean {
             return gameState === "won";
         }
 
-        isLostBy(player: User): boolean {
+        isLost(): boolean {
             return gameState === "lost";
         }
     }

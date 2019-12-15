@@ -1,6 +1,6 @@
-import {AdventureAware} from "../model/Adventure";
+import {AdventureAware, GameSummary} from "../model/Adventure";
 import {useObserver} from "mobx-react-lite";
-import {AdventureProvider, useAdventure, useAppContext} from "../state";
+import {AdventureProvider, useAdventure} from "../state";
 import {Board} from "./Board";
 import React, {useEffect} from "react";
 import {HeroAware, HeroDetail} from "./Hero";
@@ -16,6 +16,7 @@ import {ActionLog} from "./ActionLog";
 import {ActionBar, ActionButton, ActionLogSideBar} from "./ActionBar";
 import {isUserPlayer} from "../model";
 import {HeroTilePresenter} from "./Roster";
+import moment from "moment";
 
 type AdventureViewProps = AdventureAware & {
     onSurrender: () => any,
@@ -45,12 +46,14 @@ export function AdventureView({
         },
         [adventure]
     );
-    const appContext = useAppContext();
 
+    let summary;
     return <AdventureProvider adventure={adventure}>
         <div className="container"><Observer>{() => <>
-                {adventure.isWonBy(appContext.user) && <VictoryAnnouncment onClose={onVictory}/>}
-                {adventure.isLostBy(appContext.user) && <DefeatAnnouncment onClose={onDefeat}/>}
+                {(summary = adventure.getSummary()) && (summary.won ?
+                    <VictoryAnnouncment summary={summary} onClose={onVictory}/>
+                    : <DefeatAnnouncment summary={summary} onClose={onDefeat}/>
+                )}
             </>}</Observer>
             <ActionCompletion adventure={adventure}/>
             <div className="columns">
@@ -111,18 +114,32 @@ function LocalHeroDetail({hero, adventure}: HeroAware & AdventureAware) {
 
 interface AnnouncmentProps {
     onClose: () => void,
+    summary: GameSummary,
 }
 
-const VictoryAnnouncment = ({onClose}: AnnouncmentProps) => {
+function GameSummaryDisplay(props: {summary: GameSummary}) {
+    const duration = moment.duration(
+        moment(props.summary.finished).diff(props.summary.started)
+    ).humanize();
+    return <p>Took you {duration}</p>
+}
+
+const VictoryAnnouncment = ({onClose,summary}: AnnouncmentProps) => {
     return <Announcement
-        announcment="You have won!"
+        announcment={<div>
+            <p className="has-text-danger">YOU HAVE LOST!</p>
+            <GameSummaryDisplay summary={summary} />
+        </div>}
         interaction={<button className="button is-success" onClick={onClose}>VICTORY</button>}
     />
 };
 
-const DefeatAnnouncment = ({onClose}: AnnouncmentProps) => {
+const DefeatAnnouncment = ({onClose, summary}: AnnouncmentProps) => {
     return <Announcement
-        announcment="You have lost :("
+        announcment={<div>
+            <p className="has-text-danger">YOU HAVE LOST!</p>
+            <GameSummaryDisplay summary={summary} />
+        </div>}
         interaction={<button className="button is-danger" onClick={onClose}>DEFEAT</button>}
     />
 };

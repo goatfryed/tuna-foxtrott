@@ -5,7 +5,7 @@ import React from "react";
 import "../app.scss";
 import {action} from "@storybook/addon-actions";
 import {Cell, createBoard, ground, OBSTACLE} from "../model/board";
-import {bowerBase} from "../fixtures";
+import {bowerBase, exampleUserPlayer} from "../fixtures";
 import {AdventureProvider} from "../state";
 import {Adventure} from "../model/Adventure";
 
@@ -31,10 +31,8 @@ export function selected() {
 }
 
 const dummyAdventure = (()=>{
-    const adventure = new Adventure(createBoard(1,1));
-    const karli = new IngamePlayer("karli");
-    adventure.players.push(karli);
-    adventure.board.getCell(0,0).unit = karli.addUnit(bowerBase);
+    const adventure = new Adventure(exampleUserPlayer,createBoard(1,1));
+    adventure.board.getCell(0,0).unit = exampleUserPlayer.addUnit(bowerBase);
     adventure.setup();
 
     return adventure;

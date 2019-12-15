@@ -41,7 +41,7 @@ function alertHandler(adventure: Adventure, event: AnyKeyBoardEvent) {
     if (event.key !== "s") {
         return;
     }
-    if (adventure.activeUnit === null) {
+    if (adventure.activeUnit === undefined) {
         return;
     }
     alert("Hey, " + adventure.activeUnit.name);

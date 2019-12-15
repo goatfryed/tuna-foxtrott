@@ -1,5 +1,5 @@
-import {Bot, IngamePlayer, isUserPlayer, User, UserPlayer} from "./index";
-import {action, autorun, computed, observable, reaction} from "mobx";
+import {Bot, IngamePlayer, isUserPlayer, UserPlayer} from "./index";
+import {action, autorun, computed, observable, reaction, when} from "mobx";
 import {DomainAction} from "../actions";
 import {Board} from "./board";
 import {IngameUnit, isPlaced, PlacedUnit} from "./IngameUnit";
@@ -12,6 +12,10 @@ export interface AdventureAware {
 }
 
 export class Adventure {
+
+    started: Date|undefined = undefined;
+    @observable.ref finished: Date|undefined = undefined;
+    isFinished() {return !!this.finished};
 
     @observable name: string = "test";
     @observable actionPhase = false;
@@ -27,8 +31,8 @@ export class Adventure {
         return this._actionManager;
     }
 
-    get activeUnit(): PlacedUnit|null {
-        return this.actionPhase ? this.turnOrder[0] || null : null;
+    get activeUnit(): PlacedUnit|undefined {
+        return this.actionPhase ? this.turnOrder[0] || undefined : undefined;
     }
 
     @computed
@@ -57,8 +61,9 @@ export class Adventure {
         return a.id - b.id;
     }
 
-    constructor(board: Board) {
+    constructor(readonly userPlayer: UserPlayer, board: Board) {
         this.board = board;
+        this.players.push(userPlayer);
         this.onUnitTurnStart = this.onUnitTurnStart.bind(this);
     }
 
@@ -74,6 +79,7 @@ export class Adventure {
 
     @action
     setup() {
+        this.started = new Date();
         this.actionPhase = false;
 
         autorun(
@@ -95,6 +101,13 @@ export class Adventure {
             .filter((p: IngamePlayer): p is Bot => p instanceof Bot)
             .forEach(bot => bot.boot(this))
         ;
+
+        when(
+            () => this.isLost() || this.isWon(),
+            () => {
+                this.finished = new Date();
+            }
+        );
 
         reaction(
             () => ({
@@ -129,23 +142,13 @@ export class Adventure {
         ;
     }
 
-    findUserPlayer(user: User): UserPlayer {
-        return this.players
-            .filter(isUserPlayer)
-            .filter(p => p.user === user)
-            [0]
-        ;
-    }
-
-    isWonBy(user: User) {
-        const userPlayer = this.findUserPlayer(user);
+    isWon() {
         return !this.players
-            .filter(Adventure.playerIsAlive)
-            .some(p => p !== userPlayer);
+            .some(p => p !== this.userPlayer && Adventure.playerIsAlive(p));
     }
 
-    isLostBy(user: User) {
-        return !Adventure.playerIsAlive(this.findUserPlayer(user));
+    isLost() {
+        return !Adventure.playerIsAlive(this.userPlayer);
     }
 
     private static playerIsAlive(player: IngamePlayer) {
@@ -183,4 +186,22 @@ export class Adventure {
             default: assertNever(action);
         }
     }
+
+    getSummary(): Readonly<GameSummary>|undefined {
+        if (!this.finished || !this.started) {
+            return undefined;
+        }
+
+        return {
+            started: this.started,
+            finished: this.finished,
+            won: this.isWon()
+        }
+    }
+}
+
+export interface GameSummary {
+    started: Date,
+    finished: Date,
+    won: boolean,
 }

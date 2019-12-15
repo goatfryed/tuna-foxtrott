@@ -50,7 +50,7 @@ export class ActionManager {
         const target = cell.unit;
 
         if (
-            activeUnit === null
+            !activeUnit
             || activeUnit === target
             || !this.canAct(activeUnit)
             || activeUnit.cell === null
