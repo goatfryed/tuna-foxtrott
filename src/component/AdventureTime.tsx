@@ -134,34 +134,18 @@ function GameSummaryDisplay(props: {summary: GameSummary}) {
 }
 
 const VictoryAnnouncment = ({onClose,summary}: AnnouncmentProps) => {
-    return <Announcement
-        announcment={<div>
-            <p className="has-text-danger">YOU HAVE LOST!</p>
-            <GameSummaryDisplay summary={summary} />
-        </div>}
-        interaction={<button className="button is-success" onClick={onClose}>VICTORY</button>}
-    />
+    return <Modal>
+        <div><p className="has-text-success has-text-centered">YOU HAVE WON!</p></div>
+        <div><button className="button is-success" onClick={onClose}>VICTORY</button></div>
+        <div><GameSummaryDisplay summary={summary} /></div>
+    </Modal>
 };
 
 const DefeatAnnouncment = ({onClose, summary}: AnnouncmentProps) => {
-    return <Announcement
-        announcment={<div>
-            <p className="has-text-danger">YOU HAVE LOST!</p>
-            <GameSummaryDisplay summary={summary} />
-        </div>}
-        interaction={<button className="button is-danger" onClick={onClose}>DEFEAT</button>}
-    />
-};
-
-interface ModalProps {
-    announcment: React.ReactNode,
-    interaction: React.ReactNode,
-}
-
-const Announcement = ({announcment, interaction}: ModalProps) => {
     return <Modal>
-            <div>{announcment}</div>
-            <div>{interaction}</div>
+        <div><p className="has-text-danger has-text-centered">YOU HAVE LOST!</p></div>
+        <div><button className="button is-danger" onClick={onClose}>DEFEATED</button></div>
+        <div><GameSummaryDisplay summary={summary} /></div>
     </Modal>
 };
 
