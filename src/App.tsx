@@ -1,9 +1,9 @@
 import React, {useCallback, useMemo, useState} from "react";
-import {Adventure} from "./model/Adventure";
+import {Adventure} from "App/model/Adventure";
 import {AdventureSelection, useUnitSelectionModel} from "./component/AdventureSelection";
 import {AdventureView} from "./component/AdventureTime/AdventureTime";
 import {useAppContext} from "./state";
-import {RosterManager} from "./component/Roster";
+import {RosterManager} from "App/component/Roster";
 import {AdventureDescription} from "./adventure";
 
 export function Home(props: {onAdventureSelected: (a: Adventure) => void}) {

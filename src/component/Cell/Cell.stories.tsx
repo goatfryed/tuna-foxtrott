@@ -1,13 +1,13 @@
 import {CellView} from "./Cell";
-import {IngamePlayer} from "../../model";
+import {IngamePlayer} from "App/model";
 import React from "react";
 
 import "../../app.scss";
 import {action} from "@storybook/addon-actions";
-import {Cell, createBoard, ground, OBSTACLE} from "../model/board";
-import {bowerBase, exampleUserPlayer} from "../fixtures";
-import {AdventureProvider} from "../state";
-import {Adventure} from "../model/Adventure";
+import {bowerBase, exampleUserPlayer} from "../../fixtures";
+import {AdventureProvider} from "App/state";
+import {Adventure} from "App/model/Adventure";
+import {Cell, createBoard, ground, OBSTACLE} from "App/model/board";
 
 export function disabled() {
     const cell = new Cell(6,9, OBSTACLE);
