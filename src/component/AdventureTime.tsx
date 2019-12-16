@@ -5,7 +5,7 @@ import {Board} from "./Board";
 import React, {useEffect, useState} from "react";
 import {HeroAware, HeroDetail} from "./Hero";
 import {Observer} from "mobx-react";
-import {Modal} from "./Modal";
+import {VerticalContentModal} from "./Modal";
 import styled from "styled-components";
 import {button} from "@storybook/addon-knobs";
 import {DomainAction} from "../actions";
@@ -133,21 +133,31 @@ function GameSummaryDisplay(props: {summary: GameSummary}) {
     return <p>Took you {duration}.<br/>You used {props.summary.turns} turns.</p>
 }
 
+const Row = styled.div`
+  display: flex;
+  justify-content: center;
+`;
+
 const VictoryAnnouncment = ({onClose,summary}: AnnouncmentProps) => {
-    return <Modal>
-        <div><p className="has-text-success has-text-centered">YOU HAVE WON!</p></div>
-        <div><button className="button is-success" onClick={onClose}>VICTORY</button></div>
-        <div><GameSummaryDisplay summary={summary} /></div>
-    </Modal>
+    return <VerticalContentModal>
+            <Row><p className="has-text-success has-text-centered">YOU HAVE WON!</p></Row>
+            <Row><button className="button is-success" onClick={onClose}>VICTORY</button></Row>
+            <Row><GameSummaryDisplay summary={summary} /></Row>
+    </VerticalContentModal>
 };
 
 const DefeatAnnouncment = ({onClose, summary}: AnnouncmentProps) => {
-    return <Modal>
-        <div><p className="has-text-danger has-text-centered">YOU HAVE LOST!</p></div>
-        <div><button className="button is-danger" onClick={onClose}>DEFEATED</button></div>
-        <div><GameSummaryDisplay summary={summary} /></div>
-    </Modal>
+    return <VerticalContentModal>
+        <Row><p className="has-text-danger has-text-centered">YOU HAVE LOST!</p></Row>
+        <Row><button className="button is-danger" onClick={onClose}>DEFEATED</button></Row>
+        <Row><GameSummaryDisplay summary={summary} /></Row>
+    </VerticalContentModal>
 };
+
+const ContentFittedDiv = styled.div`
+    width: fit-content;
+    height: fit-content;
+`;
 
 function ActionSelection(props: {
     actions: DomainAction[],
@@ -155,17 +165,13 @@ function ActionSelection(props: {
     onSelect: Consumer<DomainAction>
 }) {
 
-    return <Modal onBackground={props.onDismiss}>
-        <ModalContent>
-            <InteractionSelectionContainer>
-                {props.actions.map(
-                    action => <div key={action.descriptor.name}>
-                        <ActionButton action={action.descriptor} onClick={() => props.onSelect(action)} />
-                    </div>
-                )}
-            </InteractionSelectionContainer>
-        </ModalContent>
-    </Modal>
+    return <VerticalContentModal onBackground={props.onDismiss}>
+        {props.actions.map(
+            action => <ContentFittedDiv key={action.descriptor.name}>
+                <ActionButton action={action.descriptor} onClick={() => props.onSelect(action)} />
+            </ContentFittedDiv>
+        )}
+    </VerticalContentModal>
 }
 
 function ActionCompletion() {
@@ -207,20 +213,6 @@ function IntentionCleanup({message}: {message?: string}) {
     });
     return null;
 }
-
-const ModalContent = styled.div`
-    position: relative;
-    display: flex;
-    justify-content: center;
-    background-color: white;
-    width: fit-content;
-    min-width: 20vw;
-    padding: 1em;
-`;
-
-const InteractionSelectionContainer = styled.div`
-    width: fit-content;
-`;
 
 const CellDetailContainer = styled.div`
   display: flex;
