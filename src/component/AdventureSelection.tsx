@@ -1,13 +1,16 @@
 import {useAppContext} from "../state";
 import React, {Reducer, useCallback, useEffect, useReducer} from "react";
-import {AdventureDescription, adventureDescriptions as defaultAdventures} from "../adventure";
+import {TrackedAdventure} from "../adventure";
 import {reaction} from "mobx";
 import {UnitImpl} from "../model/UnitImpl";
+import {FlexColumnCentered} from "App/component/Basic/FlexBox";
+import {Runnable} from "App/Utility";
+import styled from "styled-components";
 
 interface AdventureSelectionProps {
-    onAdventureSelected: (adventure: AdventureDescription|undefined) => void,
-    selectedAdventure?: AdventureDescription,
-    adventureDescriptions?: AdventureDescription[],
+    onAdventureSelected: (adventure: TrackedAdventure|undefined) => void,
+    selectedAdventure: TrackedAdventure|undefined,
+    adventures: TrackedAdventure[],
 }
 
 export interface UnitSelectionItem {
@@ -92,20 +95,49 @@ export function AdventureSelection(
     {
         onAdventureSelected,
         selectedAdventure,
-        adventureDescriptions = defaultAdventures
+        adventures,
     }: AdventureSelectionProps
 ) {
 
-    return <>
-        <div>
-            {adventureDescriptions.map(
-                description => <button key={description.id}
-                    className={"button" + (selectedAdventure === description ? " is-primary":"")}
-                    onClick={() => onAdventureSelected(selectedAdventure === description ? undefined : description)}
-                >
-                    {description.name}
-                </button>
-            )}
-        </div>
-    </>;
+    return <FlexColumnCentered>
+        {adventures.map(
+            (adventure) => <AdventureOption key={adventure.description.id}
+                adventure={adventure}
+                className={selectedAdventure === adventure ? " is-primary":undefined}
+                onSelect={() => onAdventureSelected(selectedAdventure === adventure ? undefined : adventure)}
+            />
+        )}
+    </FlexColumnCentered>
+}
+
+const AdventureOptionContainer = styled(FlexColumnCentered)`
+    min-width: 15em;
+    height: 10ex;
+    &:not(:last-child) {
+      margin-bottom: 0.5ex;
+    }
+`;
+
+function AdventureOption(props: {
+    adventure: TrackedAdventure,
+    onSelect: Runnable,
+    className?: string,
+}) {
+    const CompletionState = (function(){
+        if (!props.adventure.summary) {
+            return <p className="has-text-info">INCOMPLETE</p>
+        }
+        if (props.adventure.summary.won) {
+            return <p><span className="has-text-success">WON</span> in {props.adventure.summary.turns}</p>
+        }
+        return <p><span className="has-text-danger">LOST</span> in {props.adventure.summary.turns}</p>
+    })();
+
+    return <AdventureOptionContainer
+       className={!!props.className ? "button "+ props.className : "button"}
+       onClick={props.onSelect}
+    >
+        <p>{props.adventure.description.name}</p>
+        {CompletionState}
+    </AdventureOptionContainer>
 }

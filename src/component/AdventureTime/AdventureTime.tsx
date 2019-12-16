@@ -1,29 +1,29 @@
-import {AdventureAware, GameSummary} from "../../model/Adventure";
+import {AdventureAware, GameSummary} from "App/model/Adventure";
 import {useObserver} from "mobx-react-lite";
-import {AdventureManagerProvider, AdventureProvider, useActionManager, useAdventure, useAppContext} from "../../state";
+import {AdventureManagerProvider, AdventureProvider, useActionManager, useAdventure, useAppContext} from "App/state";
 import {Board} from "../Board";
 import React, {useEffect, useState} from "react";
 import {HeroAware, HeroDetail} from "../Hero";
 import {Observer} from "mobx-react";
 import {VerticalContentModal} from "../Modal";
 import {button} from "@storybook/addon-knobs";
-import {DomainAction} from "../../actions";
-import {Runnable} from "../../Utility";
+import {DomainAction} from "App/actions";
+import {Runnable} from "App/Utility";
 import {action} from "mobx";
-import {Consumer} from "../../helpers";
+import {Consumer} from "App/helpers";
 import {ActionLog} from "../ActionLog";
 import {ActionBar, ActionButton, ActionLogSideBar} from "../ActionBar";
-import {isUserPlayer} from "../../model";
+import {isUserPlayer} from "App/model";
 import moment from "moment";
-import {AdventureManager} from "../../service/adventure/AdventureManager";
+import {AdventureManager} from "App/service/adventure/AdventureManager";
 import {ContentFittedDiv, FlexRowCentered, Row} from "../Basic/FlexBox";
 import {CellDetail, CellDetailContainer} from "./CellDetail";
 
 type AdventureViewProps = AdventureAware & {
     onSurrender: () => any,
     isIsometric?: boolean,
-    onVictory: () => any,
-    onDefeat: () => any,
+    onVictory: (gameSummary: GameSummary) => any,
+    onDefeat: (gameSummary: GameSummary) => any,
 };
 
 export function AdventureView({
@@ -48,14 +48,21 @@ export function AdventureView({
 
     if (!manager) return <div>Setting up...</div>;
 
-    let summary;
     return <AdventureManagerProvider value={manager}><AdventureProvider adventure={adventure}>
-            <div className="container"><Observer>{() => <>
-                    {(summary = manager.getSummary()) && (summary.won ?
-                        <VictoryAnnouncment summary={summary} onClose={onVictory}/>
-                        : <DefeatAnnouncment summary={summary} onClose={onDefeat}/>
-                    )}
-                </>}</Observer>
+            <div className="container"><Observer>{() => {
+                const summary = manager?.getSummary();
+                if (!summary) return <></>;
+                if (summary.won) {
+                    return <VictoryAnnouncment
+                        summary={summary}
+                        onClose={() => onVictory(summary)}
+                    />;
+                }
+                return <DefeatAnnouncment
+                    summary={summary}
+                    onClose={() => onDefeat(summary)}
+                />
+                }}</Observer>
                 <ActionCompletion />
                 <div className="columns">
                     <div className="column">

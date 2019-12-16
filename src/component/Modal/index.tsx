@@ -1,5 +1,6 @@
 import React, {ReactNode} from "react";
 import styled from "styled-components";
+import {FlexColumnCentered} from "App/component/Basic/FlexBox";
 
 interface ModalProps {
     children: ReactNode,
@@ -13,13 +14,8 @@ export function Modal (props: ModalProps) {
     </div>
 }
 
-export const VerticalModalContent = styled.div`
+export const VerticalModalContent = styled(FlexColumnCentered)`
     position: relative;
-    display: flex;
-    flex-direction: column;
-    flex-wrap: wrap;
-    align-items: center;
-    justify-content: center;
     background-color: white;
     width: fit-content;
     min-width: 20vw;

@@ -1,10 +1,11 @@
 import {User, UserPlayer} from "../model";
-import {Adventure} from "../model/Adventure";
+import {Adventure, GameSummary} from "../model/Adventure";
 import {ThugTownDescription} from "./ThugTown";
 import {Board, createBoard, TerrainDescriptor} from "../model/board";
 import {IngameUnit} from "../model/IngameUnit";
 import {MoshPitDescription} from "./MoshPit";
 import {UnitImpl} from "../model/UnitImpl";
+import {observable} from "mobx";
 
 export interface AdventureDescription {
     id: number,
@@ -47,3 +48,8 @@ function placeUnits(board: Board, startLocations: Coordinate[], selectedUnits: I
     }
 }
 
+export class TrackedAdventure {
+    @observable.ref summary: GameSummary | undefined;
+
+    constructor(readonly description: AdventureDescription) {}
+}

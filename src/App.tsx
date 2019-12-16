@@ -1,20 +1,23 @@
 import React, {useCallback, useMemo, useState} from "react";
-import {Adventure} from "App/model/Adventure";
+import {Adventure, GameSummary} from "App/model/Adventure";
 import {AdventureSelection, useUnitSelectionModel} from "./component/AdventureSelection";
 import {AdventureView} from "./component/AdventureTime/AdventureTime";
 import {useAppContext} from "./state";
 import {RosterManager} from "App/component/Roster";
-import {AdventureDescription} from "./adventure";
+import {adventureDescriptions, TrackedAdventure} from "./adventure";
 
-export function Home(props: {onAdventureSelected: (a: Adventure) => void}) {
+
+export function Home(props: {
+    onAdventureSelected: (a: {adventure: TrackedAdventure, game: Adventure }) => void
+    adventures: TrackedAdventure[],
+}) {
     const appContext = useAppContext();
 
     const {
         unitSelectionModel,
         toggleItem
     } = useUnitSelectionModel();
-
-    const [selectedAdventure, selectAdventure] = useState<AdventureDescription>();
+    const [selectedAdventure, selectAdventure] = useState<TrackedAdventure>();
 
     const selectedUnits = useMemo(() => Object.values(unitSelectionModel)
             .filter(({isSelected}) => isSelected)
@@ -29,7 +32,10 @@ export function Home(props: {onAdventureSelected: (a: Adventure) => void}) {
                 return;
             }
             return () => {
-                props.onAdventureSelected(selectedAdventure.factory(user, selectedUnits))
+                props.onAdventureSelected({
+                    adventure: selectedAdventure,
+                    game: selectedAdventure.description.factory(user, selectedUnits),
+                })
             }
         },
         [selectedUnits, selectedAdventure, user]
@@ -41,6 +47,7 @@ export function Home(props: {onAdventureSelected: (a: Adventure) => void}) {
         <AdventureSelection
             onAdventureSelected={selectAdventure}
             selectedAdventure={selectedAdventure}
+            adventures={props.adventures}
         />
         <hr/>
         <div>
@@ -49,23 +56,42 @@ export function Home(props: {onAdventureSelected: (a: Adventure) => void}) {
     </>
 }
 
+function createCampaignModel() {
+    return adventureDescriptions.map(def => new TrackedAdventure(def));
+}
+export function useCampaignModel() {
+    return useMemo(createCampaignModel, []);
+}
+
+
 export function App() {
-    const [adventure, setAdventure] = useState<Adventure|null>(null);
+    const [selection, setSelection] = useState<{adventure: TrackedAdventure, game: Adventure}>();
 
     const handleSurrender = useCallback(
-        () => window.confirm("Sure, Dude?") && setAdventure(null), []
+        () => window.confirm("Sure, Dude?") && setSelection(undefined), []
     );
+
+    const adventures = useCampaignModel();
+
+    function onGameFinished(summary: GameSummary) {
+        console.log(summary);
+        if (!selection) return;
+        selection.adventure.summary = summary;
+        setSelection(undefined);
+    }
 
     return <section className="section">
         <div className="container">
             <div>🌹</div>
-            {adventure === null ?
-                <Home onAdventureSelected={setAdventure} />
+            {selection === undefined ?
+                <Home onAdventureSelected={setSelection}
+                      adventures={adventures}
+                />
                 : <AdventureView
-                    adventure={adventure}
+                    adventure={selection.game}
                     onSurrender={handleSurrender}
-                    onVictory={() => setAdventure(null)}
-                    onDefeat={() => setAdventure(null)}
+                    onVictory={onGameFinished}
+                    onDefeat={onGameFinished}
                 />
             }
         </div>

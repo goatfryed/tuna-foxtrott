@@ -4,7 +4,7 @@ import React from "react";
 
 import "../../app.scss";
 import {action} from "@storybook/addon-actions";
-import {bowerBase, exampleUserPlayer} from "../../fixtures";
+import {bowerBase, exampleUserPlayer} from "App/fixtures";
 import {AdventureProvider} from "App/state";
 import {Adventure} from "App/model/Adventure";
 import {Cell, createBoard, ground, OBSTACLE} from "App/model/board";
