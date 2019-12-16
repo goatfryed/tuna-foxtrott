@@ -1,5 +1,5 @@
 import {AppContext, UserPlayer} from "../model";
-import {useAdventure, useAppContext} from "../state";
+import {useAdventure, useAdventurManager, useAppContext} from "../state";
 import {useObserver} from "mobx-react-lite";
 import React, {useMemo} from "react";
 import {Adventure} from "../model/Adventure";
@@ -42,6 +42,7 @@ function useTerrainStyle(cell: Cell) {
 
 export function CellPresenter({cell}: CellProp) {
     const adventure = useAdventure();
+    const manager = useAdventurManager();
     const appContext = useAppContext();
 
     const {
@@ -51,14 +52,14 @@ export function CellPresenter({cell}: CellProp) {
         interactionStyle,
         actionManager,
     } = useObserver(() => {
-        const defaultAction = adventure.actionManager.getDefaultInteraction(cell);
+        const defaultAction = manager.actionManager.getDefaultInteraction(cell);
         const interactionStyle = useInteractionStyle(cell, adventure, appContext, defaultAction);
         return {
             interactionStyle,
             defaultAction,
             activeUnit: adventure.activeUnit,
             cellUnit: cell.unit,
-            actionManager: adventure.actionManager,
+            actionManager: manager.actionManager,
         }
     });
 
@@ -184,7 +185,7 @@ export function CellView({
 }: CellViewProps) {
 
     const terrainStyle = useTerrainStyle(cell);
-    const actionManager = useAdventure().actionManager;
+    const actionManager = useAdventurManager().actionManager;
 
     return useObserver(() => <CellContainer>
         <div title={String(cell)}

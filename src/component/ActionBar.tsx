@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import {useAdventure} from "../state";
+import {useActionManager} from "../state";
 import {useObserver} from "mobx-react-lite";
 import React, {ReactNode} from "react";
 import {DomainAction, ExtractActionType, IngameAbility} from "../actions";
@@ -7,15 +7,15 @@ import {button} from "@storybook/addon-knobs";
 import {Runnable} from "../Utility";
 
 function ActionBarButton(props: { ability: IngameAbility<DomainAction> }) {
-    const adventure = useAdventure();
+    const actionManager = useActionManager();
     const {
         isSelected
     } = useObserver(() => ({
-        isSelected: adventure.actionManager.abilityIntend === props.ability
+        isSelected: actionManager.abilityIntend === props.ability
     }));
     const onClick = isSelected ?
-        () => adventure.actionManager.abilityIntend = null
-        : () => adventure.actionManager.abilityIntend = props.ability;
+        () => actionManager.abilityIntend = null
+        : () => actionManager.abilityIntend = props.ability;
 
 
     const style = isSelected ? "is-primary" : undefined;
@@ -54,8 +54,8 @@ export const ActionLogSideBar = styled(ActionSideBarRight)`
 `;
 
 export function ActionBar() {
-    const adventure = useAdventure();
-    return useObserver(() => <ActionSideBarRight>{adventure.actionManager
+    const actionManager = useActionManager();
+    return useObserver(() => <ActionSideBarRight>{actionManager
         .abilities
         .filter(ability => !ability.descriptor.isStandard)
         .map(ability => <ActionBarButton key={ability.descriptor.name}

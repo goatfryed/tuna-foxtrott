@@ -3,9 +3,8 @@ import {action, autorun, computed, observable, reaction} from "mobx";
 import {DomainAction} from "../actions";
 import {Board} from "./board";
 import {IngameUnit, isPlaced, PlacedUnit} from "./IngameUnit";
-import {Immutable} from "../helpers";
-import {ActionManager} from "../actions/ActionManager";
-import {assertNever} from "../Utility";
+import {Consumer, Immutable} from "../helpers";
+import {assertNever, Runnable} from "../Utility";
 
 export interface AdventureAware {
     adventure: Adventure
@@ -14,21 +13,19 @@ export interface AdventureAware {
 export class Adventure {
 
     @observable name: string = "test";
-    @observable actionPhase = false;
+    @observable unitAction = false;
     @observable.ref actionLog: Immutable<{id: number, action: DomainAction}>[] = [];
     private nextLogId = 0;
 
     readonly players: IngamePlayer[] = [];
     readonly board: Board;
 
-    @observable.ref private _actionManager: ActionManager = new ActionManager(this);
+    readonly dispatcher: AdventureEventDispatcher = new AdventureEventDispatcher();
 
-    get actionManager() {
-        return this._actionManager;
-    }
+    private disposer: Runnable[] = [];
 
     get activeUnit(): PlacedUnit|undefined {
-        return this.actionPhase ? this.turnOrder[0] || undefined : undefined;
+        return this.unitAction ? this.turnOrder[0] || undefined : undefined;
     }
 
     @computed
@@ -60,7 +57,7 @@ export class Adventure {
     constructor(readonly userPlayer: UserPlayer, board: Board) {
         this.board = board;
         this.players.push(userPlayer);
-        this.onUnitTurnStart = this.onUnitTurnStart.bind(this);
+        this.onUnitTurnPrepPhase = this.onUnitTurnPrepPhase.bind(this);
     }
 
     @action
@@ -70,20 +67,12 @@ export class Adventure {
             return;
         }
         currentActive.initiative += currentActive.initiativeDelay;
-        this.actionPhase = false;
+        this.unitAction = false;
     }
 
     @action
     setup() {
-        this.actionPhase = false;
-
-        autorun(
-            () => {
-                this.units
-                    .filter(u => !u.isAlive)
-                    .forEach(u => u.cell = null)
-            }
-        );
+        this.unitAction = false;
 
         this.units.forEach(
             u => {
@@ -97,30 +86,47 @@ export class Adventure {
             .forEach(bot => bot.boot(this))
         ;
 
-        reaction(
-            () => ({
-                nextUnit: this.turnOrder[0],
-                isPrepPhase: !this.actionPhase
-            }),
-            this.onUnitTurnStart
+        this.disposer.push(
+            autorun(
+                () => {
+                    this.units
+                        .filter(u => !u.isAlive)
+                        .forEach(u => u.cell = null)
+                }
+            ),
+            reaction(
+                () => ({unit: this.turnOrder[0], actionPhase: this.unitAction}),
+                this.onUnitTurnPrepPhase
+            ),
         );
 
-        setTimeout(() => this.actionPhase = true);
+        setTimeout(() => this.unitAction = true);
     }
 
+    /**
+     * consider introduction of an event dispatcher
+     * @param event
+     */
     @action
-    private onUnitTurnStart(
-        {nextUnit, isPrepPhase}:
-        {nextUnit: PlacedUnit, isPrepPhase: boolean}
+    public onUnitTurnPrepPhase(
+        {unit, actionPhase}:
+        {unit: PlacedUnit|undefined, actionPhase: boolean}
     ) {
-        if (!isPrepPhase) {
+        if (actionPhase || !unit) {
             return;
         }
-        nextUnit.mainActionUsed = false;
-        nextUnit.restoreMovePoints();
-        nextUnit.updateStamina(nextUnit.staminaRegeneration);
-        this.actionPhase = true;
-        this._actionManager = new ActionManager(this);
+
+        unit.mainActionUsed = false;
+        unit.restoreMovePoints();
+        unit.updateStamina(unit.staminaRegeneration);
+
+        this.dispatcher.dispatch({
+            type: "UNIT_PREP_PHASE",
+            adventure: this,
+            data: {unit}
+        });
+
+        setTimeout( () => this.unitAction = true);
     }
 
     tearDown() {
@@ -128,6 +134,7 @@ export class Adventure {
             .filter((p: IngamePlayer): p is Bot => p instanceof Bot)
             .forEach(bot => bot.shutdown())
         ;
+        this.disposer.forEach(disposer => disposer());
     }
 
     isWon() {
@@ -172,6 +179,59 @@ export class Adventure {
                 return;
             }
             default: assertNever(action);
+        }
+    }
+}
+
+export const UNIT_PREP_PHASE = "UNIT_PREP_PHASE";
+// export const UNIT_ACTION_PHASE = "UNIT_ACTION_PHASE";
+
+interface UnitEventData {
+    unit: PlacedUnit,
+}
+type AdventureEventDataMap = {
+    UNIT_PREP_PHASE: UnitEventData,
+    // UNIT_ACTION_PHASE: UnitEventData,
+}
+type AdventureEventMap = {
+    [key in keyof AdventureEventDataMap]: {
+        type: key,
+        adventure: Adventure,
+        data: AdventureEventDataMap[key]
+    }
+}
+type AdventureEventListenerMap = {
+    [key in keyof AdventureEventMap]: Consumer<AdventureEventMap[key]>[]
+}
+
+class AdventureEventDispatcher implements AdventureEventListenerMap {
+    [UNIT_PREP_PHASE]: Consumer<AdventureEventMap[typeof UNIT_PREP_PHASE]>[] = [];
+    // [UNIT_ACTION_PHASE]: Consumer<AdventureEventMap[typeof UNIT_ACTION_PHASE]>[] = [];
+
+    /**
+     * @param eventKey
+     * @param listener
+     * @return clean up function
+     */
+    addListener<K extends keyof AdventureEventMap>(
+        eventKey: K,
+        listener: Consumer<AdventureEventMap[K]>
+    ) {
+        // @ts-ignore memo: works obviously, but should check about better typing
+        // ts merges event types instead of infering the right one
+        this[eventKey].push(listener);
+        return () => {
+            // @ts-ignore
+            this[eventKey] = this[eventKey].filter(l => l !== listener);
+        }
+    }
+
+    dispatch<K extends keyof AdventureEventMap>(
+        event: AdventureEventMap[K],
+    ) {
+        for (const listener of this[event.type]) {
+            // @ts-ignore
+            listener(event);
         }
     }
 }

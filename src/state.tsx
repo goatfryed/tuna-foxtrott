@@ -46,6 +46,9 @@ export function useAdventurManager(): AdventureManager {
     }
     return manager;
 }
+export function useActionManager() {
+    return useAdventurManager().actionManager;
+}
 
 export function AdventureProvider({children, adventure}: PropsWithChildren<AdventureAware>) {
     return <AdventureModel.Provider value={adventure}>{children}</AdventureModel.Provider>;

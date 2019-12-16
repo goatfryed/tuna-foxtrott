@@ -1,6 +1,6 @@
 import {AdventureAware, GameSummary} from "../model/Adventure";
 import {useObserver} from "mobx-react-lite";
-import {AdventureManagerProvider, AdventureProvider, useAdventure, useAppContext} from "../state";
+import {AdventureManagerProvider, AdventureProvider, useActionManager, useAdventure, useAppContext} from "../state";
 import {Board} from "./Board";
 import React, {useEffect, useState} from "react";
 import {HeroAware, HeroDetail} from "./Hero";
@@ -63,7 +63,7 @@ export function AdventureView({
                         : <DefeatAnnouncment summary={summary} onClose={onDefeat}/>
                     )}
                 </>}</Observer>
-                <ActionCompletion adventure={adventure}/>
+                <ActionCompletion />
                 <div className="columns">
                     <div className="column">
                         <Observer>{() => (<FlexRowCentered>
@@ -168,22 +168,25 @@ function ActionSelection(props: {
     </Modal>
 }
 
-function ActionCompletion({adventure}: AdventureAware) {
+function ActionCompletion() {
+    const actionManager = useActionManager();
+    const adventure = useAdventure();
+
     return useObserver(() => {
-        if (!adventure.actionManager.cellIntend) {
+        if (!actionManager.cellIntend) {
             return null;
         }
-        const am = adventure.actionManager;
+        const am = actionManager;
         const cleanupIntend = () => am.cellIntend = null;
         const runAction = action((action: DomainAction) => {
             cleanupIntend();
             adventure.apply(action);
         });
 
-        const suggestedAbilities = adventure.actionManager.suggestedAbilities;
+        const suggestedAbilities = actionManager.suggestedAbilities;
 
         if (suggestedAbilities.length === 0) {
-            return <IntentionCleanup adventure={adventure} message="no action available"/>
+            return <IntentionCleanup message="no action available"/>
         }
 
         return <ActionSelection
@@ -194,12 +197,13 @@ function ActionCompletion({adventure}: AdventureAware) {
     });
 }
 
-function IntentionCleanup({message, adventure}: AdventureAware & {message?: string}) {
+function IntentionCleanup({message}: {message?: string}) {
+    const actionManager = useActionManager();
     useEffect(() => {
         if (message) {
             alert(message);
         }
-        adventure.actionManager.cellIntend = null;
+        actionManager.cellIntend = null;
     });
     return null;
 }
@@ -228,7 +232,8 @@ const CellDetailContainer = styled.div`
 
 function CellDetail() {
     const adventure = useAdventure();
-    const displayUnit = useObserver(() => adventure.actionManager.hoveredCell?.unit || adventure.activeUnit);
+    const actionManager = useActionManager();
+    const displayUnit = useObserver(() => actionManager.hoveredCell?.unit || adventure.activeUnit);
 
     if (!displayUnit) return null;
 

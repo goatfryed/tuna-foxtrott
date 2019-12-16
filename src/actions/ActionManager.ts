@@ -1,5 +1,5 @@
 import {Adventure} from "../model/Adventure";
-import {action, computed, observable} from "mobx";
+import {computed, observable} from "mobx";
 import {definedValue, NotNull} from "../helpers";
 import {Cell} from "../model/board";
 import {IngameUnit} from "../model/IngameUnit";
@@ -69,21 +69,15 @@ export class ActionManager {
         ;
     }
 
-    attackActionOrNull(unit: IngameUnit, target: IngameUnit) {
-        if (unit.canAttack(target)) {
-            return action(() => {
-                target.dealHealthDamage(1);
-                unit.mainActionUsed = true;
-                this.adventure.endTurn();
-            });
-        }
-        return null;
-    }
-
     canAct(unit: IngameUnit): unit is NotNull<IngameUnit, "cell"> {
         return unit === this.adventure.activeUnit
             && unit.cell !== null
             && unit.isCombatReady
         ;
+    }
+
+    clearIntent() {
+        this.cellIntend = null;
+        this.abilityIntend = null;
     }
 }
