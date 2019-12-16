@@ -46,6 +46,8 @@ export class AdventureManager {
         )
     }
 
+    // faulty false, used in AdventureView
+    // noinspection JSUnusedGlobalSymbols
     getSummary(): Readonly<GameSummary>|undefined {
         if (!this.finished || !this.started) {
             return undefined;
@@ -54,6 +56,7 @@ export class AdventureManager {
         return {
             started: this.started,
             finished: this.finished,
+            turns: this.adventure.turnNumber,
             won: this.adventure.isWon()
         }
     }

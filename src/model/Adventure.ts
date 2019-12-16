@@ -12,7 +12,7 @@ export interface AdventureAware {
 
 export class Adventure {
 
-    @observable name: string = "test";
+    @observable turnNumber = 0;
     @observable unitAction = false;
     @observable.ref actionLog: Immutable<{id: number, action: DomainAction}>[] = [];
     private nextLogId = 0;
@@ -116,6 +116,7 @@ export class Adventure {
             return;
         }
 
+        this.turnNumber++;
         unit.mainActionUsed = false;
         unit.restoreMovePoints();
         unit.updateStamina(unit.staminaRegeneration);
@@ -239,5 +240,6 @@ class AdventureEventDispatcher implements AdventureEventListenerMap {
 export interface GameSummary {
     started: Date,
     finished: Date,
+    turns: number,
     won: boolean,
 }

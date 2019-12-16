@@ -130,7 +130,7 @@ function GameSummaryDisplay(props: {summary: GameSummary}) {
     const duration = moment.duration(
         moment(props.summary.finished).diff(props.summary.started)
     ).humanize();
-    return <p>Took you {duration}</p>
+    return <p>Took you {duration}.<br/>You used {props.summary.turns} turns.</p>
 }
 
 const VictoryAnnouncment = ({onClose,summary}: AnnouncmentProps) => {
