@@ -1,5 +1,5 @@
 import {useObserver} from "mobx-react-lite";
-import {CellPresenter} from "./Cell";
+import {CellPresenter} from "./Cell/Cell";
 import React, {useLayoutEffect, useMemo, useRef} from "react";
 import {Adventure} from "../model/Adventure";
 import {AnyKeyBoardEvent, useDocumentKeyDownHandler} from "../hooks";

@@ -1,8 +1,8 @@
 import {CellView} from "./Cell";
-import {IngamePlayer} from "../model";
+import {IngamePlayer} from "../../model";
 import React from "react";
 
-import "../app.scss";
+import "../../app.scss";
 import {action} from "@storybook/addon-actions";
 import {Cell, createBoard, ground, OBSTACLE} from "../model/board";
 import {bowerBase, exampleUserPlayer} from "../fixtures";

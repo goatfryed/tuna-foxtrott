@@ -1,7 +1,7 @@
 import React, {useCallback, useMemo, useState} from "react";
 import {Adventure} from "./model/Adventure";
 import {AdventureSelection, useUnitSelectionModel} from "./component/AdventureSelection";
-import {AdventureView} from "./component/AdventureTime";
+import {AdventureView} from "./component/AdventureTime/AdventureTime";
 import {useAppContext} from "./state";
 import {RosterManager} from "./component/Roster";
 import {AdventureDescription} from "./adventure";

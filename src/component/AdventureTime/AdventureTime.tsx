@@ -1,23 +1,23 @@
-import {AdventureAware, GameSummary} from "../model/Adventure";
+import {AdventureAware, GameSummary} from "../../model/Adventure";
 import {useObserver} from "mobx-react-lite";
-import {AdventureManagerProvider, AdventureProvider, useActionManager, useAdventure, useAppContext} from "../state";
-import {Board} from "./Board";
+import {AdventureManagerProvider, AdventureProvider, useActionManager, useAdventure, useAppContext} from "../../state";
+import {Board} from "../Board";
 import React, {useEffect, useState} from "react";
-import {HeroAware, HeroDetail} from "./Hero";
+import {HeroAware, HeroDetail} from "../Hero";
 import {Observer} from "mobx-react";
-import {VerticalContentModal} from "./Modal";
-import styled from "styled-components";
+import {VerticalContentModal} from "../Modal";
 import {button} from "@storybook/addon-knobs";
-import {DomainAction} from "../actions";
-import {Runnable} from "../Utility";
+import {DomainAction} from "../../actions";
+import {Runnable} from "../../Utility";
 import {action} from "mobx";
-import {Consumer} from "../helpers";
-import {ActionLog} from "./ActionLog";
-import {ActionBar, ActionButton, ActionLogSideBar} from "./ActionBar";
-import {isUserPlayer} from "../model";
-import {HeroTilePresenter} from "./Roster";
+import {Consumer} from "../../helpers";
+import {ActionLog} from "../ActionLog";
+import {ActionBar, ActionButton, ActionLogSideBar} from "../ActionBar";
+import {isUserPlayer} from "../../model";
 import moment from "moment";
-import {AdventureManager} from "../service/adventure/AdventureManager";
+import {AdventureManager} from "../../service/adventure/AdventureManager";
+import {ContentFittedDiv, FlexRowCentered, Row} from "../Basic/FlexBox";
+import {CellDetail, CellDetailContainer} from "./CellDetail";
 
 type AdventureViewProps = AdventureAware & {
     onSurrender: () => any,
@@ -25,13 +25,6 @@ type AdventureViewProps = AdventureAware & {
     onVictory: () => any,
     onDefeat: () => any,
 };
-
-const FlexRowCentered = styled.div`
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: center;
-`;
 
 export function AdventureView({
     adventure,
@@ -133,11 +126,6 @@ function GameSummaryDisplay(props: {summary: GameSummary}) {
     return <p>Took you {duration}.<br/>You used {props.summary.turns} turns.</p>
 }
 
-const Row = styled.div`
-  display: flex;
-  justify-content: center;
-`;
-
 const VictoryAnnouncment = ({onClose,summary}: AnnouncmentProps) => {
     return <VerticalContentModal>
             <Row><p className="has-text-success has-text-centered">YOU HAVE WON!</p></Row>
@@ -153,11 +141,6 @@ const DefeatAnnouncment = ({onClose, summary}: AnnouncmentProps) => {
         <Row><GameSummaryDisplay summary={summary} /></Row>
     </VerticalContentModal>
 };
-
-const ContentFittedDiv = styled.div`
-    width: fit-content;
-    height: fit-content;
-`;
 
 function ActionSelection(props: {
     actions: DomainAction[],
@@ -214,23 +197,3 @@ function IntentionCleanup({message}: {message?: string}) {
     return null;
 }
 
-const CellDetailContainer = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 12em;
-  height: 12ex;
-`;
-
-function CellDetail() {
-    const adventure = useAdventure();
-    const actionManager = useActionManager();
-    const displayUnit = useObserver(() => actionManager.hoveredCell?.unit || adventure.activeUnit);
-
-    if (!displayUnit) return null;
-
-    return <HeroTilePresenter
-        unit={displayUnit}
-        isPrimary={adventure.activeUnit === displayUnit}
-    />
-}

@@ -1,13 +1,13 @@
-import {AppContext, UserPlayer} from "../model";
-import {useAdventure, useAdventurManager, useAppContext} from "../state";
+import {AppContext, UserPlayer} from "../../model";
+import {useAdventure, useAdventurManager, useAppContext} from "../../state";
 import {useObserver} from "mobx-react-lite";
 import React, {useMemo} from "react";
-import {Adventure} from "../model/Adventure";
+import {Adventure} from "../../model/Adventure";
 import classNames from "classnames";
-import {Cell, OBSTACLE} from "../model/board";
-import {IngameUnit} from "../model/IngameUnit";
+import {Cell, OBSTACLE} from "../../model/board";
+import {IngameUnit} from "../../model/IngameUnit";
 import styled from "styled-components";
-import {DomainAction} from "../actions";
+import {DomainAction} from "../../actions";
 
 interface CellProp {
     cell: Cell,

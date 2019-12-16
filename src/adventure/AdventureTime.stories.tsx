@@ -1,4 +1,4 @@
-import {AdventureView} from "../component/AdventureTime";
+import {AdventureView} from "../component/AdventureTime/AdventureTime";
 import React from "react";
 import {AppContextProvider} from "../state";
 import {createThugTown} from "./ThugTown";
